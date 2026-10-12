@@ -2181,3 +2181,12 @@ kbd {
 .place-pad .dot { position: absolute; width: 18px; height: 18px; margin: -9px 0 0 -9px; border-radius: 50%; background: var(--primary); border: 2px solid #fff; box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4); pointer-events: none; }
 
 .thumb-blank { display: grid; place-items: center; width: 100%; aspect-ratio: 210 / 297; background: #fff; color: var(--muted); border: 1px dashed var(--border); border-radius: 4px; font-size: 0.85rem; }
+
+.tag-new { background: var(--primary); color: #fff; border-color: var(--primary); }
+.tag-new.is-updated { background: transparent; color: var(--primary); }
+.whats-new { margin-top: 24px; padding: 16px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface, #fff); }
+.whats-new h2 { margin: 0 0 8px; font-size: 1.05rem; }
+.whats-new ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.whats-new a { display: flex; flex-wrap: wrap; gap: 6px 8px; align-items: baseline; padding: 6px 4px; border-radius: 8px; text-decoration: none; color: inherit; }
+.whats-new a:hover { background: var(--bg); }
+.whats-new .tag { margin-inline-start: 0; align-self: center; }

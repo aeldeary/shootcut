@@ -70,6 +70,16 @@ export interface ToolDef {
   status: 'ready' | 'soon';
 }
 
+/** Tools to point out on the home page and in the tool cards. Keep it short: drop ids when they stop being news. */
+export const WHATS_NEW: { id: string; kind: 'new' | 'updated'; note: Key }[] = [
+  { id: 'pdf-layout', kind: 'new', note: 'newPdfLayout' },
+  { id: 'pdf-clean', kind: 'new', note: 'newPdfClean' },
+  { id: 'pdf-a11y', kind: 'new', note: 'newPdfA11y' },
+  { id: 'redact', kind: 'updated', note: 'newRedact' },
+  { id: 'organize', kind: 'updated', note: 'newOrganize' },
+  { id: 'stamp', kind: 'updated', note: 'newStamp' },
+];
+
 export const GROUPS: { id: GroupId; title: Key; section: SectionId }[] = [
   { id: 'view', title: 'groupView', section: 'pdf' },
   { id: 'create', title: 'groupCreate', section: 'pdf' },

@@ -2,7 +2,7 @@ import { Sparkles } from 'lucide-react';
 import { lazy, Suspense, useEffect, useState } from 'react';
 import { useI18n } from './i18n';
 import { Header, PrivacyBadge } from './components/Shell';
-import { GROUPS, SECTIONS, TOOLS, findTool, sectionOfRoute, type SectionId } from './lib/tools';
+import { GROUPS, SECTIONS, TOOLS, WHATS_NEW, findTool, sectionOfRoute, type SectionId } from './lib/tools';
 import { FeaturesPage } from './components/FeaturesPage';
 import { useShortcuts } from './hooks/useShortcuts';
 import { holdFile } from './lib/handoff';
@@ -93,6 +93,7 @@ function ToolGrid({ section }: { section: SectionId }) {
                     <span className="card-desc">{t(tool.desc)}</span>
                   </span>
                   {tool.status === 'soon' && <span className="tag">{t('soon')}</span>}
+                  {WHATS_NEW.find((w) => w.id === tool.id) && <span className="tag tag-new">{t(WHATS_NEW.find((w) => w.id === tool.id)!.kind === 'new' ? 'badgeNew' : 'badgeUpdated')}</span>}
                 </>
               );
               return tool.status === 'ready' ? (
@@ -141,6 +142,23 @@ function Home() {
             );
           })}
         </nav>
+        <section className="whats-new" aria-labelledby="whats-new-title">
+          <h2 id="whats-new-title">{t('whatsNew')}</h2>
+          <ul>
+            {WHATS_NEW.map((w) => {
+              const tool = TOOLS.find((x) => x.id === w.id)!;
+              return (
+                <li key={w.id}>
+                  <a href={`#/${w.id}`}>
+                    <span className={`tag tag-new${w.kind === 'updated' ? ' is-updated' : ''}`}>{t(w.kind === 'new' ? 'badgeNew' : 'badgeUpdated')}</span>
+                    <strong>{t(tool.name)}</strong>
+                    <span className="muted"> — {t(w.note)}</span>
+                  </a>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
         <a className="features-banner" href="#/features">
           <Sparkles size={26} aria-hidden />
           <span className="features-banner-text">
