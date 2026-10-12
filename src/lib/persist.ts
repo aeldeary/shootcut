@@ -1,0 +1,152 @@
+/**
+ * Keeps the PDF the person opened on THIS device (IndexedDB), so another tool or another browser tab can
+ * open it without asking for the upload again. Nothing is sent anywhere: the bytes stay in the browser.
+ * Every function is safe to call when the browser has no IndexedDB (private modes, tests): it just does nothing.
+ */
+const DB_NAME = 'shootcut';
+const STORE = 'files';
+const FILE_KEY = 'current';
+const META_KEY = 'meta';
+const PREF_KEY = 'shootcut:keep';
+
+export interface SavedMeta {
+  name: string;
+  size: number;
+  savedAt: number;
+}
+
+type Listener = () => void;
+const listeners = new Set<Listener>();
+const channel: BroadcastChannel | null = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('shootcut') : null;
+
+function notify(): void {
+  listeners.forEach((l) => l());
+}
+
+channel?.addEventListener('message', notify);
+
+/** called whenever the saved file or the keep setting changes, here or in another tab */
+export function subscribe(l: Listener): () => void {
+  listeners.add(l);
+  return () => {
+    listeners.delete(l);
+  };
+}
+
+function broadcast(): void {
+  notify();
+  try {
+    channel?.postMessage('changed');
+  } catch {
+    /* channel closed: other tabs refresh when they next open */
+  }
+}
+
+function openDb(): Promise<IDBDatabase | null> {
+  if (typeof indexedDB === 'undefined') return Promise.resolve(null);
+  return new Promise((resolve) => {
+    try {
+      const req = indexedDB.open(DB_NAME, 1);
+      req.onupgradeneeded = () => req.result.createObjectStore(STORE);
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => resolve(null);
+      req.onblocked = () => resolve(null);
+    } catch {
+      resolve(null);
+    }
+  });
+}
+
+/** runs one transaction; resolves with whatever `fn` collects, or null when anything fails */
+async function run<T>(mode: IDBTransactionMode, fn: (s: IDBObjectStore) => IDBRequest | null): Promise<T | null> {
+  const db = await openDb();
+  if (!db) return null;
+  return new Promise<T | null>((resolve) => {
+    let req: IDBRequest | null = null;
+    try {
+      const t = db.transaction(STORE, mode);
+      req = fn(t.objectStore(STORE));
+      t.oncomplete = () => {
+        db.close();
+        resolve(req ? (req.result as T) : (true as T));
+      };
+      t.onerror = t.onabort = () => {
+        db.close();
+        resolve(null);
+      };
+    } catch {
+      db.close();
+      resolve(null);
+    }
+  });
+}
+
+/** keeping the file is on unless the person switched it off */
+export function isKeepEnabled(): boolean {
+  try {
+    return localStorage.getItem(PREF_KEY) !== '0';
+  } catch {
+    return true;
+  }
+}
+
+export async function setKeepEnabled(on: boolean): Promise<void> {
+  try {
+    localStorage.setItem(PREF_KEY, on ? '1' : '0');
+  } catch {
+    /* storage blocked: the setting only lasts until the page closes */
+  }
+  if (!on) await forgetSaved();
+  else broadcast();
+}
+
+/** Saves the file as the one to reopen. Returns false when keeping is off or the browser refused (no room). */
+export async function saveFile(file: File): Promise<boolean> {
+  if (!isKeepEnabled()) return false;
+  let data: ArrayBuffer;
+  try {
+    data = await file.arrayBuffer();
+  } catch {
+    return false;
+  }
+  const db = await openDb();
+  if (!db) return false;
+  const ok = await new Promise<boolean>((resolve) => {
+    try {
+      const t = db.transaction(STORE, 'readwrite');
+      const s = t.objectStore(STORE);
+      s.put({ data, type: file.type || 'application/pdf' }, FILE_KEY);
+      s.put({ name: file.name, size: file.size, savedAt: Date.now() } satisfies SavedMeta, META_KEY);
+      t.oncomplete = () => resolve(true);
+      t.onerror = t.onabort = () => resolve(false); // e.g. quota exceeded: nothing was written
+    } catch {
+      resolve(false);
+    }
+  });
+  db.close();
+  if (ok) broadcast();
+  return ok;
+}
+
+export async function getSavedMeta(): Promise<SavedMeta | null> {
+  return (await run<SavedMeta | undefined>('readonly', (s) => s.get(META_KEY))) ?? null;
+}
+
+/** the saved file as a File, or null when there is none */
+export async function loadSaved(): Promise<File | null> {
+  const [rec, meta] = await Promise.all([
+    run<{ data: ArrayBuffer; type: string } | undefined>('readonly', (s) => s.get(FILE_KEY)),
+    getSavedMeta(),
+  ]);
+  if (!rec || !meta) return null;
+  return new File([rec.data], meta.name, { type: rec.type, lastModified: meta.savedAt });
+}
+
+/** removes the saved copy from this device */
+export async function forgetSaved(): Promise<void> {
+  await run('readwrite', (s) => {
+    s.delete(FILE_KEY);
+    return s.delete(META_KEY);
+  });
+  broadcast();
+}

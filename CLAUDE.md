@@ -1,0 +1,21 @@
+# Shootcut — project rules
+
+## Keep the Features page current (standing rule)
+Whenever a feature is added, changed or removed, update the Features page in the **same change**:
+
+- `src/lib/features.ts` — `TOOL_FEATURES` (one entry per ready tool, Arabic and English, Western digits), `GENERAL_FEATURES`, `NOT_AVAILABLE`.
+- `src/lib/shortcuts.ts` — any new or changed keyboard shortcut (the Features page table is generated from it).
+- `README.md` — the status table.
+
+`src/lib/features.test.ts` fails if a ready tool has no feature entry.
+
+## Structure
+- The home page offers three sections: PDF, Images, Video (`SECTIONS` in `src/lib/tools.ts`). Each tool belongs to a group, each group to a section.
+- Everything runs in the browser. No server, no uploads, no paid or terms-violating services, no third-party requests.
+- Image tools share `src/components/ImageBatch.tsx` (many pictures) or `src/tools/ImageEditTools.tsx` (one picture); the picture maths lives in `src/lib/ops/imgops.ts` with tests.
+
+## Other conventions
+- Arabic text in the interface is Modern Standard Arabic (Fusha), not dialect.
+- Arabic (RTL) and English (LTR) must both work; add every string to `src/i18n.tsx` in both blocks.
+- No third-party network requests. Everything runs in the browser.
+- Shortcuts match `KeyboardEvent.code` (layout independent); Ctrl on Windows, Command on Mac.

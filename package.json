@@ -1,0 +1,50 @@
+{
+  "name": "shootcut",
+  "version": "0.1.0",
+  "description": "Free, private PDF tools that run entirely in your browser. أدوات PDF مجانية وخاصة تعمل بالكامل داخل المتصفح.",
+  "scripts": {
+    "dev": "vite",
+    "predev": "node scripts/copy-assets.mjs",
+    "build": "tsc --noEmit && vite build",
+    "prebuild": "node scripts/copy-assets.mjs",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "pretest": "node scripts/copy-assets.mjs"
+  },
+  "license": "AGPL-3.0-only",
+  "dependencies": {
+    "@cantoo/fontkit": "^2.0.12",
+    "@fontsource/ibm-plex-sans-arabic": "^5.3.0",
+    "@fontsource/inter": "^5.3.0",
+    "@tesseract.js-data/ara": "^1.0.0",
+    "@tesseract.js-data/eng": "^1.0.0",
+    "bidi-js": "^1.1.0",
+    "diff": "^9.0.0",
+    "fflate": "^0.8.3",
+    "lucide-react": "^1.55.0",
+    "pdf-lib": "npm:@cantoo/pdf-lib@^2.11.1",
+    "pdfjs-dist": "^6.4.299",
+    "pptxgenjs": "^4.0.1",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "tesseract.js": "^7.0.0"
+  },
+  "devDependencies": {
+    "@napi-rs/canvas": "^1.0.10",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.7",
+    "@types/diff": "^7.0.2",
+    "@types/node": "^26.6.5",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "fake-indexeddb": "^6.2.5",
+    "jsdom": "^29.1.1",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.4",
+    "vitest": "^5.0.3"
+  },
+  "private": true,
+  "type": "module"
+}
