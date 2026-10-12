@@ -100,7 +100,7 @@ EDITS = {
         ('src/about.rs', r'\n\s*ui\.separator\(\);\n\s*ui\.add_space\(6\.0\);\n\s*ui\.label\(crate::rtl::widget\(\n\s*ui,\n\s*egui::RichText::new\(crate::i18n::tr\(&app\.ui\.language, "More ArtCraft apps".*?(?=\n\s*ui\.add_space\(12\.0\);\n\s*ui\.label\(crate::rtl::widget\(\n\s*ui,\n\s*egui::RichText::new\(crate::i18n::tr\(&app\.ui\.language, "Open source)', ''),
         ('src/about.rs', r'(pub fn discord_button\(ui: &mut egui::Ui, label: &str, size: egui::Vec2\) -> bool \{\n).*?(\n\}\n)', r'\1    let _ = (ui, label, size);\n    false\2'),
         ('src/chrome.rs', r'(fn community_card\(app: &mut DesignApp, ui: &mut egui::Ui\) \{\n).*?(\n\}\n)', r'\1    let _ = (app, ui);\2'),
-        ('src/about.rs', r'\n\s*ui\.add_space\(14\.0\);\n\s*ui\.horizontal\(\|ui\| \{\n\s*// Centre the row of links\..*?\n\s*\}\);\n(?=\s*ui\.add_space\(16\.0\);\n\s*ui\.separator)', '\n'),
+        ('src/about.rs', r'\n\s*ui\.add_space\(14\.0\);\n\s*ui\.horizontal\(\|ui\| \{\n\s*// Centre the row of links\..*?\n\s*\}\);\n(?=\s*ui\.add_space\(16\.0\);)', '\n'),
     ],
     'filmcraft': [
         ('src/links.rs', r'ALL: \[\(&str, &str, &str\); 5\]', 'ALL: [(&str, &str, &str); 1]'),
