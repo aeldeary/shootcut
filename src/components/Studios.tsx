@@ -12,8 +12,6 @@ import {
   type StudioBuild,
 } from '../lib/studios';
 
-const REPO_URL = 'https://github.com/storytold/';
-
 /** The Studios block on the home page. */
 export function StudiosBlock() {
   const { t } = useI18n();
@@ -175,15 +173,7 @@ export function StudioLauncher({ studio, app }: { studio: Studio; app: StudioApp
   const [webgl, setWebgl] = useState(false);
   const [nonce, setNonce] = useState(0);
   const [loaded, setLoaded] = useState(false);
-  const [build, setBuild] = useState<StudioBuild | null>(null);
   const frame = useRef<HTMLIFrameElement>(null);
-  useEffect(() => {
-    let live = true;
-    void probeStudio(app).then((b) => live && setBuild(b));
-    return () => {
-      live = false;
-    };
-  }, [app]);
   const src = `${studioBase(app.id)}index.html${webgl ? '?webgl' : ''}`;
 
   return (
@@ -228,22 +218,6 @@ export function StudioLauncher({ studio, app }: { studio: Studio; app: StudioApp
           allow="fullscreen; clipboard-read; clipboard-write; autoplay"
           onLoad={() => setLoaded(true)}
         />
-      </div>
-      <div className="container credit muted small">
-        {t('studioCredit')}{' '}
-        <a href={`${REPO_URL}${app.repo}`} target="_blank" rel="noopener">
-          storytold/{app.repo}
-        </a>
-        {build && (
-          <>
-            {' · '}
-            {t('studioBuild')} <code>{build.sha.slice(0, 7)}</code>
-          </>
-        )}
-        {' · '}
-        <a href={`${studioBase(app.id)}LICENSE-MIT`} target="_blank" rel="noopener">
-          {t('studioLicense')}
-        </a>
       </div>
     </div>
   );

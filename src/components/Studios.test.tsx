@@ -72,7 +72,7 @@ describe('Studios', () => {
     expect(frame.getAttribute('sandbox')).toContain('allow-same-origin');
     fireEvent.click(screen.getByRole('checkbox'));
     expect(document.querySelector('iframe')!.getAttribute('src')).toBe('./studio/word/index.html?webgl');
-    await waitFor(() => expect(screen.getByText('abcdef1')).toBeTruthy());
-    expect(screen.getByText('storytold/wordcraft')).toBeTruthy();
+    // no source names anywhere on the launcher
+    expect(document.body.textContent).not.toMatch(/storytold|craft/i);
   });
 });

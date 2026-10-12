@@ -1,6 +1,6 @@
 import { H, W, bodyLines, layoutBoxes, slideIsRtl, wrapText, type Slide, type Theme } from './model';
 
-const FONT = '"IBM Plex Sans Arabic", Inter, system-ui, sans-serif';
+const FONT = '"The Year of Handicrafts", "IBM Plex Sans Arabic", Inter, system-ui, sans-serif';
 
 /** Draws one slide on a 1280×720 canvas context. `img` is the decoded picture of the slide, when it has one. */
 export function drawSlide(ctx: CanvasRenderingContext2D, slide: Slide, theme: Theme, img?: CanvasImageSource & { width: number; height: number } | null): void {

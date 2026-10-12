@@ -1,13 +1,13 @@
 :root {
-  --bg: #f7f8f9;
+  --bg: #f6f6f7;
   --surface: #ffffff;
-  --text: #14201f;
-  --muted: #5a6b69;
-  --border: #dde3e2;
-  --primary: #0f766e;
-  --primary-hover: #0b5f59;
+  --text: #010101;
+  --muted: #58595b;
+  --border: #dfdfe1;
+  --primary: #d71920;
+  --primary-hover: #b5141a;
   --primary-ink: #ffffff;
-  --accent-soft: #e6f4f2;
+  --accent-soft: #fdeaea;
   --danger: #b42318;
   --danger-soft: #fdecea;
   --success: #067647;
@@ -19,15 +19,15 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #0e1514;
-    --surface: #151e1d;
-    --text: #e8f0ef;
-    --muted: #98aaa8;
-    --border: #263433;
-    --primary: #2dd4bf;
-    --primary-hover: #5eead4;
-    --primary-ink: #04201d;
-    --accent-soft: #12302d;
+    --bg: #111112;
+    --surface: #1b1b1d;
+    --text: #f2f2f3;
+    --muted: #a8a9ac;
+    --border: #2f2f32;
+    --primary: #e53a41;
+    --primary-hover: #f0585e;
+    --primary-ink: #ffffff;
+    --accent-soft: #3a1618;
     --danger: #fda29b;
     --danger-soft: #3a1815;
     --success: #75e0a7;
@@ -40,12 +40,29 @@
   box-sizing: border-box;
 }
 
+/* The brand font: The Year of Handicrafts, Regular and Bold, for Arabic and English.
+   Put the font files in public/fonts/ (see public/fonts/README.txt). Until they are there the fallbacks below are used. */
+@font-face {
+  font-family: 'The Year of Handicrafts';
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  src: local('The Year of Handicrafts'), local('TheYearofHandicrafts-Regular'), url('./fonts/TheYearOfHandicrafts-Regular.woff2') format('woff2'), url('./fonts/TheYearOfHandicrafts-Regular.ttf') format('truetype'), url('./fonts/TheYearOfHandicrafts-Regular.otf') format('opentype');
+}
+@font-face {
+  font-family: 'The Year of Handicrafts';
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+  src: local('The Year of Handicrafts Bold'), local('TheYearofHandicrafts-Bold'), url('./fonts/TheYearOfHandicrafts-Bold.woff2') format('woff2'), url('./fonts/TheYearOfHandicrafts-Bold.ttf') format('truetype'), url('./fonts/TheYearOfHandicrafts-Bold.otf') format('opentype');
+}
+
 html {
-  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-family: 'The Year of Handicrafts', 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
 }
 
 html:lang(ar) {
-  font-family: 'IBM Plex Sans Arabic', 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-family: 'The Year of Handicrafts', 'IBM Plex Sans Arabic', 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
 }
 
 body {
@@ -1020,7 +1037,7 @@ input[type='range'].input {
 
 .mark.rubber {
   border: 1px dashed var(--primary);
-  background: rgb(15 118 110 / 12%);
+  background: rgb(215 25 32 / 10%);
   pointer-events: none;
 }
 
@@ -2121,7 +2138,7 @@ kbd {
 .img-sel {
   position: absolute;
   border: 2px dashed var(--primary);
-  background: rgb(15 118 110 / 18%);
+  background: rgb(215 25 32 / 16%);
   pointer-events: none;
   padding: 0;
 }
@@ -2504,4 +2521,9 @@ button.version-card .tag {
   .slide-list li {
     flex: 0 0 120px;
   }
+}
+
+.hero-logo {
+  width: clamp(120px, 22vw, 190px);
+  height: auto;
 }

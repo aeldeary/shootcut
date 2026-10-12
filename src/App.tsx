@@ -128,7 +128,8 @@ function Home() {
     <>
       <section className="hero">
         <div className="container">
-          <h1 dir="ltr" className="hero-title">
+          <img className="hero-logo" src="./logo.svg" alt="" width={190} height={201} />
+          <h1 dir="ltr" className="hero-title sr-only">
             {t('appName')}
           </h1>
           <p className="lead">{t('tagline')}</p>

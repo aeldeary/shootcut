@@ -20,8 +20,8 @@ export interface Theme {
 }
 
 export const THEMES: Theme[] = [
-  { id: 'clean', bg: '#ffffff', fg: '#16302b', accent: '#0f766e', muted: '#5b6b68' },
-  { id: 'night', bg: '#10201e', fg: '#f2f7f6', accent: '#5eead4', muted: '#9bb3af' },
+  { id: 'clean', bg: '#ffffff', fg: '#010101', accent: '#d71920', muted: '#58595b' },
+  { id: 'night', bg: '#111112', fg: '#f2f2f3', accent: '#e53a41', muted: '#a8a9ac' },
   { id: 'sand', bg: '#faf3e6', fg: '#3b2f1e', accent: '#b45309', muted: '#7a6a52' },
   { id: 'ink', bg: '#111827', fg: '#f9fafb', accent: '#f59e0b', muted: '#9ca3af' },
   { id: 'rose', bg: '#fff1f2', fg: '#4c0519', accent: '#be123c', muted: '#7f4b57' },
