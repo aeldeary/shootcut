@@ -1,8 +1,11 @@
 name: Build studios
 
 # Builds the storytold web apps (WebAssembly) that the Studios section embeds, and publishes the result to the
-# `studios` branch. The Pages deploy copies that branch into public/studio. Slow (Rust), so it only runs by hand.
+# `studios` branch. The Pages deploy copies that branch into public/studio. Slow (Rust): runs by hand, or when this workflow or its scripts change.
 on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/studios.yml', 'scripts/build-studio.sh', 'scripts/studio-smoke.mjs']
   workflow_dispatch:
     inputs:
       only:
