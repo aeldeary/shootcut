@@ -53,13 +53,14 @@ import {
   Volume2,
   Sheet as SheetIcon,
   Presentation as PresentationIcon,
+  DraftingCompass,
   BriefcaseBusiness,
   type LucideIcon,
 } from 'lucide-react';
 import type { Key } from '../i18n';
 
 export type SectionId = 'pdf' | 'image' | 'video' | 'office';
-export type GroupId = 'view' | 'create' | 'forms' | 'review' | 'protect' | 'imgOptimize' | 'imgEdit' | 'imgConvert' | 'imgCreate' | 'imgPrivacy' | 'vidFormat' | 'vidEdit' | 'vidExtract' | 'audio' | 'sheets' | 'slides';
+export type GroupId = 'view' | 'create' | 'forms' | 'review' | 'protect' | 'imgOptimize' | 'imgEdit' | 'imgConvert' | 'imgCreate' | 'imgPrivacy' | 'vidFormat' | 'vidEdit' | 'vidExtract' | 'audio' | 'sheets' | 'slides' | 'cad';
 
 /** The three parts of the site, chosen first on the home page. */
 export const SECTIONS: { id: SectionId; title: Key; desc: Key; icon: LucideIcon }[] = [
@@ -80,6 +81,7 @@ export interface ToolDef {
 
 /** Tools to point out on the home page and in the tool cards. Keep it short: drop ids when they stop being news. */
 export const WHATS_NEW: { id: string; kind: 'new' | 'updated'; note: Key }[] = [
+  { id: 'cad', kind: 'new', note: 'newCad' },
   { id: 'sheet', kind: 'new', note: 'newSheet' },
   { id: 'slides', kind: 'new', note: 'newSlides' },
   { id: 'aud-polish', kind: 'new', note: 'newAudio' },
@@ -109,6 +111,7 @@ export const GROUPS: { id: GroupId; title: Key; section: SectionId }[] = [
   { id: 'audio', title: 'groupAudio', section: 'video' },
   { id: 'sheets', title: 'groupSheets', section: 'office' },
   { id: 'slides', title: 'groupSlides', section: 'office' },
+  { id: 'cad', title: 'groupCad', section: 'office' },
 ];
 
 export function sectionOfGroup(g: GroupId): SectionId {
@@ -178,6 +181,7 @@ export const TOOLS: ToolDef[] = [
   { id: 'aud-polish', group: 'audio', icon: Volume2, name: 'toolAudPolish', desc: 'toolAudPolishDesc', status: 'ready' },
   { id: 'sheet', group: 'sheets', icon: SheetIcon, name: 'toolSheet', desc: 'toolSheetDesc', status: 'ready' },
   { id: 'slides', group: 'slides', icon: PresentationIcon, name: 'toolSlides', desc: 'toolSlidesDesc', status: 'ready' },
+  { id: 'cad', group: 'cad', icon: DraftingCompass, name: 'toolCad', desc: 'toolCadDesc', status: 'ready' },
   { id: 'vid-info', group: 'vidExtract', icon: Info, name: 'toolVidInfo', desc: 'toolVidInfoDesc', status: 'ready' },
 ];
 

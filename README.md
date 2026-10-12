@@ -112,11 +112,11 @@ npm run build      # outputs dist/
 
 ## Sheets and slides / الجداول والعروض
 
-Light tools, no server: a spreadsheet (26 columns × 200 rows, formulas, XLSX and CSV in and out) and a slide maker (four layouts, five themes, Arabic right to left, PPTX with editable text, PDF, pictures, full-screen presenting). Both save in the browser as you type.
+Light tools, no server: a spreadsheet (26 columns × 200 rows, formulas, XLSX and CSV in and out), a slide maker (four layouts, five themes, Arabic right to left, PPTX with editable text, PDF, pictures, full-screen presenting) and a 2D drafting board (lines, rectangles, circles, polylines, text, snapping, exact lengths, measuring, DXF in and out, SVG and picture export). All save in the browser as you work.
 
 ## Studios / الاستوديوهات
 
-Five studios (Docs, Design, Film, Audio, CAD) embed full web apps from the open-source [storytold](https://github.com/storytold) projects (MIT OR Apache-2.0), built unmodified by `.github/workflows/studios.yml` into the `studios` branch and served under `/studio/<app>/`. The person chooses the **full** or the **light** version first (phones are pointed to light). The inside of the full apps is English only for now and they are alpha; Shootcut's frame, notices and light tools follow the chosen language.
+Five studios (Docs, Design, Film, Audio, CAD) embed full open-source web apps (MIT OR Apache-2.0), built by `.github/workflows/studios.yml` with Shootcut's names, colours and logos (`scripts/patch-studio.py`) into the `studios` branch and served under `/studio/<app>/`; their licence texts are listed on the in-site notices page. The person chooses the **full** or the **light** version first (phones are pointed to light). The inside of the full apps is English only for now and they are alpha; Shootcut's frame, notices and light tools follow the chosen language.
 
 | Studio | Full apps | Light version |
 | --- | --- | --- |
@@ -124,7 +124,7 @@ Five studios (Docs, Design, Film, Audio, CAD) embed full web apps from the open-
 | Design | Photo editor, Photo developer, Vector drawing, Graphic design | Picture tools |
 | Film | Video editor, Motion effects | Video tools |
 | Audio | Audio workstation | Trim, convert, join and improve sound |
-| CAD | CAD drafting | not yet |
+| CAD | CAD drafting | Light drafting board (lines, shapes, text, measure, DXF/SVG/PNG) |
 
 ## Deploy to GitHub Pages
 

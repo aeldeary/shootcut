@@ -2527,3 +2527,129 @@ button.version-card .tag {
   width: clamp(120px, 22vw, 190px);
   height: auto;
 }
+
+/* Light drafting board */
+.cad-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.cad-tool.is-on {
+  background: var(--primary);
+  color: var(--primary-ink);
+  border-color: var(--primary);
+}
+.cad-sep {
+  inline-size: 1px;
+  block-size: 24px;
+  background: var(--border);
+  margin-inline: 4px;
+}
+.cad-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.cad-num {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.cad-num .input {
+  inline-size: 90px;
+}
+.cad-layout {
+  display: grid;
+  grid-template-columns: 1fr 240px;
+  gap: 14px;
+  align-items: start;
+}
+.cad-wrap {
+  position: relative;
+  block-size: 62vh;
+  min-block-size: 320px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: #fff;
+}
+.cad-canvas {
+  display: block;
+  touch-action: none;
+}
+.cad-side {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.cad-status {
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: var(--radius);
+  background: var(--accent-soft);
+  font-variant-numeric: tabular-nums;
+  direction: ltr;
+  text-align: start;
+}
+.cad-props {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.cad-props h2,
+.cad-props p {
+  margin: 0;
+}
+@media (max-width: 760px) {
+  .cad-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.site-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 40px;
+  padding: 18px 16px;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+  text-align: center;
+}
+.site-footer p {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.site-footer span {
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+
+.footer-link {
+  font-size: 0.8rem;
+  color: var(--muted);
+  text-decoration: underline;
+}
+.notice-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+.notice-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}

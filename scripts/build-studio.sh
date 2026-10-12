@@ -4,9 +4,14 @@
 # Used by .github/workflows/studios.yml. The apps use either Trunk (apps/<repo>-web/Trunk.toml)
 # or their own `cargo xtask web`; both end in a plain static folder.
 set -euo pipefail
+HERE=$(cd "$(dirname "$0")" && pwd)
 SRC=$(cd "$1" && pwd); REPO=$2; OUT=$3
 mkdir -p "$OUT"; OUT=$(cd "$OUT" && pwd)
 cd "$SRC"
+
+# Shootcut identity: names, colours, logos and community links are replaced in the sources before compiling
+python3 -m pip install --quiet pillow 2>/dev/null || pip install --quiet --break-system-packages pillow || true
+python3 "$HERE/patch-studio.py" source "$SRC" "$REPO"
 
 if [ -f "apps/$REPO-web/Trunk.toml" ]; then
   echo "== $REPO: trunk"
@@ -33,10 +38,12 @@ fi
 
 [ -n "${DIST:-}" ] && [ -f "$DIST/index.html" ] || { echo "no index.html found after the build" >&2; exit 1; }
 cp -r "$DIST"/. "$OUT"/
+python3 "$HERE/patch-studio.py" dist "$OUT" "$REPO"
 cp LICENSE-MIT LICENSE-APACHE "$OUT"/
 [ -f NOTICE ] && cp NOTICE "$OUT/NOTICE"
 [ -f ATTRIBUTION.md ] && cp ATTRIBUTION.md "$OUT/ATTRIBUTION.md"
 WASM=$(find "$OUT" -maxdepth 1 -name '*.wasm' -printf '%s\n' | sort -n | tail -1)
+echo "== what is left of the old names in $REPO"; python3 "$HERE/patch-studio.py" report "$OUT" || true
 printf '{"repo":"%s","sha":"%s","builtAt":"%s","wasmBytes":%s}\n' \
   "$REPO" "$(git rev-parse HEAD)" "$(date -u +%FT%TZ)" "${WASM:-0}" > "$OUT/build.json"
 echo "done: $(du -sh "$OUT" | cut -f1)"

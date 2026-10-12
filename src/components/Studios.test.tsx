@@ -27,7 +27,7 @@ describe('Studios', () => {
   it('shows the five studios on the home page', () => {
     wrap(<StudiosBlock />);
     expect(document.querySelectorAll('[data-studio]').length).toBe(5);
-    expect(screen.getByText('Shootcut Design')).toBeTruthy();
+    expect(screen.getByText('Design')).toBeTruthy();
   });
 
   it('asks for full or light before showing anything to open', async () => {
@@ -44,11 +44,11 @@ describe('Studios', () => {
     expect(deck.disabled).toBe(true);
   });
 
-  it('light version lists ready Shootcut tools, and says so when a studio has none', () => {
+  it('light version lists ready Shootcut tools', () => {
     wrap(<StudioPage studio={findStudio('cad')!} />);
     fireEvent.click(document.querySelector('[data-version=light]')!);
     expect(document.querySelector('[data-app]')).toBeNull();
-    expect(screen.getByRole('note')).toBeTruthy();
+    expect(document.querySelectorAll('a.card[href="#/cad"]').length).toBe(1);
     cleanup();
     wrap(<StudioPage studio={findStudio('design')!} />);
     fireEvent.click(document.querySelector('[data-version=light]')!);

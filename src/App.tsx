@@ -4,6 +4,7 @@ import { useI18n } from './i18n';
 import { Header, PrivacyBadge } from './components/Shell';
 import { GROUPS, SECTIONS, TOOLS, WHATS_NEW, findTool, sectionOfRoute, type SectionId } from './lib/tools';
 import { FeaturesPage } from './components/FeaturesPage';
+import { NoticesPage } from './components/NoticesPage';
 import { useShortcuts } from './hooks/useShortcuts';
 import { holdFile } from './lib/handoff';
 import { saveFile } from './lib/persist';
@@ -39,6 +40,7 @@ const COMPONENTS: Record<string, ReturnType<typeof lazy>> = {
   'vid-speed': lazy(() => import('./tools/VideoTools').then((m) => ({ default: m.VidSpeedTool }))),
   sheet: lazy(() => import('./tools/SheetLight')),
   slides: lazy(() => import('./tools/SlidesLight')),
+  cad: lazy(() => import('./tools/CadLight')),
   'aud-trim': lazy(() => import('./tools/AudioTools').then((m) => ({ default: m.AudTrimTool }))),
   'aud-convert': lazy(() => import('./tools/AudioTools').then((m) => ({ default: m.AudConvertTool }))),
   'aud-merge': lazy(() => import('./tools/AudioTools').then((m) => ({ default: m.AudMergeTool }))),
@@ -219,6 +221,7 @@ function openFromAnywhere(): boolean {
 }
 
 export default function App() {
+  const { t } = useI18n();
   const route = useHashRoute();
   const toastText = useToast();
   useShortcuts(
@@ -264,6 +267,8 @@ export default function App() {
             ) : (
               <StudioPage key={studioRoute.studio.id} studio={studioRoute.studio} />
             )
+          ) : route === 'notices' ? (
+            <NoticesPage />
           ) : page ? (
             <FeaturesPage scrollTo={route === 'shortcuts' ? 'shortcuts' : undefined} />
           ) : sectionPage ? (
@@ -275,6 +280,14 @@ export default function App() {
           )}
         </Suspense>
       </main>
+      <footer className="site-footer">
+        <img src={`${import.meta.env.BASE_URL}favicon.svg`} alt="" width={22} height={22} />
+        <p>
+          <strong>{t('footerCredit')}</strong>
+          <span>{t('footerNote')}</span>
+          <a href="#/notices" className="footer-link">{t('noticesLink')}</a>
+        </p>
+      </footer>
       {toastText && <div className="toast" role="status">{toastText}</div>}
     </>
   );

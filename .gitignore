@@ -7,3 +7,6 @@ public/pdfjs
 .scratch
 public/ffmpeg
 public/studio/
+
+__pycache__/
+tsconfig.tsbuildinfo

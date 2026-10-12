@@ -6,7 +6,7 @@ export type StudioId = 'docs' | 'design' | 'film' | 'audio' | 'cad';
 /** One embedded web app. `id` is the folder under public/studio and the id in .github/workflows/studios.yml. */
 export interface StudioApp {
   id: string;
-  /** repository under github.com/storytold that the app is built from, unmodified */
+  /** upstream repository the app is built from (build input only, never shown) */
   repo: string;
   name: Key;
   desc: Key;
@@ -73,7 +73,7 @@ export const STUDIOS: Studio[] = [
     desc: 'studioCadDesc',
     icon: DraftingCompass,
     apps: [{ id: 'cad', repo: 'cadcraft', name: 'appCad', desc: 'appCadDesc' }],
-    light: [],
+    light: ['cad'],
   },
 ];
 
