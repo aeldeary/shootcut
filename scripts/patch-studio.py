@@ -80,7 +80,11 @@ ENTRY_DROP = [
 
 # (file suffix, regex, replacement): each must match, or the build stops instead of leaving a Discord button behind
 EDITS = {
+    'deckcraft': [
+        ('fonts/build.rs', r'if wasm && !matches!\(', 'if wasm && !scripts.split(\',\').any(|s| s.trim() == "Arab") && !matches!('),
+    ],
     'wordcraft': [
+        ('fonts/build.rs', r'if wasm && !\(\*family == "BIZ UDPGothic" && \*style == "Regular"\) \{', 'if wasm && !(*family == "BIZ UDPGothic" && *style == "Regular") && !scripts.split(\',\').any(|s| s.trim() == "Arab") {'),
         ('src/backstage.rs', r',\s*\("Discord community", "discord"\)', ''),
     ],
     'photocraft': [
@@ -91,10 +95,12 @@ EDITS = {
         ('panels/dialogs.rs', r'for \(label, url\) in \[\n\s*\("LightCraft website".*?\n\s*\] \{\n.*?\n\s*\}\n\s*\}\n', ''),
     ],
     'vectorcraft': [
+        ('text/build.rs', r'if wasm && !\(\*family == WEB_FONT\.0 && \*style == WEB_FONT\.1\) \{', 'if wasm && !(*family == WEB_FONT.0 && *style == WEB_FONT.1) && !scripts.split(\',\').any(|s| s.trim() == "Arab") {'),
         ('src/chrome.rs', r'let discord = search &&', 'let discord = false &&'),
         ('src/community.rs', r'(pub fn links\(app: &mut VectorcraftApp, ui: &mut Ui\) \{\n).*?(\n\}\n)', r'\1    let _ = (app, ui);\2'),
     ],
     'designcraft': [
+        ('fonts/build.rs', r'if wasm && !\(\*family == "BIZ UDPGothic" && \*style == "Regular"\) \{', 'if wasm && !(*family == "BIZ UDPGothic" && *style == "Regular") && !scripts.split(\',\').any(|s| s.trim() == "Arab") {'),
         ('src/about.rs', r'(pub const SIBLINGS: &\[[^\n]*\] = &\[)\n.*?\n\];', r'\1];'),
         ('src/about.rs', r'\n\s*ui\.add_space\(4\.0\);\n\s*ui\.label\(crate::rtl::widget\(\n\s*ui,\n\s*egui::RichText::new\(crate::i18n::tr\(&app\.ui\.language, "discord\.gg/artcraft[^\n]*\n[^\n]*\n[^\n]*\n\s*\)\);', ''),
         ('src/about.rs', r'\n\s*ui\.separator\(\);\n\s*ui\.add_space\(6\.0\);\n\s*ui\.label\(crate::rtl::widget\(\n\s*ui,\n\s*egui::RichText::new\(crate::i18n::tr\(&app\.ui\.language, "More ArtCraft apps".*?(?=\n\s*ui\.add_space\(12\.0\);\n\s*ui\.label\(crate::rtl::widget\(\n\s*ui,\n\s*egui::RichText::new\(crate::i18n::tr\(&app\.ui\.language, "Open source)', ''),
@@ -103,6 +109,7 @@ EDITS = {
         ('src/about.rs', r'\n\s*ui\.add_space\(14\.0\);\n\s*ui\.horizontal\(\|ui\| \{\n\s*// Centre the row of links\..*?\n\s*\}\);\n(?=\s*ui\.add_space\(16\.0\);)', '\n'),
     ],
     'filmcraft': [
+        ('text/build.rs', r'if wasm && !\(\*family == "BIZ UDPGothic" && \*style == "Regular"\) \{', 'if wasm && !(*family == "BIZ UDPGothic" && *style == "Regular") && !scripts.split(\',\').any(|s| s.trim() == "Arab") {'),
         ('src/links.rs', r'ALL: \[\(&str, &str, &str\); 5\]', 'ALL: [(&str, &str, &str); 1]'),
         ('src/header.rs', r'let label = "Discord";\n.*?ui\.painter\(\)\.galley\(pos2\(r\.min\.x \+ 25\.0, [^\n]*\n',
          'let r = Rect::from_min_size(pos2(wr.min.x - 14.0, rect.center().y - 12.0), vec2(0.0, 24.0));\n'),
