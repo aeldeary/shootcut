@@ -84,6 +84,8 @@ EDITS = {
         ('fonts/build.rs', r'if wasm && !matches!\(', 'if wasm && !scripts.split(\',\').any(|s| s.trim() == "Arab") && !matches!('),
     ],
     'wordcraft': [
+        # Arabic: the craft-fonts Arabic face is a document font too (it was only the interface's), so Arabic text has glyphs
+        ('fonts/src/fontdb.rs', r'\.chain\(crate::chinese_fonts\(\)\)\.map\(\|f\| f\.bytes\);', '.chain(crate::chinese_fonts()).chain(crate::CRAFT_FONTS.iter().filter(|f| f.scripts.contains(&"Arab"))).map(|f| f.bytes);'),
         ('fonts/build.rs', r'if wasm && !\(\*family == "BIZ UDPGothic" && \*style == "Regular"\) \{', 'if wasm && !(*family == "BIZ UDPGothic" && *style == "Regular") && !scripts.split(\',\').any(|s| s.trim() == "Arab") {'),
         ('src/backstage.rs', r',\s*\("Discord community", "discord"\)', ''),
     ],
@@ -100,6 +102,21 @@ EDITS = {
         ('src/community.rs', r'(pub fn links\(app: &mut VectorcraftApp, ui: &mut Ui\) \{\n).*?(\n\}\n)', r'\1    let _ = (app, ui);\2'),
     ],
     'designcraft': [
+        ('format/src/lib.rs', r'pub const MIME: &str = "application/vnd\.designcraft\+zip";', 'pub const MIME: &str = "application/octet-stream";'),
+        # Arabic controls of the Character panel (Character Direction, Kashidas, Diacritic Positioning)
+        ('panels/properties.rs', r'(\n    // Underline / Strikethrough Options\.\n)', '\n    shootcut_arabic_block(app, ui, &c, &a);\\1'),
+        ('panels/properties.rs', r'if digits != "default" \|\| a\["para"\]\["direction"\]\.as_str\(\) == Some\("rightToLeft"\) \{', 'if digits != "default" || matches!(lang.as_str(), "Arabic" | "Hebrew") || a["para"]["direction"].as_str() == Some("rightToLeft") {'),
+        # Arabic: the craft-fonts Arabic face is a document font too (it was only the interface's), so Arabic text has glyphs
+        ('fonts/src/fontdb.rs', r'let craft = crate::japanese_document_fonts\(\)\.into_iter\(\)\.map\(\|f\| f\.bytes\);', 'let craft = crate::japanese_document_fonts().into_iter().chain(crate::CRAFT_FONTS.iter().filter(|f| f.scripts.contains(&"Arab"))).map(|f| f.bytes);'),
+        # Saved files carry Shootcut's extension (Windows shows "<EXT> File"); the old extension still opens.
+        # A fourth item means: replace every match.
+        ('ui-egui/src/menus.rs', r'(format!\("[^"]*)\.designcraft"', r'\1.shootcut"', 'all'),
+        ('doc/src/vars.rs', r'(format!\("[^"]*)\.designcraft"', r'\1.shootcut"', 'all'),
+        ('ui-egui/src/lib.rs', r'\[".designcraft", ".idml"\]', '[".shootcut", ".designcraft", ".idml"]'),
+        ('cmd/file.rs', r'lname\.ends_with\("\.idml"\) \|\| lname\.ends_with\("\.designcraft"\)', 'lname.ends_with(".idml") || lname.ends_with(".designcraft") || lname.ends_with(".shootcut")'),
+        ('designcraft-web/src/web.rs', r'const DOC_EXTS: &\[&str\] = &\["designcraft", "idml"\];', 'const DOC_EXTS: &[&str] = &["shootcut", "designcraft", "idml"];'),
+        ('designcraft-web/src/web.rs', r'(\n    )"designcraft",(\n\];)', r'\1"designcraft",\1"shootcut",\2'),
+        ('designcraft-web/src/browser_policy.rs', r'Some\("designcraft"\) =>', 'Some("designcraft" | "shootcut") =>'),
         ('fonts/build.rs', r'if wasm && !\(\*family == "BIZ UDPGothic" && \*style == "Regular"\) \{', 'if wasm && !(*family == "BIZ UDPGothic" && *style == "Regular") && !scripts.split(\',\').any(|s| s.trim() == "Arab") {'),
         ('src/about.rs', r'(pub const SIBLINGS: &\[[^\n]*\] = &\[)\n.*?\n\];', r'\1];'),
         ('src/about.rs', r'\n\s*ui\.add_space\(4\.0\);\n\s*ui\.label\(crate::rtl::widget\(\n\s*ui,\n\s*egui::RichText::new\(crate::i18n::tr\(&app\.ui\.language, "discord\.gg/artcraft[^\n]*\n[^\n]*\n[^\n]*\n\s*\)\);', ''),
@@ -130,14 +147,24 @@ EDITS = {
 FAILED = []
 HIT = set()
 
+# Rust added at the end of a source file (read from scripts/studio-fonts/)
+APPENDS = {
+    'designcraft': ('panels/properties.rs', 'designcraft_arabic.rs'),
+}
+
 
 def apply_edits(path, txt, repo):
-    for i, (suffix, rx, rep) in enumerate(EDITS.get(repo, [])):
+    for i, edit in enumerate(EDITS.get(repo, [])):
+        suffix, rx, rep = edit[:3]
         if path.replace('\\', '/').endswith(suffix):
-            new, n = re.subn(rx, rep, txt, count=1, flags=re.S)
+            new, n = re.subn(rx, rep, txt, count=0 if len(edit) > 3 else 1, flags=re.S)
             if n:
                 HIT.add((repo, i))
                 txt = new
+    app = APPENDS.get(repo)
+    if app and path.replace('\\', '/').endswith(app[0]) and 'shootcut_arabic_block(app: &mut' not in txt:
+        txt += open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'studio-fonts', app[1]), encoding='utf-8').read()
+        HIT.add((repo, 'append'))
     return txt
 
 
@@ -393,6 +420,8 @@ def cmd_source(src, repo):
     pics = replace_pictures(src)
     logos = replace_drawn_logos(src)
     missing = [(repo, i) for i in range(len(EDITS.get(repo, []))) if (repo, i) not in HIT]
+    if repo in APPENDS and (repo, 'append') not in HIT:
+        missing.append((repo, 'append'))
     if missing:
         sys.exit(f'patch-studio: {len(missing)} edit(s) for {repo} did not match: {missing}')
     print(f'patched {n} Rust files, {m} catalogs, {c} theme files recoloured, {pics} pictures, {logos} drawn logos')
