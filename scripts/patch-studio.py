@@ -15,8 +15,8 @@ PRODUCT = {
     'Word': 'Docs', 'Grid': 'Sheets', 'Deck': 'Slides', 'Photo': 'Photo', 'Light': 'Light', 'Vector': 'Vector',
     'Design': 'Design', 'Film': 'Film', 'Effect': 'Effects', 'Sound': 'Sound', 'CAD': 'CAD', 'Cad': 'CAD', 'PDF': 'PDF',
 }
-NAME_RE = re.compile(r'\b(Word|Grid|Deck|Photo|Light|Vector|Design|Film|Effect|Sound|CAD|Cad|PDF)[Cc]raft(?![A-Za-z_])')
-ART_RE = re.compile(r'\bArt[Cc]raft(?![A-Za-z_])')
+NAME_RE = re.compile(r'(?:(?<=\\n)|\b)(Word|Grid|Deck|Photo|Light|Vector|Design|Film|Effect|Sound|CAD|Cad|PDF)[Cc]raft(?![A-Za-z_])')
+ART_RE = re.compile(r'(?:(?<=\\n)|\b)Art[Cc]raft(?![A-Za-z_])')
 LITERAL = re.compile(r'"(?:[^"\\\n]|\\.)*"')
 
 # sentences that only advertise the upstream project: dropped whole (inside literals and catalogs)
@@ -156,6 +156,8 @@ def patch_rs(path, repo):
             for r in ENTRY_DROP:
                 line = r.sub('', line)
             line = LITERAL.sub(lambda m: clean_text(DEAD_URL_RE.sub('', m.group(0))), line)
+        if line.strip() == ',':
+            continue
         out.append(line)
     txt = '\n'.join(out)
     txt = re.sub(r'show_discord:\s*true', 'show_discord: false', txt)
@@ -302,6 +304,26 @@ def replace_drawn_logos(src):
     return n
 
 
+def patch_json(path):
+    """locales/*.json catalogs (English text -> translation): same renaming as the sources, community entries dropped."""
+    try:
+        data = json.load(open(path, encoding='utf-8'))
+    except Exception:
+        return False
+    if not isinstance(data, dict):
+        return False
+    out = {}
+    for k, v in data.items():
+        if isinstance(k, str) and DROP_LINE_TSV.search(k):
+            continue
+        nk = clean_text(k) if isinstance(k, str) else k
+        out[nk] = clean_text(v) if isinstance(v, str) else v
+    if out != data:
+        json.dump(out, open(path, 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
+        return True
+    return False
+
+
 def cmd_source(src, repo):
     FAILED.clear()
     HIT.clear()
@@ -313,6 +335,8 @@ def cmd_source(src, repo):
         dirs[:] = [x for x in dirs if x not in ('target', '.git', 'node_modules', 'dist')]
         for f in files:
             if f.endswith('.tsv') and patch_tsv(os.path.join(d, f)):
+                m += 1
+            elif f.endswith('.json') and '/locales' in d.replace('\\', '/') and patch_json(os.path.join(d, f)):
                 m += 1
     c = 0
     for p in rs_files(src):

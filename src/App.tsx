@@ -285,7 +285,6 @@ export default function App() {
         <p>
           <strong>{t('footerCredit')}</strong>
           <span>{t('footerNote')}</span>
-          <a href="#/notices" className="footer-link">{t('noticesLink')}</a>
         </p>
       </footer>
       {toastText && <div className="toast" role="status">{toastText}</div>}
