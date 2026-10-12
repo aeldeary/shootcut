@@ -8,7 +8,6 @@ The home page has three sections: PDF, Images, Video. Interface in Arabic (RTL) 
 أدوات مجانية للـ **PDF والصور والفيديو** تعمل **بالكامل داخل المتصفح**. بلا خادم ولا رفع ملفات ولا تسجيل.
 تضم الصفحة الرئيسية ثلاثة أقسام: PDF والصور والفيديو. الواجهة بالعربية (من اليمين إلى اليسار) والإنجليزية (من اليسار إلى اليمين).
 
-Video tools are planned; they are not built yet. / أدوات الفيديو مخطَّط لها ولم تُبنَ بعد.
 
 ## Images / الصور
 
@@ -25,6 +24,29 @@ Video tools are planned; they are not built yet. / أدوات الفيديو م�
 | Meme maker | Top and bottom text, Arabic or English |
 | Watermark | Text or logo on many pictures |
 | Blur or hide areas | Blur, pixels or black box over areas you mark |
+
+## Video / الفيديو
+
+Runs FFmpeg (WebAssembly, about 32 MB, GPL-2.0-or-later, compatible with this project's AGPL-3.0) inside the browser.
+The engine is served by the site itself and stored in the browser (Cache Storage) after the first download.
+Single-threaded, so it is slower than a desktop app; very large files can run out of memory on phones.
+
+| Tool | Notes |
+| --- | --- |
+| Convert | MP4, WebM (VP8), MOV, MKV; optional mute |
+| Compress | WhatsApp, Instagram, TikTok, X, email presets; quality, height or target size |
+| Resolution and frame rate | 2160p to 240p, 60 to 12 fps |
+| Trim | Fast (copy) or precise (re-encode) |
+| Merge | Different sizes fitted to the first clip; sound kept only if every clip has it |
+| Crop | 9:16, 1:1, 4:5, 16:9, 4:3 or exact pixels, with a frame on the preview |
+| Rotate and flip | 90°, 180°, mirror |
+| Speed | 0.25× to 8×, sound in step |
+| Extract audio | MP3, M4A, WAV, OGG, FLAC |
+| Video to GIF | Up to 30 s |
+| Save frames | One frame or one every N seconds as ZIP (uses the browser's player) |
+| Video details | Size, length, resolution, fps, codecs, bitrate |
+
+Known limits: the VP9 encoder crashes in this WebAssembly build, so WebM uses VP8; no AI features, no downloading from websites.
 
 ## PDF
 

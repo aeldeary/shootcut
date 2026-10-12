@@ -31,12 +31,21 @@ import {
   Smile,
   Eraser,
   Smartphone,
+  FileVideo,
+  Scissors,
+  Merge,
+  RotateCcw,
+  Gauge,
+  Music,
+  Clapperboard,
+  Info,
+  Maximize2,
   type LucideIcon,
 } from 'lucide-react';
 import type { Key } from '../i18n';
 
 export type SectionId = 'pdf' | 'image' | 'video';
-export type GroupId = 'view' | 'create' | 'forms' | 'review' | 'protect' | 'imgOptimize' | 'imgEdit' | 'imgConvert' | 'imgCreate' | 'imgPrivacy';
+export type GroupId = 'view' | 'create' | 'forms' | 'review' | 'protect' | 'imgOptimize' | 'imgEdit' | 'imgConvert' | 'imgCreate' | 'imgPrivacy' | 'vidFormat' | 'vidEdit' | 'vidExtract';
 
 /** The three parts of the site, chosen first on the home page. */
 export const SECTIONS: { id: SectionId; title: Key; desc: Key; icon: LucideIcon }[] = [
@@ -65,6 +74,9 @@ export const GROUPS: { id: GroupId; title: Key; section: SectionId }[] = [
   { id: 'imgConvert', title: 'groupImgConvert', section: 'image' },
   { id: 'imgCreate', title: 'groupImgCreate', section: 'image' },
   { id: 'imgPrivacy', title: 'groupImgPrivacy', section: 'image' },
+  { id: 'vidFormat', title: 'groupVidFormat', section: 'video' },
+  { id: 'vidEdit', title: 'groupVidEdit', section: 'video' },
+  { id: 'vidExtract', title: 'groupVidExtract', section: 'video' },
 ];
 
 export function sectionOfGroup(g: GroupId): SectionId {
@@ -109,6 +121,18 @@ export const TOOLS: ToolDef[] = [
   { id: 'img-meme', group: 'imgCreate', icon: Smile, name: 'toolImgMeme', desc: 'toolImgMemeDesc', status: 'ready' },
   { id: 'img-watermark', group: 'imgPrivacy', icon: Droplets, name: 'toolImgWatermark', desc: 'toolImgWatermarkDesc', status: 'ready' },
   { id: 'img-blur', group: 'imgPrivacy', icon: EyeOff, name: 'toolImgBlur', desc: 'toolImgBlurDesc', status: 'ready' },
+  { id: 'vid-convert', group: 'vidFormat', icon: FileVideo, name: 'toolVidConvert', desc: 'toolVidConvertDesc', status: 'ready' },
+  { id: 'vid-compress', group: 'vidFormat', icon: Minimize2, name: 'toolVidCompress', desc: 'toolVidCompressDesc', status: 'ready' },
+  { id: 'vid-resize', group: 'vidFormat', icon: Maximize2, name: 'toolVidResize', desc: 'toolVidResizeDesc', status: 'ready' },
+  { id: 'vid-trim', group: 'vidEdit', icon: Scissors, name: 'toolVidTrim', desc: 'toolVidTrimDesc', status: 'ready' },
+  { id: 'vid-merge', group: 'vidEdit', icon: Merge, name: 'toolVidMerge', desc: 'toolVidMergeDesc', status: 'ready' },
+  { id: 'vid-crop', group: 'vidEdit', icon: Crop, name: 'toolVidCrop', desc: 'toolVidCropDesc', status: 'ready' },
+  { id: 'vid-rotate', group: 'vidEdit', icon: RotateCcw, name: 'toolVidRotate', desc: 'toolVidRotateDesc', status: 'ready' },
+  { id: 'vid-speed', group: 'vidEdit', icon: Gauge, name: 'toolVidSpeed', desc: 'toolVidSpeedDesc', status: 'ready' },
+  { id: 'vid-audio', group: 'vidExtract', icon: Music, name: 'toolVidAudio', desc: 'toolVidAudioDesc', status: 'ready' },
+  { id: 'vid-gif', group: 'vidExtract', icon: Clapperboard, name: 'toolVidGif', desc: 'toolVidGifDesc', status: 'ready' },
+  { id: 'vid-thumb', group: 'vidExtract', icon: ImageIcon, name: 'toolVidThumb', desc: 'toolVidThumbDesc', status: 'ready' },
+  { id: 'vid-info', group: 'vidExtract', icon: Info, name: 'toolVidInfo', desc: 'toolVidInfoDesc', status: 'ready' },
 ];
 
 export function findTool(id: string): ToolDef | undefined {

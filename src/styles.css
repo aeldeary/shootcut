@@ -2134,3 +2134,24 @@ kbd {
   background: repeating-conic-gradient(#e5e7eb 0 25%, #fff 0 50%) 0 0 / 16px 16px;
   margin-top: 12px;
 }
+
+/* ---- video tools ---- */
+.vid-files { list-style: none; margin: 0 0 12px; padding: 0; display: grid; gap: 6px; }
+.vid-file { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border: 1px solid var(--border); border-radius: 8px; min-width: 0; }
+.vid-file-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.vid-stage { position: relative; display: block; width: 100%; line-height: 0; }
+.vid-player { display: block; width: 100%; max-height: 70vh; background: #000; border-radius: 8px; }
+.vid-audio { width: 100%; }
+.vid-img { max-width: 100%; border-radius: 8px; }
+.vid-out { display: grid; gap: 10px; }
+.vid-crop { position: absolute; pointer-events: none; outline: 2px solid #fff; box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.55); /* video controls stay usable: the frame never captures clicks */ }
+.vid-stage { overflow: hidden; border-radius: 8px; }
+.vid-time { display: flex; gap: 8px; align-items: stretch; }
+.vid-time .input { flex: 1; min-width: 0; direction: ltr; text-align: start; }
+.vid-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.vid-bar { height: 8px; border-radius: 4px; background: var(--border); overflow: hidden; margin-top: 10px; }
+.vid-bar > div { height: 100%; background: var(--primary); transition: width 0.2s linear; }
+.info-table { border-collapse: collapse; width: 100%; max-width: 560px; margin-top: 12px; }
+.info-table th, .info-table td { text-align: start; padding: 8px 10px; border-bottom: 1px solid var(--border); }
+.info-table th { font-weight: 600; width: 40%; }
+.chip.is-active { background: var(--primary); border-color: var(--primary); color: #fff; }

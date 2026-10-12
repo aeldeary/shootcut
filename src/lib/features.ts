@@ -52,6 +52,57 @@ export const TOOL_FEATURES: Record<string, Text[]> = {
     { en: 'Drag over faces, number plates or private details to hide them with blur, pixels or a black box', ar: 'اسحب فوق الوجوه أو لوحات السيارات أو التفاصيل الخاصة لإخفائها بالتمويه أو المربعات أو مربع أسود' },
     { en: 'You mark the areas yourself; nothing is detected automatically', ar: 'تحدد المناطق بنفسك؛ لا يُكتشف شيء تلقائياً' },
   ],
+  'vid-convert': [
+    { en: 'Change a video to MP4, WebM, MOV or MKV', ar: 'حوّل الفيديو إلى MP4 أو WebM أو MOV أو MKV' },
+    { en: 'Remove the sound if you want a silent copy', ar: 'أزل الصوت إن أردت نسخة صامتة' },
+    { en: 'Reads most common video files, including MKV, AVI and 3GP', ar: 'يقرأ أغلب ملفات الفيديو الشائعة، ومنها MKV وAVI وـ3GP' },
+  ],
+  'vid-compress': [
+    { en: 'Presets for WhatsApp, Instagram, TikTok, X and email, each with a sensible size and quality', ar: 'إعدادات جاهزة لواتساب وإنستغرام وتيك توك وإكس والبريد، لكل منها مقاس وجودة مناسبان' },
+    { en: 'Can aim for a size limit, such as under 16 MB for WhatsApp', ar: 'يمكنه السعي إلى حد للحجم، مثل أقل من 16 ميغابايت لواتساب' },
+    { en: 'Or set the quality, the largest height and a target size yourself', ar: 'أو حدّد الجودة وأكبر ارتفاع والحجم المستهدف بنفسك' },
+    { en: 'Shows the size before and after', ar: 'يعرض الحجم قبل الضغط وبعده' },
+  ],
+  'vid-resize': [
+    { en: 'Lower the resolution (2160p down to 240p) while keeping the shape', ar: 'اخفض الدقة (من 2160 إلى 240) مع الحفاظ على الشكل' },
+    { en: 'Lower the frame rate to save space', ar: 'اخفض معدل الإطارات لتوفير المساحة' },
+  ],
+  'vid-trim': [
+    { en: "Choose the start and the end, or press a button to take the player's position", ar: 'اختر البداية والنهاية، أو اضغط زرًا لأخذ موضع المشغّل' },
+    { en: 'Fast mode copies the video without re-encoding; precise mode cuts exactly where you chose', ar: 'الوضع السريع ينسخ الفيديو دون إعادة ترميز، والدقيق يقصّ عند اللحظة المحددة تمامًا' },
+  ],
+  'vid-merge': [
+    { en: 'Join many videos into one, in the order you set (move up and down)', ar: 'اجمع عدة فيديوهات في واحد بالترتيب الذي تحدده (نقل لأعلى ولأسفل)' },
+    { en: 'Clips of different sizes are fitted to the first one without stretching', ar: 'تُلائَم المقاطع المختلفة المقاس مع الأول دون تشويه' },
+    { en: 'Sound is kept only when every clip has sound', ar: 'يبقى الصوت فقط إذا كان في كل المقاطع' },
+  ],
+  'vid-crop': [
+    { en: 'Vertical 9:16, square, 4:5, 16:9, 4:3, or exact pixels', ar: 'طولي 9:16 أو مربع أو 4:5 أو 16:9 أو 4:3 أو بكسلات محددة' },
+    { en: 'A frame on the preview shows what stays; move it with the sliders', ar: 'يظهر على المعاينة إطار يبيّن ما سيبقى، وتحرّكه بالمنزلقات' },
+  ],
+  'vid-rotate': [
+    { en: 'Rotate 90° either way or 180°, or flip left to right or top to bottom', ar: 'دوّر 90° في أي اتجاه أو 180°، أو اقلب أفقيًا أو رأسيًا' },
+  ],
+  'vid-speed': [
+    { en: 'From 0.25× slow motion to 8× fast, with the sound kept in step and the same pitch', ar: 'من 0.25× للحركة البطيئة إلى 8× للسريعة، مع مزامنة الصوت وثبات درجته' },
+  ],
+  'vid-audio': [
+    { en: 'Save the sound of a video as MP3, M4A, WAV, OGG or FLAC', ar: 'احفظ صوت الفيديو بصيغة MP3 أو M4A أو WAV أو OGG أو FLAC' },
+    { en: 'Choose the bitrate for the compressed formats', ar: 'اختر معدل البتات للصيغ المضغوطة' },
+  ],
+  'vid-gif': [
+    { en: 'Turn up to 30 seconds of a video into an animated GIF', ar: 'حوّل حتى 30 ثانية من الفيديو إلى صورة GIF متحركة' },
+    { en: 'Choose the start, frames per second and width; the colours are tuned for a better picture', ar: 'اختر البداية وعدد الإطارات في الثانية والعرض، مع ضبط الألوان لصورة أفضل' },
+  ],
+  'vid-thumb': [
+    { en: 'Save a picture from any moment of the video as JPG or PNG', ar: 'احفظ صورة من أي لحظة في الفيديو بصيغة JPG أو PNG' },
+    { en: 'Or save one frame every few seconds as a ZIP', ar: 'أو احفظ لقطة كل عدة ثوانٍ في ملف ZIP' },
+    { en: "Uses your browser's own player, so it needs a format the browser can play", ar: 'يستخدم مشغّل المتصفح نفسه، فيلزم أن تكون الصيغة مما يشغّله المتصفح' },
+  ],
+  'vid-info': [
+    { en: 'Shows the size, length, resolution, frame rate, codecs and bitrate', ar: 'يعرض الحجم والمدة والدقة ومعدل الإطارات والترميز ومعدل البتات' },
+    { en: 'Says whether the video has sound', ar: 'يبيّن هل في الفيديو صوت' },
+  ],
   inspect: [
     { en: 'See how many pages the file has, its paper size, whether the pages hold real text or are scans, and how many form fields it has', ar: 'اعرف عدد الصفحات ومقاس الورق، وهل الصفحات نص حقيقي أم صور ممسوحة، وعدد حقول التعبئة في الملف' },
     { en: 'Read the title, author and dates', ar: 'اطّلع على العنوان والمؤلف والتواريخ' },
@@ -151,6 +202,7 @@ export const GENERAL_FEATURES: { title: Text; text: Text }[] = [
   { title: { en: 'Undo and redo', ar: 'التراجع والإعادة' }, text: { en: 'Every tool has undo and redo buttons at the top, and Ctrl+Z and Ctrl+Y work too.', ar: 'في كل أداة زرّا تراجع وإعادة في الأعلى، ويعمل أيضاً Ctrl+Z وCtrl+Y.' } },
   { title: { en: 'Made for phones', ar: 'مصمم للهاتف' }, text: { en: 'Touch friendly buttons, a move-the-page button on the page tools, and pages that fit the screen.', ar: 'أزرار مناسبة للمس، وزر لتحريك الصفحة في أدوات الصفحات، وصفحات تتلاءم مع عرض الشاشة.' } },
   { title: { en: 'Acrobat keyboard shortcuts', ar: 'اختصارات أكروبات' }, text: { en: 'The shortcuts of Adobe Acrobat DC for Windows and Mac, listed below. They work with any keyboard layout, Arabic included.', ar: 'اختصارات Adobe Acrobat DC لنظامَي ويندوز وماك، مدرجة أدناه. وتعمل مع أي لغة للوحة المفاتيح، ومنها العربية.' } },
+  { title: { en: 'The video engine is kept on your device', ar: 'محرك الفيديو يُحفظ على جهازك' }, text: { en: 'The first video job downloads the video engine (about 32 MB) from this site. It is stored in your browser, so later jobs start at once, on a phone or a computer. It is not a third party.', ar: 'تنزّل أول عملية فيديو محرك الفيديو (نحو 32 ميغابايت) من هذا الموقع نفسه، ثم يُحفظ في متصفحك فتبدأ العمليات اللاحقة فورًا على الهاتف أو الحاسوب. وهو ليس من طرف ثالث.' } },
   { title: { en: 'Free and open source', ar: 'مجاني ومفتوح المصدر' }, text: { en: 'Free to use, with the code open under the AGPL-3.0 license.', ar: 'مجاني الاستخدام، وشيفرته مفتوحة برخصة AGPL-3.0.' } },
 ];
 
@@ -159,5 +211,7 @@ export const NOT_AVAILABLE: Text[] = [
   { en: 'Editing the original text of a PDF', ar: 'تعديل النص الأصلي داخل ملف PDF' },
   { en: 'Certificate-based digital signatures', ar: 'التوقيع الرقمي بشهادة' },
   { en: 'PDF/A and print-production checks, accessibility tagging', ar: 'فحوصات PDF/A والطباعة الاحترافية، وتهيئة الملف لذوي الإعاقة (الوسم)' },
+  { en: 'Artificial-intelligence tools (automatic background removal, upscaling, translation, summaries): they need a server or large models, which breaks the no-upload promise', ar: 'أدوات الذكاء الاصطناعي (إزالة الخلفية تلقائياً، رفع الدقة، الترجمة، التلخيص): تحتاج إلى خادم أو نماذج ضخمة، وهذا يخالف وعد عدم رفع الملفات' },
+  { en: 'Downloading videos from websites, and turning Word, Excel or PowerPoint files into PDF with their exact layout', ar: 'تنزيل الفيديو من المواقع، وتحويل ملفات Word وExcel وPowerPoint إلى PDF بتخطيطها الدقيق' },
   { en: 'Features that need a server: sending files for comments, bulk sending, web forms', ar: 'المزايا التي تحتاج إلى خادم: إرسال الملفات للتعليق عليها، والإرسال الجماعي، والنماذج على الويب' },
 ];

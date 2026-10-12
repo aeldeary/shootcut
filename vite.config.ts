@@ -14,5 +14,7 @@ export default defineConfig({
       { find: /^pdfjs-dist$/, replacement: 'pdfjs-dist/legacy/build/pdf.mjs' },
     ],
   },
+  // the FFmpeg wrapper starts its own worker from a relative URL, which Vite's dev pre-bundling would break
+  optimizeDeps: { exclude: ['@ffmpeg/ffmpeg', '@ffmpeg/util'] },
   build: { target: 'es2022' },
 });

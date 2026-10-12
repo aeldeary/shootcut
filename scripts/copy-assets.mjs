@@ -19,6 +19,7 @@ function copy(from, to) {
 
 rmSync(out('pdfjs'), { recursive: true, force: true });
 rmSync(out('ocr'), { recursive: true, force: true });
+rmSync(out('ffmpeg'), { recursive: true, force: true });
 
 // pdf.js: fonts for PDFs that don't embed the standard 14, and character maps
 copy(nm('pdfjs-dist/standard_fonts'), out('pdfjs/standard_fonts'));
@@ -33,5 +34,9 @@ for (const f of ['tesseract-core-lstm.wasm.js', 'tesseract-core-simd-lstm.wasm.j
 // Language data (the "best" integer models, gzip-compressed)
 copy(nm('@tesseract.js-data/ara/4.0.0_best_int/ara.traineddata.gz'), out('ocr/lang/ara.traineddata.gz'));
 copy(nm('@tesseract.js-data/eng/4.0.0_best_int/eng.traineddata.gz'), out('ocr/lang/eng.traineddata.gz'));
+
+// FFmpeg (WebAssembly) for the video tools; the app stores it in the browser after the first download
+copy(nm('@ffmpeg/core/dist/esm/ffmpeg-core.js'), out('ffmpeg/ffmpeg-core.js'));
+copy(nm('@ffmpeg/core/dist/esm/ffmpeg-core.wasm'), out('ffmpeg/ffmpeg-core.wasm'));
 
 console.log('copy-assets: done');

@@ -18,6 +18,18 @@ const COMPONENTS: Record<string, ReturnType<typeof lazy>> = {
   'img-watermark': lazy(() => import('./tools/ImageBatchTools').then((m) => ({ default: m.ImgWatermarkTool }))),
   'img-crop': lazy(() => import('./tools/ImageEditTools').then((m) => ({ default: m.ImgCropTool }))),
   'img-blur': lazy(() => import('./tools/ImageEditTools').then((m) => ({ default: m.ImgBlurTool }))),
+  'vid-convert': lazy(() => import('./tools/VideoTools').then((m) => ({ default: m.VidConvertTool }))),
+  'vid-compress': lazy(() => import('./tools/VideoTools').then((m) => ({ default: m.VidCompressTool }))),
+  'vid-resize': lazy(() => import('./tools/VideoTools').then((m) => ({ default: m.VidResizeTool }))),
+  'vid-trim': lazy(() => import('./tools/VideoTools').then((m) => ({ default: m.VidTrimTool }))),
+  'vid-merge': lazy(() => import('./tools/VideoTools').then((m) => ({ default: m.VidMergeTool }))),
+  'vid-crop': lazy(() => import('./tools/VideoTools').then((m) => ({ default: m.VidCropTool }))),
+  'vid-rotate': lazy(() => import('./tools/VideoTools').then((m) => ({ default: m.VidRotateTool }))),
+  'vid-speed': lazy(() => import('./tools/VideoTools').then((m) => ({ default: m.VidSpeedTool }))),
+  'vid-audio': lazy(() => import('./tools/VideoTools').then((m) => ({ default: m.VidAudioTool }))),
+  'vid-gif': lazy(() => import('./tools/VideoTools').then((m) => ({ default: m.VidGifTool }))),
+  'vid-thumb': lazy(() => import('./tools/VideoExtraTools').then((m) => ({ default: m.VidThumbTool }))),
+  'vid-info': lazy(() => import('./tools/VideoExtraTools').then((m) => ({ default: m.VidInfoTool }))),
   'img-meme': lazy(() => import('./tools/ImageEditTools').then((m) => ({ default: m.ImgMemeTool }))),
   'img-transparent': lazy(() => import('./tools/ImageEditTools').then((m) => ({ default: m.ImgTransparentTool }))),
   merge: lazy(() => import('./tools/Merge').then((m) => ({ default: m.MergeTool }))),
@@ -132,7 +144,7 @@ function SectionPage({ section }: { section: SectionId }) {
     <div className="container">
       <h1 className="section-title">{t(sec.title)}</h1>
       <p className="muted lead">{t(sec.desc)}</p>
-      {section === 'video' ? <p className="notice notice-info">{t('videoSoon')}</p> : <ToolGrid section={section} />}
+      <ToolGrid section={section} />
     </div>
   );
 }
