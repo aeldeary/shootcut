@@ -26,6 +26,15 @@ jobs:
       - run: npm ci
       # some tests check the generated PDFs with poppler and qpdf
       - run: sudo apt-get update && sudo apt-get install -y poppler-utils qpdf imagemagick
+      - name: Studios (built by studios.yml, kept on the studios branch)
+        run: |
+          mkdir -p public/studio
+          if git ls-remote --exit-code --heads origin studios >/dev/null 2>&1; then
+            git clone --depth 1 --branch studios "https://github.com/${{ github.repository }}.git" /tmp/studios
+            rm -rf /tmp/studios/.git /tmp/studios/_shots
+            cp -r /tmp/studios/. public/studio/
+            du -sh public/studio
+          fi
       - run: npm test
       - run: npm run build
       - uses: actions/upload-pages-artifact@v3

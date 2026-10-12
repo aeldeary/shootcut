@@ -1,0 +1,127 @@
+name: Build studios
+
+# Builds the storytold web apps (WebAssembly) that the Studios section embeds, and publishes the result to the
+# `studios` branch. The Pages deploy copies that branch into public/studio. Slow (Rust), so it only runs by hand.
+on:
+  workflow_dispatch:
+    inputs:
+      only:
+        description: "Build only these ids, comma separated (empty: all)"
+        default: ""
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { id: word, repo: wordcraft }
+          - { id: grid, repo: gridcraft }
+          - { id: deck, repo: deckcraft }
+          - { id: photo, repo: photocraft }
+          - { id: light, repo: lightcraft }
+          - { id: vector, repo: vectorcraft }
+          - { id: design, repo: designcraft }
+          - { id: film, repo: filmcraft }
+          - { id: effect, repo: effectcraft }
+          - { id: sound, repo: soundcraft }
+          - { id: cad, repo: cadcraft }
+    steps:
+      - name: Skip when not selected
+        id: pick
+        run: |
+          only="${{ inputs.only }}"
+          if [ -n "$only" ] && ! echo ",$only," | grep -q ",${{ matrix.id }},"; then echo "run=no" >> "$GITHUB_OUTPUT"; else echo "run=yes" >> "$GITHUB_OUTPUT"; fi
+      - uses: actions/checkout@v4
+        if: steps.pick.outputs.run == 'yes'
+      - uses: actions/checkout@v4
+        if: steps.pick.outputs.run == 'yes'
+        with:
+          repository: storytold/${{ matrix.repo }}
+          path: src
+          lfs: false
+      - name: Rust
+        if: steps.pick.outputs.run == 'yes'
+        run: |
+          rustup toolchain install stable --profile minimal
+          rustup default stable
+          rustup target add wasm32-unknown-unknown
+          rustc --version
+      - uses: Swatinem/rust-cache@v2
+        if: steps.pick.outputs.run == 'yes'
+        with:
+          workspaces: src
+          cache-on-failure: true
+      - name: Build
+        if: steps.pick.outputs.run == 'yes'
+        run: scripts/build-studio.sh src ${{ matrix.repo }} out/${{ matrix.id }}
+      - uses: actions/setup-node@v4
+        if: steps.pick.outputs.run == 'yes'
+        with:
+          node-version: 22
+      - name: Smoke test in Chromium
+        if: steps.pick.outputs.run == 'yes'
+        continue-on-error: true
+        run: |
+          npm i --no-save playwright-core@1.49.1
+          npx playwright-core install --with-deps chromium
+          node scripts/studio-smoke.mjs out/${{ matrix.id }} ${{ matrix.id }} shots
+      - uses: actions/upload-artifact@v4
+        if: steps.pick.outputs.run == 'yes'
+        with:
+          name: studio-${{ matrix.id }}
+          path: out/${{ matrix.id }}
+          retention-days: 7
+      - uses: actions/upload-artifact@v4
+        if: steps.pick.outputs.run == 'yes' && always()
+        with:
+          name: shots-${{ matrix.id }}
+          path: shots
+          retention-days: 7
+          if-no-files-found: ignore
+
+  publish:
+    needs: build
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/download-artifact@v4
+        with: { path: art, pattern: 'studio-*' }
+      - uses: actions/download-artifact@v4
+        with: { path: shots, pattern: 'shots-*', merge-multiple: true }
+        continue-on-error: true
+      - name: Assemble and push the studios branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -e
+          mkdir -p site/_shots
+          # keep apps that were not rebuilt this time
+          if git ls-remote --exit-code --heads origin studios >/dev/null 2>&1; then
+            git worktree add -q prev origin/studios
+            cp -r prev/. site/ && rm -rf site/.git
+          fi
+          for d in art/studio-*; do
+            [ -d "$d" ] || continue
+            id=${d#art/studio-}
+            rm -rf "site/$id" && mkdir -p "site/$id" && cp -r "$d"/. "site/$id"/
+          done
+          [ -d shots ] && cp -r shots/. site/_shots/ || true
+          cd site
+          git init -q -b studios
+          git config user.name "github-actions"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Studios build $(date -u +%FT%TZ)"
+          git remote add origin "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
+          git push -f origin studios
+          cd ..
+          gh workflow run deploy.yml --ref main
