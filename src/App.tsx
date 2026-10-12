@@ -37,6 +37,8 @@ const COMPONENTS: Record<string, ReturnType<typeof lazy>> = {
   'vid-crop': lazy(() => import('./tools/VideoTools').then((m) => ({ default: m.VidCropTool }))),
   'vid-rotate': lazy(() => import('./tools/VideoTools').then((m) => ({ default: m.VidRotateTool }))),
   'vid-speed': lazy(() => import('./tools/VideoTools').then((m) => ({ default: m.VidSpeedTool }))),
+  sheet: lazy(() => import('./tools/SheetLight')),
+  slides: lazy(() => import('./tools/SlidesLight')),
   'aud-trim': lazy(() => import('./tools/AudioTools').then((m) => ({ default: m.AudTrimTool }))),
   'aud-convert': lazy(() => import('./tools/AudioTools').then((m) => ({ default: m.AudConvertTool }))),
   'aud-merge': lazy(() => import('./tools/AudioTools').then((m) => ({ default: m.AudMergeTool }))),
@@ -246,7 +248,7 @@ export default function App() {
   const page = route === 'features' || route === 'shortcuts';
   const section = sectionOfRoute(route);
   const studioRoute = parseStudioRoute(route);
-  const sectionPage = route === 'pdf' || route === 'image' || route === 'video' ? route : null;
+  const sectionPage = route === 'pdf' || route === 'image' || route === 'video' || route === 'office' ? route : null;
   const active = tool && tool.status === 'ready' ? tool.id : null;
   const Active = active ? COMPONENTS[active] : undefined;
 

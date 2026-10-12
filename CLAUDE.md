@@ -10,7 +10,7 @@ Whenever a feature is added, changed or removed, update the Features page in the
 `src/lib/features.test.ts` fails if a ready tool has no feature entry.
 
 ## Structure
-- The home page offers three sections: PDF, Images, Video (`SECTIONS` in `src/lib/tools.ts`). Each tool belongs to a group, each group to a section.
+- The home page offers four sections: PDF, Images, Video and audio, Sheets and slides (`SECTIONS` in `src/lib/tools.ts`), then the Studios. Each tool belongs to a group, each group to a section.
 - Everything runs in the browser. No server, no uploads, no paid or terms-violating services, no third-party requests.
 - Video tools run FFmpeg (WebAssembly) through `src/lib/video/engine.ts`: the 32 MB engine is copied to `public/ffmpeg` by `scripts/copy-assets.mjs` and kept in the browser's Cache Storage after the first download. Command lines are built in `src/lib/video/args.ts` (tested); pages share `src/components/VideoTool.tsx`. WebM uses VP8 because the VP9 encoder crashes in this build. Never add a CDN URL.
 - PDF page tools (split, extract/remove, crop, repair) are in `src/lib/ops/pdftools.ts` and `src/tools/PdfPageTools.tsx`.

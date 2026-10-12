@@ -33,7 +33,7 @@ export const STUDIOS: Studio[] = [
       { id: 'grid', repo: 'gridcraft', name: 'appGrid', desc: 'appGridDesc' },
       { id: 'deck', repo: 'deckcraft', name: 'appDeck', desc: 'appDeckDesc' },
     ],
-    light: ['create', 'convert'],
+    light: ['sheet', 'slides', 'create', 'convert'],
   },
   {
     id: 'design',

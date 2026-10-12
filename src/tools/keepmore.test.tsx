@@ -83,7 +83,7 @@ describe('tool bar', () => {
     wrap(<Header showBack activeId="organize" section="pdf" />);
     const nav = screen.getByRole('navigation', { name: 'All tools' });
     expect(nav.querySelectorAll('button')).toHaveLength(5);
-    expect(nav.querySelectorAll('a')).toHaveLength(3); // the three sections
+    expect(nav.querySelectorAll('a')).toHaveLength(4); // the four sections
     const heading = screen.getByRole('button', { name: /Create/ });
     expect(heading.className).toContain('is-here');
     fireEvent.click(heading);

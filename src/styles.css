@@ -585,6 +585,7 @@ a.card:hover {
 }
 
 .field > label,
+.field > .label,
 .choices > legend {
   font-weight: 600;
   font-size: 0.92rem;
@@ -1968,7 +1969,7 @@ kbd {
 /* ---- sections (home) and the section chips in the tool bar ---- */
 .sections {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
   gap: 16px;
   margin-block: 8px 40px;
 }
@@ -2304,5 +2305,203 @@ button.version-card .tag {
 @media (max-width: 720px) {
   .version-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+/* Light spreadsheet */
+.sheet-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-block: 12px;
+}
+.formula-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.formula-name {
+  min-width: 52px;
+  padding: 8px 10px;
+  text-align: center;
+  font-weight: 700;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+.formula-bar .input {
+  flex: 1;
+}
+.sheet-wrap {
+  max-height: 62vh;
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  outline: none;
+}
+.sheet-wrap:focus-visible {
+  box-shadow: 0 0 0 2px var(--primary);
+}
+.sheet {
+  border-collapse: collapse;
+  min-width: 100%;
+  font-size: 0.92rem;
+}
+.sheet th,
+.sheet td {
+  border: 1px solid var(--border);
+  padding: 4px 8px;
+  height: 30px;
+  min-width: 96px;
+  max-width: 260px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.sheet thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: color-mix(in srgb, var(--surface) 88%, var(--primary) 12%);
+}
+.sheet tbody th {
+  position: sticky;
+  inset-inline-start: 0;
+  z-index: 1;
+  min-width: 44px;
+  background: color-mix(in srgb, var(--surface) 88%, var(--primary) 12%);
+  font-weight: 600;
+}
+.sheet .corner {
+  inset-inline-start: 0;
+  z-index: 3;
+  min-width: 44px;
+}
+.sheet th.is-sel {
+  background: color-mix(in srgb, var(--primary) 30%, var(--surface));
+}
+.sheet td {
+  cursor: cell;
+}
+.sheet td.is-num {
+  text-align: end;
+}
+.sheet td.is-err {
+  color: #b42318;
+}
+.sheet td.is-sel {
+  outline: 2px solid var(--primary);
+  outline-offset: -2px;
+  background: color-mix(in srgb, var(--primary) 8%, var(--surface));
+}
+
+/* Light slides */
+.slides-layout {
+  display: grid;
+  grid-template-columns: 170px 1fr;
+  gap: 16px;
+  align-items: start;
+}
+.slide-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 80vh;
+  overflow: auto;
+}
+.slide-thumb {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--surface);
+  cursor: pointer;
+}
+.slide-thumb.is-sel {
+  border-color: var(--primary);
+}
+.thumb-canvas,
+.slide-canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+}
+.slide-canvas {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+.thumb-num {
+  position: absolute;
+  inset-block-end: 4px;
+  inset-inline-start: 6px;
+  padding: 0 6px;
+  font-size: 0.75rem;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+}
+.slide-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-block: 10px;
+}
+.theme-dot {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 3px solid;
+  vertical-align: -2px;
+}
+.presenter {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  background: #000;
+  outline: none;
+}
+.presenter-canvas {
+  width: min(100vw, calc(100vh * 16 / 9));
+  height: auto;
+  aspect-ratio: 16 / 9;
+}
+.presenter-close {
+  position: absolute;
+  inset-block-start: 12px;
+  inset-inline-end: 12px;
+  opacity: 0.7;
+}
+.presenter-count {
+  position: absolute;
+  inset-block-end: 10px;
+  inset-inline-end: 14px;
+  color: #ddd;
+  font-size: 0.85rem;
+}
+@media (max-width: 720px) {
+  .slides-layout {
+    grid-template-columns: 1fr;
+  }
+  .slide-list {
+    flex-direction: row;
+    max-height: none;
+    overflow-x: auto;
+  }
+  .slide-list li {
+    flex: 0 0 120px;
   }
 }

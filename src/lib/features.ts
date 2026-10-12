@@ -94,6 +94,18 @@ export const TOOL_FEATURES: Record<string, Text[]> = {
   'vid-speed': [
     { en: 'From 0.25× slow motion to 8× fast, with the sound kept in step and the same pitch', ar: 'من 0.25× للحركة البطيئة إلى 8× للسريعة، مع مزامنة الصوت وثبات درجته' },
   ],
+  sheet: [
+    { en: 'Type values and formulas in a grid (26 columns, 200 rows) with the cell content bar and the arrow keys', ar: 'اكتب القيم والمعادلات في شبكة (26 عموداً و200 صف) مع شريط محتوى الخلية ومفاتيح الأسهم' },
+    { en: 'Functions: SUM, AVERAGE, MIN, MAX, COUNT, COUNTA, ROUND, ABS, SQRT, INT, MOD, POWER, IF, AND, OR, NOT, SUMIF, COUNTIF, CONCAT, LEN, UPPER, LOWER, TRIM; Arabic digits and the Arabic comma work in formulas', ar: 'الدوال: SUM وAVERAGE وMIN وMAX وCOUNT وCOUNTA وROUND وABS وSQRT وINT وMOD وPOWER وIF وAND وOR وNOT وSUMIF وCOUNTIF وCONCAT وLEN وUPPER وLOWER وTRIM؛ والأرقام العربية والفاصلة العربية تعمل داخل المعادلات' },
+    { en: 'Open and save Excel (XLSX, formulas kept) and CSV (with Arabic text read correctly by Excel)', ar: 'افتح واحفظ ملفات Excel (XLSX مع بقاء المعادلات) وCSV (ونص عربي يقرؤه Excel صحيحاً)' },
+    { en: 'Saved in this browser as you type; it is a light sheet: no charts, no cell colours, one sheet', ar: 'يُحفظ في هذا المتصفح أثناء الكتابة؛ وهو جدول خفيف: بلا مخططات ولا ألوان للخلايا وبورقة واحدة' },
+  ],
+  slides: [
+    { en: 'Four layouts (title, bullets, text, picture) and five colour themes, with a thumbnail list, add, duplicate, delete and reorder', ar: 'أربعة تخطيطات (عنوان ونقاط ونص وصورة) وخمس سمات لونية، مع قائمة مصغرات وإضافة ونسخ وحذف وإعادة ترتيب' },
+    { en: 'Arabic slides are laid out right to left automatically; English ones left to right', ar: 'تُرتَّب الشرائح العربية من اليمين إلى اليسار تلقائياً، والإنجليزية من اليسار إلى اليمين' },
+    { en: 'Save as PowerPoint (PPTX, real editable text), PDF or pictures, or present full screen with the arrow keys', ar: 'احفظ بصيغة PowerPoint (PPTX بنص حقيقي قابل للتحرير) أو PDF أو صور، أو اعرض بملء الشاشة بمفاتيح الأسهم' },
+    { en: 'Saved in this browser as you type; the PDF and the pictures are images of the slides', ar: 'يُحفظ في هذا المتصفح أثناء الكتابة؛ وملف PDF والصور هي صور للشرائح' },
+  ],
   'aud-trim': [
     { en: 'Keep only the part you need from a sound file, at the exact seconds you type or the player position', ar: 'احتفظ بالجزء الذي تحتاجه فقط من الملف الصوتي عند الثواني التي تكتبها أو موضع المشغّل' },
     { en: 'Save it as MP3, M4A, WAV, OGG or FLAC', ar: 'احفظه بصيغة MP3 أو M4A أو WAV أو OGG أو FLAC' },

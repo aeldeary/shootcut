@@ -3,7 +3,7 @@
 Live: https://aeldeary.github.io/shootcut/
 
 Free **PDF, image and video** tools that run **entirely in your browser**. No server, no uploads, no sign-up.
-The home page has three sections: PDF, Images, Video. Interface in Arabic (RTL) and English (LTR).
+The home page has four sections: PDF, Images, Video and audio, Sheets and slides, plus the Studios. Interface in Arabic (RTL) and English (LTR).
 
 أدوات مجانية للـ **PDF والصور والفيديو** تعمل **بالكامل داخل المتصفح**. بلا خادم ولا رفع ملفات ولا تسجيل.
 تضم الصفحة الرئيسية ثلاثة أقسام: PDF والصور والفيديو. الواجهة بالعربية (من اليمين إلى اليسار) والإنجليزية (من اليسار إلى اليمين).
@@ -110,13 +110,17 @@ npm test           # unit + component tests
 npm run build      # outputs dist/
 ```
 
+## Sheets and slides / الجداول والعروض
+
+Light tools, no server: a spreadsheet (26 columns × 200 rows, formulas, XLSX and CSV in and out) and a slide maker (four layouts, five themes, Arabic right to left, PPTX with editable text, PDF, pictures, full-screen presenting). Both save in the browser as you type.
+
 ## Studios / الاستوديوهات
 
 Five studios (Docs, Design, Film, Audio, CAD) embed full web apps from the open-source [storytold](https://github.com/storytold) projects (MIT OR Apache-2.0), built unmodified by `.github/workflows/studios.yml` into the `studios` branch and served under `/studio/<app>/`. The person chooses the **full** or the **light** version first (phones are pointed to light). The inside of the full apps is English only for now and they are alpha; Shootcut's frame, notices and light tools follow the chosen language.
 
 | Studio | Full apps | Light version |
 | --- | --- | --- |
-| Docs | Documents, Spreadsheets, Presentations | Create and convert PDF |
+| Docs | Documents, Spreadsheets, Presentations | Light spreadsheet, light slides, create and convert PDF |
 | Design | Photo editor, Photo developer, Vector drawing, Graphic design | Picture tools |
 | Film | Video editor, Motion effects | Video tools |
 | Audio | Audio workstation | Trim, convert, join and improve sound |

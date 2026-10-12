@@ -51,18 +51,22 @@ import {
   AudioWaveform,
   ListMusic,
   Volume2,
+  Sheet as SheetIcon,
+  Presentation as PresentationIcon,
+  BriefcaseBusiness,
   type LucideIcon,
 } from 'lucide-react';
 import type { Key } from '../i18n';
 
-export type SectionId = 'pdf' | 'image' | 'video';
-export type GroupId = 'view' | 'create' | 'forms' | 'review' | 'protect' | 'imgOptimize' | 'imgEdit' | 'imgConvert' | 'imgCreate' | 'imgPrivacy' | 'vidFormat' | 'vidEdit' | 'vidExtract' | 'audio';
+export type SectionId = 'pdf' | 'image' | 'video' | 'office';
+export type GroupId = 'view' | 'create' | 'forms' | 'review' | 'protect' | 'imgOptimize' | 'imgEdit' | 'imgConvert' | 'imgCreate' | 'imgPrivacy' | 'vidFormat' | 'vidEdit' | 'vidExtract' | 'audio' | 'sheets' | 'slides';
 
 /** The three parts of the site, chosen first on the home page. */
 export const SECTIONS: { id: SectionId; title: Key; desc: Key; icon: LucideIcon }[] = [
   { id: 'pdf', title: 'sectionPdf', desc: 'sectionPdfDesc', icon: FileText },
   { id: 'image', title: 'sectionImage', desc: 'sectionImageDesc', icon: ImageIcon },
   { id: 'video', title: 'sectionVideo', desc: 'sectionVideoDesc', icon: VideoIcon },
+  { id: 'office', title: 'sectionOffice', desc: 'sectionOfficeDesc', icon: BriefcaseBusiness },
 ];
 
 export interface ToolDef {
@@ -76,6 +80,8 @@ export interface ToolDef {
 
 /** Tools to point out on the home page and in the tool cards. Keep it short: drop ids when they stop being news. */
 export const WHATS_NEW: { id: string; kind: 'new' | 'updated'; note: Key }[] = [
+  { id: 'sheet', kind: 'new', note: 'newSheet' },
+  { id: 'slides', kind: 'new', note: 'newSlides' },
   { id: 'aud-polish', kind: 'new', note: 'newAudio' },
   { id: 'aud-trim', kind: 'new', note: 'newAudio' },
   { id: 'pdf-layout', kind: 'new', note: 'newPdfLayout' },
@@ -101,6 +107,8 @@ export const GROUPS: { id: GroupId; title: Key; section: SectionId }[] = [
   { id: 'vidEdit', title: 'groupVidEdit', section: 'video' },
   { id: 'vidExtract', title: 'groupVidExtract', section: 'video' },
   { id: 'audio', title: 'groupAudio', section: 'video' },
+  { id: 'sheets', title: 'groupSheets', section: 'office' },
+  { id: 'slides', title: 'groupSlides', section: 'office' },
 ];
 
 export function sectionOfGroup(g: GroupId): SectionId {
@@ -109,7 +117,7 @@ export function sectionOfGroup(g: GroupId): SectionId {
 
 /** The section a route belongs to: a tool's section, or a section page itself. */
 export function sectionOfRoute(route: string): SectionId | null {
-  if (route === 'pdf' || route === 'image' || route === 'video') return route;
+  if (route === 'pdf' || route === 'image' || route === 'video' || route === 'office') return route;
   const tool = TOOLS.find((t) => t.id === route);
   return tool ? sectionOfGroup(tool.group) : null;
 }
@@ -168,6 +176,8 @@ export const TOOLS: ToolDef[] = [
   { id: 'aud-convert', group: 'audio', icon: AudioLines, name: 'toolAudConvert', desc: 'toolAudConvertDesc', status: 'ready' },
   { id: 'aud-merge', group: 'audio', icon: ListMusic, name: 'toolAudMerge', desc: 'toolAudMergeDesc', status: 'ready' },
   { id: 'aud-polish', group: 'audio', icon: Volume2, name: 'toolAudPolish', desc: 'toolAudPolishDesc', status: 'ready' },
+  { id: 'sheet', group: 'sheets', icon: SheetIcon, name: 'toolSheet', desc: 'toolSheetDesc', status: 'ready' },
+  { id: 'slides', group: 'slides', icon: PresentationIcon, name: 'toolSlides', desc: 'toolSlidesDesc', status: 'ready' },
   { id: 'vid-info', group: 'vidExtract', icon: Info, name: 'toolVidInfo', desc: 'toolVidInfoDesc', status: 'ready' },
 ];
 
