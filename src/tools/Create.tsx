@@ -4,7 +4,11 @@ import { useI18n, type Key } from '../i18n';
 import { Dropzone } from '../components/Dropzone';
 import { Field } from '../components/Fields';
 import { Notice, ToolPage } from '../components/Shell';
+import { Camera } from 'lucide-react';
 import { canvasToBytes, decodeImage, downloadBytes, formatBytes, nextId } from '../lib/pdf';
+import { decodeFile } from '../lib/img';
+import { isHeic } from '../lib/heic';
+import { fitWithin, resizeCanvas } from '../lib/ops/imgops';
 import { createPdf, type CreateImage, type CreatePageSize } from '../lib/ops/create';
 import { moveItem } from '../lib/reorder';
 import { useHistory } from '../hooks/useHistory';
@@ -18,11 +22,18 @@ interface Item {
 }
 
 /** JPEG and PNG go in as they are; any other format the browser can read is converted to PNG. */
-async function toCreateImage(file: File): Promise<CreateImage> {
+async function toCreateImage(file: File, fromCamera = false): Promise<CreateImage> {
+  if (fromCamera) {
+    // a phone photo stores "turned sideways" in a tag the PDF would ignore: draw it upright, and keep it to a sensible size
+    const full = await decodeFile(file);
+    const s = fitWithin(full.width, full.height, 2400, 2400);
+    const canvas = s.width < full.width ? resizeCanvas(full, s.width, s.height) : full;
+    return { bytes: await canvasToBytes(canvas, 'image/jpeg', 0.85), mime: 'image/jpeg' };
+  }
   const bytes = new Uint8Array(await file.arrayBuffer());
   if (file.type === 'image/jpeg' || /\.jpe?g$/i.test(file.name)) return { bytes, mime: 'image/jpeg' };
   if (file.type === 'image/png' || /\.png$/i.test(file.name)) return { bytes, mime: 'image/png' };
-  const canvas = await decodeImage(bytes);
+  const canvas = await (isHeic(file) ? decodeFile(file) : decodeImage(bytes));
   return { bytes: await canvasToBytes(canvas, 'image/png'), mime: 'image/png' };
 }
 
@@ -38,16 +49,17 @@ export function CreateTool() {
   const [done, setDone] = useState(false);
   useHistory({ items, pageSize, landscape, fontSize }, (s) => { setItems(s.items); setPageSize(s.pageSize); setLandscape(s.landscape); setFontSize(s.fontSize); setDone(false); });
   const urls = useRef<string[]>([]);
+  const camera = useRef<HTMLInputElement>(null);
 
   useEffect(() => () => urls.current.forEach((u) => URL.revokeObjectURL(u)), []);
 
-  const addImages = async (files: File[]) => {
+  const addImages = async (files: File[], fromCamera = false) => {
     setError(null);
     setDone(false);
     const added: Item[] = [];
     for (const file of files) {
       try {
-        const image = await toCreateImage(file);
+        const image = await toCreateImage(file, fromCamera);
         const url = URL.createObjectURL(new Blob([image.bytes as unknown as BlobPart], { type: image.mime }));
         urls.current.push(url);
         added.push({ id: nextId(), name: file.name, size: file.size, image, url });
@@ -77,7 +89,26 @@ export function CreateTool() {
 
   return (
     <ToolPage title={t('toolCreate')} desc={t('toolCreateDesc')}>
-      <Dropzone kind="image" multiple compact={items.length > 0} onFiles={addImages} onRejected={() => setError('onlyImages')} />
+      <Dropzone kind="image" multiple compact={items.length > 0} onFiles={(f) => addImages(f)} onRejected={() => setError('onlyImages')} />
+      <div className="actions">
+        <button type="button" className="btn" onClick={() => camera.current?.click()}>
+          <Camera size={16} aria-hidden /> {t('createCamera')}
+        </button>
+        <input
+          ref={camera}
+          type="file"
+          accept="image/*"
+          capture="environment"
+          hidden
+          data-camera
+          onChange={(e) => {
+            const f = Array.from(e.target.files ?? []);
+            e.target.value = '';
+            if (f.length) void addImages(f, true);
+          }}
+        />
+      </div>
+      <p className="hint">{t('createCameraHint')}</p>
       {error && <Notice kind="error">{t(error)}</Notice>}
 
       {items.length > 0 && (

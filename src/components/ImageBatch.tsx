@@ -57,6 +57,7 @@ export function ImageBatch({ title, desc, options, process, suffix, fixedFormat,
   const [results, setResults] = useState<Result[]>([]);
   const [busy, setBusy] = useState<[number, number] | null>(null);
   const [bad, setBad] = useState<string[]>([]);
+  const [large, setLarge] = useState<string[]>([]);
   const [done, setDone] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const urls = useRef<string[]>([]);
@@ -82,8 +83,10 @@ export function ImageBatch({ title, desc, options, process, suffix, fixedFormat,
   const run = async () => {
     forget();
     setBad([]);
+    setLarge([]);
     const made: Result[] = [];
     const failed: string[] = [];
+    const tooLarge: string[] = [];
     for (const [i, file] of files.entries()) {
       setBusy([i, files.length]);
       try {
@@ -93,13 +96,15 @@ export function ImageBatch({ title, desc, options, process, suffix, fixedFormat,
         const url = URL.createObjectURL(new Blob([bytes as unknown as BlobPart], { type: MIME[fmt] }));
         urls.current.push(url);
         made.push({ id: i, name: outName(file, suffix, fmt), format: fmt, bytes, url, before: file.size, after: bytes.length, width: out.width, height: out.height });
-      } catch {
-        failed.push(file.name);
+      } catch (e) {
+        // a tool can say a picture would come out too big for the device's memory
+        (e instanceof Error && e.message === 'too-large' ? tooLarge : failed).push(file.name);
       }
     }
     const names = uniqueNames(made.map((m) => m.name));
     setResults(made.map((m, i) => ({ ...m, name: names[i] })));
     setBad(failed);
+    setLarge(tooLarge);
     setBusy(null);
     setDone(made.length > 0);
   };
@@ -183,6 +188,11 @@ export function ImageBatch({ title, desc, options, process, suffix, fixedFormat,
               </button>
             </div>
             {done && <Notice kind="success">{t('imgDone')}</Notice>}
+            {large.map((n) => (
+              <Notice key={`l-${n}`} kind="error">
+                {t('imgTooLarge')} <bdi>{n}</bdi>
+              </Notice>
+            ))}
             {bad.map((n) => (
               <Notice key={n} kind="error">
                 {t('imgUnreadable')} <bdi>{n}</bdi>

@@ -13,6 +13,7 @@ const FORMATS: { id: ConvertFormat; label: Key; hint: Key }[] = [
   { id: 'docx', label: 'convertDocx', hint: 'convertDocxHint' },
   { id: 'xlsx', label: 'convertXlsx', hint: 'convertXlsxHint' },
   { id: 'pptx', label: 'convertPptx', hint: 'convertPptxHint' },
+  { id: 'md', label: 'convertMd', hint: 'convertMdHint' },
   { id: 'txt', label: 'convertTxt', hint: 'convertTxtHint' },
   { id: 'rtf', label: 'convertRtf', hint: 'convertRtfHint' },
   { id: 'html', label: 'convertHtml', hint: 'convertHtmlHint' },

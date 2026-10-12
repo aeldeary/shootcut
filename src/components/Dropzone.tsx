@@ -20,7 +20,7 @@ export function Dropzone({ kind = 'pdf', multiple = false, compact = false, onFi
   const accept = (list: FileList | File[] | null) => {
     if (!list) return;
     const all = Array.from(list);
-    const isImg = (f: File) => f.type.startsWith('image/') || /\.(png|jpe?g|webp|gif|bmp)$/i.test(f.name);
+    const isImg = (f: File) => f.type.startsWith('image/') || /\.(png|jpe?g|webp|gif|bmp|avif|heic|heif)$/i.test(f.name);
     const isVid = (f: File) => f.type.startsWith('video/') || /\.(mp4|m4v|mov|webm|mkv|avi|3gp|flv|wmv|mpg|mpeg|ts|mts)$/i.test(f.name);
     const pdfs = all.filter((f) => (kind === 'image' ? isImg(f) : kind === 'video' ? isVid(f) : kind === 'scan' ? isImg(f) || isPdf(f) : isPdf(f)));
     if (pdfs.length < all.length) onRejected?.();
@@ -52,7 +52,7 @@ export function Dropzone({ kind = 'pdf', multiple = false, compact = false, onFi
       <input
         ref={input}
         type="file"
-        accept={kind === 'image' ? 'image/*' : kind === 'video' ? 'video/*,.mkv,.avi,.flv,.wmv,.3gp,.ts,.mts' : kind === 'scan' ? 'application/pdf,.pdf,image/*' : 'application/pdf,.pdf'}
+        accept={kind === 'image' ? 'image/*,.heic,.heif' : kind === 'video' ? 'video/*,.mkv,.avi,.flv,.wmv,.3gp,.ts,.mts' : kind === 'scan' ? 'application/pdf,.pdf,image/*' : 'application/pdf,.pdf'}
         multiple={multiple}
         hidden
         onChange={(e) => {

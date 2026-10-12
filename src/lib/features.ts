@@ -36,6 +36,7 @@ export const TOOL_FEATURES: Record<string, Text[]> = {
   ],
   'img-convert': [
     { en: 'Convert pictures to JPG, PNG or WebP, many at once, from almost any picture your browser can open', ar: 'حوّل الصور إلى JPG أو PNG أو WebP، عدة صور معاً، من أي صورة يستطيع متصفحك فتحها تقريباً' },
+    { en: 'Opens iPhone photos (HEIC) in any browser and saves them as JPG, PNG or WebP', ar: 'يفتح صور الآيفون (HEIC) في أي متصفح ويحفظها بصيغة JPG أو PNG أو WebP' },
   ],
   'img-social': [
     { en: 'Ready sizes for Instagram, stories and reels, Facebook, X, LinkedIn and YouTube', ar: 'مقاسات جاهزة لإنستغرام والستوري والريلز وفيسبوك وإكس ولينكدإن ويوتيوب' },
@@ -47,6 +48,10 @@ export const TOOL_FEATURES: Record<string, Text[]> = {
   'img-watermark': [
     { en: 'Stamp text or your logo on many pictures at once, with a live preview', ar: 'ضع نصاً أو شعارك على عدة صور دفعة واحدة، مع معاينة مباشرة' },
     { en: 'Choose the place, size, opacity and rotation, or repeat it across the picture', ar: 'اختر المكان والحجم والشفافية والدوران، أو كرّرها على الصورة كلها' },
+  ],
+  'img-upscale': [
+    { en: 'Make pictures 2, 3 or 4 times bigger, many at once, with adjustable sharpening', ar: 'كبّر الصور مرتين أو ثلاثًا أو أربعًا، عدة صور معًا، مع شحذ قابل للضبط' },
+    { en: 'Smooth enlarging, not artificial intelligence: it cannot add detail that is not there', ar: 'تكبير سلس وليس بالذكاء الاصطناعي: لا يضيف تفاصيل غير موجودة' },
   ],
   'img-blur': [
     { en: 'Drag over faces, number plates or private details to hide them with blur, pixels or a black box', ar: 'اسحب فوق الوجوه أو لوحات السيارات أو التفاصيل الخاصة لإخفائها بالتمويه أو المربعات أو مربع أسود' },
@@ -103,6 +108,23 @@ export const TOOL_FEATURES: Record<string, Text[]> = {
     { en: 'Shows the size, length, resolution, frame rate, codecs and bitrate', ar: 'يعرض الحجم والمدة والدقة ومعدل الإطارات والترميز ومعدل البتات' },
     { en: 'Says whether the video has sound', ar: 'يبيّن هل في الفيديو صوت' },
   ],
+  'pdf-split': [
+    { en: 'Cut a PDF into files by ranges (1-3, 4-6, 7), every few pages, or one file per page', ar: 'قسّم ملف PDF إلى ملفات بحسب نطاقات (1-3, 4-6, 7) أو كل عدة صفحات أو ملف لكل صفحة' },
+    { en: 'Several files come as one ZIP', ar: 'تصلك عدة ملفات في ملف ZIP واحد' },
+  ],
+  'pdf-extract': [
+    { en: 'Keep only the pages you name in a new file, in the order you type them', ar: 'احتفظ بالصفحات التي تحددها في ملف جديد، بالترتيب الذي تكتبه' },
+    { en: 'Or remove the pages you do not want', ar: 'أو احذف الصفحات التي لا تريدها' },
+  ],
+  'pdf-crop': [
+    { en: 'Cut margins in millimetres from the top, bottom, left and right of all pages or some', ar: 'اقتطع هوامش بالمليمتر من أعلى الصفحات وأسفلها ويسارها ويمينها، لكلها أو لبعضها' },
+    { en: 'A frame on the preview shows what stays; works with turned pages too', ar: 'يظهر على المعاينة إطار يبيّن ما سيبقى، ويعمل مع الصفحات المدارة أيضًا' },
+  ],
+  'pdf-repair': [
+    { en: 'Rebuilds a PDF that will not open: copies every page into a clean file, keeping the text', ar: 'يعيد بناء ملف PDF لا يفتح: ينسخ كل صفحة إلى ملف سليم مع الإبقاء على النص' },
+    { en: 'When that is impossible, redraws the pages as pictures and says so (the text is lost)', ar: 'وإن تعذّر ذلك أعاد رسم الصفحات صورًا وأخبرك بذلك (يضيع النص)' },
+    { en: 'It cannot bring back content that is really missing from the file', ar: 'لا يستطيع استرجاع محتوى مفقود فعلًا من الملف' },
+  ],
   inspect: [
     { en: 'See how many pages the file has, its paper size, whether the pages hold real text or are scans, and how many form fields it has', ar: 'اعرف عدد الصفحات ومقاس الورق، وهل الصفحات نص حقيقي أم صور ممسوحة، وعدد حقول التعبئة في الملف' },
     { en: 'Read the title, author and dates', ar: 'اطّلع على العنوان والمؤلف والتواريخ' },
@@ -128,6 +150,7 @@ export const TOOL_FEATURES: Record<string, Text[]> = {
   create: [
     { en: 'Turn pictures and typed text (Arabic and English) into one PDF', ar: 'حوّل الصور والنصوص المكتوبة (بالعربية والإنجليزية) إلى ملف PDF واحد' },
     { en: 'Choose the page size, orientation and font size', ar: 'اختر مقاس الصفحة واتجاهها وحجم الخط' },
+    { en: 'On a phone, take photos of pages with the camera and make a PDF from them (each photo is straightened)', ar: 'على الهاتف، صوّر الصفحات بالكاميرا واصنع منها ملف PDF (تُعدَّل كل صورة لتكون مستقيمة)' },
   ],
   merge: [
     { en: 'Join several PDFs into one', ar: 'ادمج عدة ملفات PDF في ملف واحد' },
@@ -143,7 +166,7 @@ export const TOOL_FEATURES: Record<string, Text[]> = {
     { en: 'Choose the quality from 72 to 300 dpi, and get all the pictures in one ZIP', ar: 'اختر الجودة من 72 إلى 300 dpi، واحصل على كل الصور في ملف ZIP واحد' },
   ],
   convert: [
-    { en: 'Save the text as Word, Excel, PowerPoint, plain text, RTF, HTML or XML', ar: 'احفظ النص بصيغة Word أو Excel أو PowerPoint أو نص عادي أو RTF أو HTML أو XML' },
+    { en: 'Save the text as Word, Excel, PowerPoint, Markdown, plain text, RTF, HTML or XML', ar: 'احفظ النص بصيغة Word أو Excel أو PowerPoint أو Markdown أو نص عادي أو RTF أو HTML أو XML' },
     { en: 'Excel keeps table columns; PowerPoint holds the pages as pictures', ar: 'يحافظ Excel على أعمدة الجداول، ويضع PowerPoint الصفحات على هيئة صور' },
   ],
   ocr: [

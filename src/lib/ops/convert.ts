@@ -4,7 +4,7 @@ import { hasArabic } from '../text';
 import { groupLines, stripTatweel } from './textselect';
 
 /** Formats the "Export to" tool can write. Images have their own tool. */
-export type ConvertFormat = 'txt' | 'rtf' | 'html' | 'xml' | 'docx' | 'xlsx' | 'pptx';
+export type ConvertFormat = 'md' | 'txt' | 'rtf' | 'html' | 'xml' | 'docx' | 'xlsx' | 'pptx';
 
 export interface Cell {
   text: string;
@@ -125,6 +125,51 @@ export function toParagraphs(lines: PageLine[]): Paragraph[] {
   }
   flush();
   return paras;
+}
+
+/** Markdown: big lines become headings, wide-gap lines become tables, bullets become list items. */
+export function toMarkdown(pages: ExtractedPage[]): string {
+  const heights = pages.flatMap((p) => p.lines.filter((l) => !l.vertical && l.text.trim()).map((l) => l.height)).sort((a, b) => a - b);
+  const median = heights.length ? heights[Math.floor(heights.length / 2)] : 0;
+  const cell = (s: string) => s.replace(/\|/g, '\\|').replace(/\s+/g, ' ').trim();
+  const listify = (text: string) => text.replace(/^[•·▪◦●■–—*-]\s+/, '- ');
+  const sections: string[] = [];
+  for (const page of pages) {
+    const blocks: string[] = [];
+    let plain: PageLine[] = [];
+    let table: PageLine[] = [];
+    const flushPlain = () => {
+      for (const p of toParagraphs(plain)) blocks.push(listify(p.text).replace(/^(#{1,6})\s/, '\\$1 '));
+      plain = [];
+    };
+    const flushTable = () => {
+      if (table.length === 0) return;
+      const cols = Math.max(...table.map((l) => l.cells.length));
+      const rows = table.map((l) => Array.from({ length: cols }, (_, i) => cell(l.cells[i]?.text ?? '')));
+      blocks.push([`| ${rows[0].join(' | ')} |`, `| ${rows[0].map(() => '---').join(' | ')} |`, ...rows.slice(1).map((r) => `| ${r.join(' | ')} |`)].join('\n'));
+      table = [];
+    };
+    for (const line of page.lines) {
+      const text = line.text.trim();
+      if (!text) continue;
+      const tabular = !line.vertical && line.cells.length > 1;
+      if (tabular) {
+        flushPlain();
+        table.push(line);
+        continue;
+      }
+      flushTable();
+      const ratio = median > 0 ? line.height / median : 1;
+      if (!line.vertical && ratio >= 1.25 && text.length <= 100) {
+        flushPlain();
+        blocks.push(`${ratio >= 1.8 ? '#' : ratio >= 1.45 ? '##' : '###'} ${text}`);
+      } else plain.push(line);
+    }
+    flushPlain();
+    flushTable();
+    sections.push(blocks.join('\n\n'));
+  }
+  return sections.filter(Boolean).join('\n\n---\n\n') + '\n';
 }
 
 /* ------------------------------------------------------------------ writers */
@@ -326,6 +371,7 @@ export interface ConvertResult {
 }
 
 const MIME: Record<ConvertFormat, string> = {
+  md: 'text/markdown;charset=utf-8',
   txt: 'text/plain;charset=utf-8',
   rtf: 'application/rtf',
   html: 'text/html;charset=utf-8',
@@ -342,6 +388,9 @@ export async function convertPdf(preview: PdfPreview, fileName: string, format: 
   const text = (s: string, bom = true) => strToU8(bom ? `﻿${s}` : s);
   let bytes: Uint8Array;
   switch (format) {
+    case 'md':
+      bytes = text(toMarkdown(extracted));
+      break;
     case 'txt':
       bytes = text(toPlainText(extracted));
       break;

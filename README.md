@@ -13,13 +13,14 @@ The home page has three sections: PDF, Images, Video. Interface in Arabic (RTL) 
 
 | Tool | Notes |
 | --- | --- |
+| Enlarge | 2×, 3× or 4× with sharpening. Smooth enlarging, not AI: it cannot add detail; limited to 36 megapixels |
 | Compress | Many pictures at once, JPG/WebP quality, optional longest-side limit; re-encoding strips camera data |
 | Resize | By pixels or percent, many at once |
 | Crop | Drag an area, free or fixed shape |
 | Rotate and flip | Many at once, live preview |
 | Adjust colours | Brightness, contrast, saturation, grey, sepia, blur, invert; live preview |
 | Transparent background | Make one colour see-through (not an automatic cut-out) |
-| Convert | JPG, PNG, WebP |
+| Convert | JPG, PNG, WebP. Opens iPhone HEIC photos (libheif, LGPL-3.0, loaded only when one is picked) |
 | Social media sizes | Instagram, stories, Facebook, X, LinkedIn, YouTube presets; fill or fit |
 | Meme maker | Top and bottom text, Arabic or English |
 | Watermark | Text or logo on many pictures |
@@ -52,7 +53,7 @@ Known limits: the VP9 encoder crashes in this WebAssembly build, so WebM uses VP
 
 ## Status / الحالة
 
-All 18 tools work in the browser / كل الأدوات الـ 18 شغالة.
+All PDF tools work in the browser / كل أدوات PDF شغالة.
 
 | Tool / الأداة | Notes |
 | --- | --- |
@@ -63,9 +64,13 @@ All 18 tools work in the browser / كل الأدوات الـ 18 شغالة.
 | View & find | Read, search (Arabic-friendly), rotate view, read mode, full screen |
 | Print | Colour, grey or black and white (applied to the pages, so it works with any printer) |
 | Share | System share sheet (WhatsApp, Mail, ...) for the file; message links for WhatsApp, Telegram, email. No upload, so no file links |
-| Export to… | Word, Excel, PowerPoint, text, RTF, HTML, XML (text only; Excel keeps table columns; PowerPoint is page pictures) |
-| Create PDF | Images and text (Arabic + English) into one PDF |
-| Merge, Organize pages | Reorder, rotate, delete, split |
+| Export to… | Word, Excel, PowerPoint, Markdown, text, RTF, HTML, XML (text only; Excel keeps table columns; PowerPoint is page pictures) |
+| Create PDF | Images and text (Arabic + English) into one PDF; on a phone, photograph pages with the camera (straightened) |
+| Merge, Organize pages | Reorder, rotate, delete |
+| Split | By ranges, every N pages, or one file per page; several files come as a ZIP |
+| Extract or remove pages | Keep the pages you name (in that order) or delete them |
+| Crop pages | Margins in mm for all or some pages, with a frame on the preview; turned pages handled |
+| Repair | Copies pages into a clean file (keeps text); if that fails, redraws pages as pictures and says so |
 | Export to images | PNG/JPG, 72-300 dpi, ZIP |
 | Scan & OCR | Tesseract, Arabic + English, searchable PDF. Has a poster/photo mode that reads at several sizes. Language data ships with the site |
 | Fill & sign | Fill forms, text, check marks, drawn/image signature (visual, not certificate-based) |
@@ -78,7 +83,7 @@ All 18 tools work in the browser / كل الأدوات الـ 18 شغالة.
 | Redact | Search or draw; affected pages are rasterized so the text is really gone |
 | Optimize | Light (lossless), balanced, strong, flatten |
 
-Out of scope for a browser-only app: Export to Word/Excel/PowerPoint, PDF/A and print-production
+Out of scope for a browser-only app: AI tools (background removal, AI upscaling, translation, summaries), downloading videos from sites, Word/Excel/PowerPoint to PDF with exact layout, PDF/A and print-production
 checks, accessibility tagging, certificate-based signing, "Certified PDF" and "Reader Extended PDF", PostScript export, links to files (needs upload), cloud features (send for comments,
 bulk send, web forms).
 

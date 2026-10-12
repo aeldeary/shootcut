@@ -3,7 +3,7 @@ import { useI18n } from '../i18n';
 import { Checkbox, Field } from '../components/Fields';
 import { ImageBatch } from '../components/ImageBatch';
 import { decodeFile } from '../lib/img';
-import { adjustCanvas, fitToSize, fitWithin, NO_ADJUST, resizeCanvas, rotateCanvas, watermarkCanvas, type Adjust, type Place } from '../lib/ops/imgops';
+import { adjustCanvas, enlargedFits, upscaleCanvas, fitToSize, fitWithin, NO_ADJUST, resizeCanvas, rotateCanvas, watermarkCanvas, type Adjust, type Place } from '../lib/ops/imgops';
 import type { CanvasLike } from '../lib/pdf';
 
 const num = (v: string) => (v.trim() === '' ? 0 : Math.max(0, Math.round(Number(v)) || 0));
@@ -263,6 +263,38 @@ export function ImgWatermarkTool() {
             </div>
             <Checkbox checked={place === 'tile'} onChange={(v) => setPlace(v ? 'tile' : 'bottom-right')}>{t('imgWmTile')}</Checkbox>
           </fieldset>
+        </>
+      }
+    />
+  );
+}
+
+export function ImgUpscaleTool() {
+  const { t } = useI18n();
+  const [factor, setFactor] = useState(2);
+  const [sharpen, setSharpen] = useState(40);
+  return (
+    <ImageBatch
+      title="toolImgUpscale"
+      desc="toolImgUpscaleDesc"
+      suffix={`-${factor}x`}
+      note={t('imgUpscaleNote')}
+      process={(src) => {
+        if (!enlargedFits(src.width, src.height, factor)) throw new Error('too-large');
+        return upscaleCanvas(src, factor, sharpen);
+      }}
+      options={
+        <>
+          <div className="chips">
+            {[2, 3, 4].map((f) => (
+              <button key={f} type="button" className={`chip${factor === f ? ' is-active' : ''}`} aria-pressed={factor === f} onClick={() => setFactor(f)}>
+                <bdi>{f}×</bdi>
+              </button>
+            ))}
+          </div>
+          <Field label={`${t('imgSharpen')}: ${sharpen}%`}>
+            {(id) => <input id={id} className="input" type="range" min={0} max={100} step={5} value={sharpen} onChange={(e) => setSharpen(Number(e.target.value))} />}
+          </Field>
         </>
       }
     />

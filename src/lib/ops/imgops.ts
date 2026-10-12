@@ -364,3 +364,57 @@ export function memeCanvas(src: CanvasLike, m: Meme): CanvasLike {
   draw(bottom, out.height * 0.97 - bottom.length * px * 1.1);
   return out;
 }
+
+/** Biggest enlarged picture the tool allows (pixels): beyond it, phones and many browsers run out of memory. */
+export const MAX_ENLARGED_PIXELS = 36_000_000;
+
+export function enlargedFits(width: number, height: number, factor: number): boolean {
+  return width * factor * (height * factor) <= MAX_ENLARGED_PIXELS;
+}
+
+/**
+ * Unsharp mask: adds back `amount` (0–100) percent of what a soft blur takes away, which makes edges crisper.
+ * Alpha is left alone.
+ */
+export function sharpenCanvas(src: CanvasLike, amount: number): CanvasLike {
+  const out = cloneCanvas(src);
+  if (amount <= 0) return out;
+  const { width: w, height: h } = out;
+  const c = ctx(out);
+  const img = c.getImageData(0, 0, w, h);
+  const d = img.data;
+  const k = amount / 100;
+  const tmp = new Float32Array(w * h * 3);
+  const blur = new Float32Array(w * h * 3);
+  // horizontal pass of the [1 2 1] / 4 kernel, then vertical
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      const l = (y * w + Math.max(0, x - 1)) * 4;
+      const m = (y * w + x) * 4;
+      const r = (y * w + Math.min(w - 1, x + 1)) * 4;
+      for (let ch = 0; ch < 3; ch++) tmp[(y * w + x) * 3 + ch] = (d[l + ch] + 2 * d[m + ch] + d[r + ch]) / 4;
+    }
+  }
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      const u = (Math.max(0, y - 1) * w + x) * 3;
+      const m = (y * w + x) * 3;
+      const b = (Math.min(h - 1, y + 1) * w + x) * 3;
+      for (let ch = 0; ch < 3; ch++) blur[m + ch] = (tmp[u + ch] + 2 * tmp[m + ch] + tmp[b + ch]) / 4;
+    }
+  }
+  for (let i = 0; i < w * h; i++) {
+    for (let ch = 0; ch < 3; ch++) {
+      const v = d[i * 4 + ch];
+      d[i * 4 + ch] = Math.max(0, Math.min(255, Math.round(v + k * 2 * (v - blur[i * 3 + ch]))));
+    }
+  }
+  c.putImageData(img, 0, 0);
+  return out;
+}
+
+/** Enlarges by a factor with smooth resampling, then sharpens. This cannot invent detail that is not in the picture. */
+export function upscaleCanvas(src: CanvasLike, factor: number, sharpen: number): CanvasLike {
+  const big = resizeCanvas(src, src.width * factor, src.height * factor);
+  return sharpen > 0 ? sharpenCanvas(big, sharpen) : big;
+}

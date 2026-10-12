@@ -58,6 +58,16 @@ const soffice = (args: string[]) =>
   execFileSync('soffice', ['--headless', `-env:UserInstallation=file://${dir}/profile`, ...args], { timeout: 90_000, stdio: 'pipe' });
 
 describe('Export to other formats', () => {
+  it('writes Markdown with a heading, a paragraph and a table', async () => {
+    const md = Buffer.from((await convertPdf(await sample(), 'report.pdf', 'md', [0, 1])).bytes).toString().replace(/^\uFEFF/, '');
+    expect(md).toContain('# Quarterly report');
+    expect(md).toContain('This is the first paragraph of the report and it is long enough to wrap onto a second line of the same paragraph.');
+    expect(md).toContain('| Item | Qty | Price |');
+    expect(md).toContain('| --- | --- | --- |');
+    expect(md).toContain('| Books | 2 | 30 |');
+    expect(md).toContain('\n\n---\n\n'); // between pages
+    expect(md).toContain('Second page text');
+  });
   it('reads lines in reading order and finds table cells', async () => {
     const [p1] = await extractPages(await sample(), [0]);
     const texts = p1.lines.map((l) => l.text);

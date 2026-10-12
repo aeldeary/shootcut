@@ -1,5 +1,6 @@
 import { baseName, canvasToBytes, decodeImage, type CanvasLike } from './pdf';
 import { flatten } from './ops/imgops';
+import { decodeHeic, isHeic } from './heic';
 
 export type OutFormat = 'jpeg' | 'png' | 'webp';
 export type FormatChoice = OutFormat | 'keep';
@@ -9,13 +10,15 @@ export const EXT: Record<OutFormat, string> = { jpeg: 'jpg', png: 'png', webp: '
 
 /** The format a file already has, when the browser can write it; anything else (GIF, BMP, SVG, AVIF) becomes PNG. */
 export function formatOf(file: { type: string; name: string }): OutFormat {
+  if (isHeic(file)) return 'jpeg'; // photos from an iPhone: JPG is what every app opens
   if (file.type === 'image/jpeg' || /\.jpe?g$/i.test(file.name)) return 'jpeg';
   if (file.type === 'image/webp' || /\.webp$/i.test(file.name)) return 'webp';
   return 'png';
 }
 
 export async function decodeFile(file: File): Promise<CanvasLike> {
-  return decodeImage(new Uint8Array(await file.arrayBuffer()));
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  return isHeic(file) ? decodeHeic(bytes) : decodeImage(bytes);
 }
 
 /** Encodes a canvas; JPEG has no transparency, so see-through areas are filled with white first. */

@@ -2,7 +2,7 @@
 import { beforeAll, describe, expect, it } from 'vitest';
 import { initNodeEnv } from '../../test/node';
 import { createCanvas } from '../pdf';
-import { adjustCanvas, blurRegion, cropCanvas, fitToSize, fitWithin, makeTransparent, NO_ADJUST, pixelAt, pixelateRegion, resizeCanvas, rotateCanvas, watermarkCanvas } from './imgops';
+import { adjustCanvas, blurRegion, cropCanvas, fitToSize, fitWithin, makeTransparent, NO_ADJUST, pixelAt, pixelateRegion, resizeCanvas, rotateCanvas, watermarkCanvas, enlargedFits, sharpenCanvas, upscaleCanvas } from './imgops';
 
 beforeAll(initNodeEnv);
 
@@ -103,5 +103,29 @@ describe('imgops', () => {
     };
     expect(quadrant(200, 100)).toBeGreaterThan(20);
     expect(quadrant(0, 0)).toBe(0);
+  });
+
+  it('enlarges to the exact size and refuses sizes that would exhaust memory', () => {
+    const big = upscaleCanvas(solid(10, 6, '#336699'), 3, 0);
+    expect([big.width, big.height]).toEqual([30, 18]);
+    expect(enlargedFits(4000, 3000, 2)).toBe(false); // 48 MP is too much
+    expect(enlargedFits(3000, 2000, 2)).toBe(true); // 24 MP
+    expect(enlargedFits(4000, 3000, 4)).toBe(false);
+  });
+
+  it('sharpening makes an edge crisper and leaves flat areas, alpha and size alone', () => {
+    const c = createCanvas(8, 1);
+    const x = c.getContext('2d');
+    x.fillStyle = '#505050';
+    x.fillRect(0, 0, 4, 1);
+    x.fillStyle = '#b0b0b0';
+    x.fillRect(4, 0, 4, 1);
+    const s = sharpenCanvas(c, 100);
+    expect([s.width, s.height]).toEqual([8, 1]);
+    expect(pixelAt(s, 0, 0)[0]).toBe(0x50); // flat area unchanged
+    expect(pixelAt(s, 3, 0)[0]).toBeLessThan(0x50); // darker side of the edge gets darker
+    expect(pixelAt(s, 4, 0)[0]).toBeGreaterThan(0xb0); // lighter side gets lighter
+    expect(pixelAt(s, 4, 0)[3]).toBe(255);
+    expect(pixelAt(sharpenCanvas(c, 0), 3, 0)[0]).toBe(0x50);
   });
 });
