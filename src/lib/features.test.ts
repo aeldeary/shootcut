@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, expect, it } from 'vitest';
-import { GENERAL_FEATURES, NOT_AVAILABLE, TOOL_FEATURES } from './features';
+import { GENERAL_FEATURES, TOOL_FEATURES } from './features';
 import { TOOLS } from './tools';
 
 describe('the Features page data', () => {
@@ -19,12 +19,11 @@ describe('the Features page data', () => {
     const ids = new Set(TOOLS.map((x) => x.id));
     for (const id of Object.keys(TOOL_FEATURES)) expect(ids.has(id), id).toBe(true);
   });
-  it('has both languages for the general features and the limits', () => {
+  it('has both languages for the general features', () => {
     for (const g of GENERAL_FEATURES) for (const t of [g.title, g.text]) expect(t.en && t.ar).toBeTruthy();
-    for (const n of NOT_AVAILABLE) expect(n.en && n.ar).toBeTruthy();
   });
   it('uses Western digits in the Arabic texts', () => {
-    const all = [...Object.values(TOOL_FEATURES).flat(), ...NOT_AVAILABLE, ...GENERAL_FEATURES.flatMap((g) => [g.title, g.text])];
+    const all = [...Object.values(TOOL_FEATURES).flat(), ...GENERAL_FEATURES.flatMap((g) => [g.title, g.text])];
     for (const t of all) expect(/[٠-٩]/.test(t.ar), t.ar).toBe(false);
   });
 });

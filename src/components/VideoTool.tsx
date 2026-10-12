@@ -2,6 +2,8 @@ import { useEffect, useRef, useState, type ReactNode, type RefObject } from 'rea
 import { ArrowDown, ArrowUp, X } from 'lucide-react';
 import { useI18n, type Key } from '../i18n';
 import { Dropzone } from './Dropzone';
+import { MediaKeepBar } from './Fields';
+import { useKeptMedia } from '../hooks/useKeptMedia';
 import { Notice, ToolPage } from './Shell';
 import { baseName, downloadBytes, formatBytes } from '../lib/pdf';
 import { cancelEngine, engineCached, probeFile, readMeta, runFfmpeg } from '../lib/video/engine';
@@ -99,10 +101,13 @@ export function VideoTool({ title, desc, multiple = false, options, job, action 
   const j = files.length > 0 ? job(ctx) : null;
   const busy = progress !== null || engine !== null;
 
+  const keep = useKeptMedia('video', (kept) => setFiles((prev) => (prev.length > 0 ? prev : multiple ? kept : kept.slice(0, 1))));
   const add = (list: File[]) => {
     forget();
     setSkipped(false);
-    setFiles((prev) => (multiple ? [...prev, ...list] : list.slice(0, 1)));
+    const next = multiple ? [...files, ...list] : list.slice(0, 1);
+    setFiles(next);
+    keep(next);
   };
   const move = (i: number, d: number) => {
     forget();
@@ -111,6 +116,7 @@ export function VideoTool({ title, desc, multiple = false, options, job, action 
       const k = i + d;
       if (k < 0 || k >= next.length) return prev;
       [next[i], next[k]] = [next[k], next[i]];
+      keep(next);
       return next;
     });
   };
@@ -163,6 +169,7 @@ export function VideoTool({ title, desc, multiple = false, options, job, action 
       <Dropzone kind="video" multiple={multiple} compact={files.length > 0} onFiles={add} onRejected={() => setSkipped(true)} />
       {skipped && <Notice kind="error">{t('vidNotVideo')}</Notice>}
       {stored === false && files.length === 0 && <p className="hint">{t('vidEngineOnce')}</p>}
+      {files.length > 0 && <MediaKeepBar kind="video" onDeleted={() => { forget(); setFiles([]); }} />}
       {files.length > 0 && (
         <div className="split">
           <div className="panel">
@@ -177,7 +184,7 @@ export function VideoTool({ title, desc, multiple = false, options, job, action 
                       <button type="button" className="icon-btn" aria-label={t('moveDown')} disabled={i === files.length - 1} onClick={() => move(i, 1)}><ArrowDown size={16} aria-hidden /></button>
                     </>
                   )}
-                  <button type="button" className="icon-btn" aria-label={t('remove')} onClick={() => { forget(); setFiles((p) => p.filter((_, k) => k !== i)); }}><X size={16} aria-hidden /></button>
+                  <button type="button" className="icon-btn" aria-label={t('remove')} onClick={() => { forget(); const next = files.filter((_, k) => k !== i); setFiles(next); keep(next); }}><X size={16} aria-hidden /></button>
                 </li>
               ))}
             </ul>

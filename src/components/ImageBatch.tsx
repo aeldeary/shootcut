@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useI18n, type Key } from '../i18n';
 import { Dropzone } from './Dropzone';
-import { Field } from './Fields';
+import { Field, MediaKeepBar } from './Fields';
+import { useKeptMedia } from '../hooks/useKeptMedia';
 import { Notice, ToolPage } from './Shell';
 import { decodeFile, encodeCanvas, formatOf, MIME, outName, previewSize, uniqueNames, type FormatChoice, type OutFormat } from '../lib/img';
 import { resizeCanvas } from '../lib/ops/imgops';
@@ -74,10 +75,19 @@ export function ImageBatch({ title, desc, options, process, suffix, fixedFormat,
 
   const chosen = (f: File): OutFormat => fixedFormat ?? (format === 'keep' ? formatOf(f) : format);
 
+  const keep = useKeptMedia('image', (kept) => setFiles((prev) => (prev.length > 0 ? prev : kept)));
   const add = (list: File[]) => {
     forget();
     setBad([]);
-    setFiles((prev) => [...prev, ...list]);
+    const next = [...files, ...list];
+    setFiles(next);
+    keep(next);
+  };
+  const clearAll = () => {
+    setFiles([]);
+    forget();
+    setBad([]);
+    keep([]);
   };
 
   const run = async () => {
@@ -152,6 +162,7 @@ export function ImageBatch({ title, desc, options, process, suffix, fixedFormat,
   return (
     <ToolPage title={t(title)} desc={t(desc)}>
       <Dropzone kind="image" multiple compact={files.length > 0} onFiles={add} onRejected={() => undefined} />
+      {files.length > 0 && <MediaKeepBar kind="image" onDeleted={() => { setFiles([]); forget(); setBad([]); }} />}
       {files.length > 0 && (
         <div className="split">
           <div className="panel">
@@ -159,7 +170,7 @@ export function ImageBatch({ title, desc, options, process, suffix, fixedFormat,
               <p>
                 {files.length} {t(files.length === 1 ? 'file' : 'files')}
               </p>
-              <button type="button" className="btn btn-ghost" onClick={() => { setFiles([]); forget(); setBad([]); }}>
+              <button type="button" className="btn btn-ghost" onClick={clearAll}>
                 {t('imgClear')}
               </button>
             </div>

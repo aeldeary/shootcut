@@ -2,7 +2,7 @@
 import { beforeAll, describe, expect, it } from 'vitest';
 import { initNodeEnv } from '../../test/node';
 import { createCanvas } from '../pdf';
-import { adjustCanvas, blurRegion, cropCanvas, fitToSize, fitWithin, makeTransparent, NO_ADJUST, pixelAt, pixelateRegion, resizeCanvas, rotateCanvas, watermarkCanvas, enlargedFits, sharpenCanvas, upscaleCanvas } from './imgops';
+import { memeCanvas, adjustCanvas, blurRegion, cropCanvas, fitToSize, fitWithin, makeTransparent, NO_ADJUST, pixelAt, pixelateRegion, resizeCanvas, rotateCanvas, watermarkCanvas, enlargedFits, sharpenCanvas, upscaleCanvas } from './imgops';
 
 beforeAll(initNodeEnv);
 
@@ -103,6 +103,31 @@ describe('imgops', () => {
     };
     expect(quadrant(200, 100)).toBeGreaterThan(20);
     expect(quadrant(0, 0)).toBe(0);
+  });
+
+  it('puts a watermark exactly where the person chose, not only in a preset place', () => {
+    const src = solid(400, 200, '#000000');
+    const out = watermarkCanvas(src, { text: 'MARK', size: 20, opacity: 1, rotation: 0, place: 'custom', at: { x: 0.2, y: 0.25 }, color: '#ffffff' });
+    const count = (x0: number, y0: number, w: number, h: number) => {
+      let n = 0;
+      for (let y = y0; y < y0 + h; y += 2) for (let x = x0; x < x0 + w; x += 2) if (pixelAt(out, x, y)[0] > 128) n++;
+      return n;
+    };
+    expect(count(40, 25, 80, 50)).toBeGreaterThan(10); // around (80, 50)
+    expect(count(200, 100, 200, 100)).toBe(0);
+    expect(count(240, 0, 160, 100)).toBe(0);
+  });
+
+  it('puts the meme texts where the person chose', () => {
+    const src = solid(400, 200, '#000000');
+    const out = memeCanvas(src, { top: 'HI', bottom: '', size: 12, color: '#ffffff', topAt: { x: 0.8, y: 0.5 } });
+    const count = (x0: number, y0: number, w: number, h: number) => {
+      let n = 0;
+      for (let y = y0; y < y0 + h; y += 2) for (let x = x0; x < x0 + w; x += 2) if (pixelAt(out, x, y)[0] > 128) n++;
+      return n;
+    };
+    expect(count(260, 95, 140, 60)).toBeGreaterThan(5);
+    expect(count(0, 0, 400, 80)).toBe(0); // not in the default top place
   });
 
   it('enlarges to the exact size and refuses sizes that would exhaust memory', () => {

@@ -237,7 +237,7 @@ export function pixelAt(src: CanvasLike, x: number, y: number): [number, number,
   return [p[0], p[1], p[2], p[3]];
 }
 
-export type Place = 'top-left' | 'top-center' | 'top-right' | 'middle-left' | 'center' | 'middle-right' | 'bottom-left' | 'bottom-center' | 'bottom-right' | 'tile';
+export type Place = 'top-left' | 'top-center' | 'top-right' | 'middle-left' | 'center' | 'middle-right' | 'bottom-left' | 'bottom-center' | 'bottom-right' | 'tile' | 'custom';
 
 export interface Watermark {
   text?: string;
@@ -248,6 +248,8 @@ export interface Watermark {
   /** degrees, counter-clockwise */
   rotation: number;
   place: Place;
+  /** with place 'custom': where the middle of the mark goes, as fractions of the picture (0 to 1) */
+  at?: { x: number; y: number };
   color?: string;
 }
 
@@ -297,6 +299,11 @@ export function watermarkCanvas(src: CanvasLike, wm: Watermark): CanvasLike {
     for (let y = gy / 2; y < out.height + gy; y += gy, row++) for (let x = gx / 2 + (row % 2 ? gx / 2 : 0); x < out.width + gx; x += gx) drawAt(x, y);
     return out;
   }
+  if (wm.place === 'custom') {
+    const at = wm.at ?? { x: 0.5, y: 0.5 };
+    drawAt(Math.min(1, Math.max(0, at.x)) * out.width, Math.min(1, Math.max(0, at.y)) * out.height);
+    return out;
+  }
   const cx = wm.place.endsWith('left') ? margin + mw / 2 : wm.place.endsWith('right') ? out.width - margin - mw / 2 : out.width / 2;
   const cy = wm.place.startsWith('top') ? margin + mh / 2 : wm.place.startsWith('bottom') ? out.height - margin - mh / 2 : out.height / 2;
   drawAt(cx, cy);
@@ -323,6 +330,9 @@ export interface Meme {
   /** percent of the picture's height */
   size: number;
   color: string;
+  /** where a text goes when the person chose the place: x is the middle of the text, y its top, as fractions of the picture */
+  topAt?: { x: number; y: number };
+  bottomAt?: { x: number; y: number };
 }
 
 export function memeCanvas(src: CanvasLike, m: Meme): CanvasLike {
@@ -350,18 +360,19 @@ export function memeCanvas(src: CanvasLike, m: Meme): CanvasLike {
     if (cur) rows.push(cur);
     return rows;
   };
-  const draw = (rows: string[], y0: number) => {
+  const draw = (rows: string[], y0: number, x = 0.5) => {
     c.textBaseline = 'top';
+    const cx = Math.min(1, Math.max(0, x)) * out.width;
     rows.forEach((row, i) => {
       const y = y0 + i * px * 1.1;
-      c.strokeText(row, out.width / 2, y, maxW);
-      c.fillText(row, out.width / 2, y, maxW);
+      c.strokeText(row, cx, y, maxW);
+      c.fillText(row, cx, y, maxW);
     });
   };
   const top = lines(m.top);
   const bottom = lines(m.bottom);
-  draw(top, out.height * 0.03);
-  draw(bottom, out.height * 0.97 - bottom.length * px * 1.1);
+  draw(top, m.topAt ? m.topAt.y * out.height : out.height * 0.03, m.topAt?.x);
+  draw(bottom, m.bottomAt ? m.bottomAt.y * out.height : out.height * 0.97 - bottom.length * px * 1.1, m.bottomAt?.x);
   return out;
 }
 

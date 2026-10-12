@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useI18n } from '../i18n';
 import { Checkbox, Field } from '../components/Fields';
+import { PlacePad } from '../components/PlacePad';
 import { ImageBatch } from '../components/ImageBatch';
 import { decodeFile } from '../lib/img';
 import { adjustCanvas, enlargedFits, upscaleCanvas, fitToSize, fitWithin, NO_ADJUST, resizeCanvas, rotateCanvas, watermarkCanvas, type Adjust, type Place } from '../lib/ops/imgops';
@@ -206,6 +207,7 @@ export function ImgWatermarkTool() {
   const [opacity, setOpacity] = useState(0.7);
   const [rotation, setRotation] = useState(0);
   const [place, setPlace] = useState<Place>('bottom-right');
+  const [at, setAt] = useState({ x: 0.5, y: 0.5 });
   const [color, setColor] = useState('#ffffff');
   const ready = kind === 'text' ? text.trim() !== '' : !!logo;
   return (
@@ -215,8 +217,8 @@ export function ImgWatermarkTool() {
       suffix="-marked"
       preview
       ready={ready}
-      deps={[kind, text, logo, size, opacity, rotation, place, color]}
-      process={(src) => watermarkCanvas(src, { text: kind === 'text' ? text : undefined, image: kind === 'image' ? (logo ?? undefined) : undefined, size, opacity, rotation, place, color })}
+      deps={[kind, text, logo, size, opacity, rotation, place, at, color]}
+      process={(src) => watermarkCanvas(src, { text: kind === 'text' ? text : undefined, image: kind === 'image' ? (logo ?? undefined) : undefined, size, opacity, rotation, place, at, color })}
       options={
         <>
           <div className="tabs" role="tablist">
@@ -262,6 +264,13 @@ export function ImgWatermarkTool() {
               ))}
             </div>
             <Checkbox checked={place === 'tile'} onChange={(v) => setPlace(v ? 'tile' : 'bottom-right')}>{t('imgWmTile')}</Checkbox>
+            <Checkbox checked={place === 'custom'} onChange={(v) => setPlace(v ? 'custom' : 'bottom-right')}>{t('placeMyself')}</Checkbox>
+            {place === 'custom' && (
+              <>
+                <p className="hint">{t('placePadHint')}</p>
+                <PlacePad value={at} onChange={setAt} label={t('placePadLabel')} />
+              </>
+            )}
           </fieldset>
         </>
       }

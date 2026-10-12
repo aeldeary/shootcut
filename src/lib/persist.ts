@@ -96,8 +96,11 @@ export async function setKeepEnabled(on: boolean): Promise<void> {
   } catch {
     /* storage blocked: the setting only lasts until the page closes */
   }
-  if (!on) await forgetSaved();
-  else broadcast();
+  if (!on) {
+    await forgetSaved();
+    await forgetMedia('image');
+    await forgetMedia('video');
+  } else broadcast();
 }
 
 /** Saves the file as the one to reopen. Returns false when keeping is off or the browser refused (no room). */
@@ -147,6 +150,71 @@ export async function forgetSaved(): Promise<void> {
   await run('readwrite', (s) => {
     s.delete(FILE_KEY);
     return s.delete(META_KEY);
+  });
+  broadcast();
+}
+
+/* ------------------------------------------------------------------ pictures and videos */
+
+/** The pictures or the videos last added, kept like the PDF so another tool of the same section opens them without a new upload. */
+export type MediaKind = 'image' | 'video';
+
+export interface MediaMeta {
+  names: string[];
+  count: number;
+  size: number;
+  savedAt: number;
+}
+
+const mediaKey = (kind: MediaKind) => `media:${kind}`;
+const mediaMetaKey = (kind: MediaKind) => `media:${kind}:meta`;
+
+interface MediaRecord {
+  files: { data: ArrayBuffer; name: string; type: string; lastModified: number }[];
+}
+
+export async function saveMedia(kind: MediaKind, files: File[]): Promise<boolean> {
+  if (!isKeepEnabled() || files.length === 0) return false;
+  // raw bytes, like the PDF: some phones' browsers cannot store a Blob in IndexedDB
+  let rec: MediaRecord;
+  try {
+    rec = { files: await Promise.all(files.map(async (f) => ({ data: await f.arrayBuffer(), name: f.name, type: f.type, lastModified: f.lastModified }))) };
+  } catch {
+    return false;
+  }
+  const db = await openDb();
+  if (!db) return false;
+  const ok = await new Promise<boolean>((resolve) => {
+    try {
+      const t = db.transaction(STORE, 'readwrite');
+      const s = t.objectStore(STORE);
+      s.put(rec, mediaKey(kind));
+      s.put({ names: files.map((f) => f.name), count: files.length, size: files.reduce((n, f) => n + f.size, 0), savedAt: Date.now() } satisfies MediaMeta, mediaMetaKey(kind));
+      t.oncomplete = () => resolve(true);
+      t.onerror = t.onabort = () => resolve(false); // e.g. no room left: nothing was written
+    } catch {
+      resolve(false);
+    }
+  });
+  db.close();
+  if (ok) broadcast();
+  return ok;
+}
+
+export async function getMediaMeta(kind: MediaKind): Promise<MediaMeta | null> {
+  return (await run<MediaMeta | undefined>('readonly', (s) => s.get(mediaMetaKey(kind)))) ?? null;
+}
+
+export async function loadMedia(kind: MediaKind): Promise<File[]> {
+  const rec = await run<MediaRecord | undefined>('readonly', (s) => s.get(mediaKey(kind)));
+  if (!rec) return [];
+  return rec.files.map((f) => new File([f.data], f.name, { type: f.type, lastModified: f.lastModified }));
+}
+
+export async function forgetMedia(kind: MediaKind): Promise<void> {
+  await run('readwrite', (s) => {
+    s.delete(mediaKey(kind));
+    return s.delete(mediaMetaKey(kind));
   });
   broadcast();
 }

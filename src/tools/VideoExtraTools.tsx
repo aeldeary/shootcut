@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { useI18n } from '../i18n';
 import { Dropzone } from '../components/Dropzone';
-import { Field } from '../components/Fields';
+import { Field, MediaKeepBar } from '../components/Fields';
+import { useKeptMedia } from '../hooks/useKeptMedia';
 import { Notice, ToolPage } from '../components/Shell';
 import { baseName, canvasToBytes, createCanvas, downloadBytes, formatBytes } from '../lib/pdf';
 import { zipFiles } from '../lib/ops/export';
@@ -29,6 +30,7 @@ export function VidThumbTool() {
   const [bad, setBad] = useState(false);
   const [busy, setBusy] = useState<number | null>(null);
   const video = useRef<HTMLVideoElement>(null);
+  const keep = useKeptMedia('video', (kept) => setFile((old) => old ?? kept[0]));
 
   useEffect(() => {
     if (!file) return setUrl(null);
@@ -68,7 +70,8 @@ export function VidThumbTool() {
 
   return (
     <ToolPage title={t('toolVidThumb')} desc={t('toolVidThumbDesc')}>
-      <Dropzone kind="video" compact={!!file} onFiles={(l) => setFile(l[0])} onRejected={() => undefined} />
+      <Dropzone kind="video" compact={!!file} onFiles={(l) => { setFile(l[0]); keep([l[0]]); }} onRejected={() => undefined} />
+      {file && <MediaKeepBar kind="video" onDeleted={() => setFile(null)} />}
       {file && url && (
         <div className="split">
           <div className="panel">
@@ -109,6 +112,7 @@ export function VidInfoTool() {
   const [info, setInfo] = useState<VideoInfo | null>(null);
   const [failed, setFailed] = useState(false);
   const [stored, setStored] = useState<boolean | null>(null);
+  const keep = useKeptMedia('video', (kept) => setFile((old) => old ?? kept[0]));
   useEffect(() => {
     engineCached().then(setStored);
   }, []);
@@ -139,7 +143,8 @@ export function VidInfoTool() {
     : [];
   return (
     <ToolPage title={t('toolVidInfo')} desc={t('toolVidInfoDesc')}>
-      <Dropzone kind="video" compact={!!file} onFiles={(l) => setFile(l[0])} onRejected={() => undefined} />
+      <Dropzone kind="video" compact={!!file} onFiles={(l) => { setFile(l[0]); keep([l[0]]); }} onRejected={() => undefined} />
+      {file && <MediaKeepBar kind="video" onDeleted={() => setFile(null)} />}
       {stored === false && !file && <p className="hint">{t('vidEngineOnce')}</p>}
       {file && !info && !failed && <p className="muted">{t('vidInfoReading')}</p>}
       {failed && <Notice kind="error">{t('vidFailed')}</Notice>}

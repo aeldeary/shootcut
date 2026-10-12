@@ -1,3 +1,4 @@
+import { CropFrame } from '../components/CropFrame';
 import { useEffect, useState } from 'react';
 import { useI18n } from '../i18n';
 import { Dropzone } from '../components/Dropzone';
@@ -210,6 +211,7 @@ export function PdfCropTool() {
           <div className="panel">
             <FileBar name={pdf.file.name} pages={pdf.numPages} size={pdf.file.size} onReset={() => { reset(); setDone(false); }} />
             <p className="hint">{t('cropUnit')}</p>
+            <p className="hint">{t('cropDragHint')}</p>
             <div className="vid-grid">
               {side('top', t('cropTop'))}
               {side('bottom', t('cropBottom'))}
@@ -230,14 +232,19 @@ export function PdfCropTool() {
             {page && (
               <div className="vid-stage crop-page">
                 <img src={page.url} alt={t('imgPreview')} style={{ width: '100%', display: 'block' }} />
-                <div
-                  className="vid-crop"
-                  aria-hidden
-                  style={{
-                    left: `${(margins.left / page.width) * 100}%`,
-                    top: `${(margins.top / page.height) * 100}%`,
-                    right: `${(margins.right / page.width) * 100}%`,
-                    bottom: `${(margins.bottom / page.height) * 100}%`,
+                <CropFrame
+                  label={t('cropFrameLabel')}
+                  resizable
+                  box={{
+                    x: margins.left / page.width,
+                    y: margins.top / page.height,
+                    w: Math.max(0.02, 1 - (margins.left + margins.right) / page.width),
+                    h: Math.max(0.02, 1 - (margins.top + margins.bottom) / page.height),
+                  }}
+                  onChange={(b) => {
+                    const mm = (v: number) => String(Math.max(0, Math.round((v / MM) * 10) / 10));
+                    setM({ left: mm(b.x * page.width), top: mm(b.y * page.height), right: mm((1 - b.x - b.w) * page.width), bottom: mm((1 - b.y - b.h) * page.height) });
+                    setDone(false);
                   }}
                 />
               </div>

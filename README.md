@@ -22,8 +22,8 @@ The home page has three sections: PDF, Images, Video. Interface in Arabic (RTL) 
 | Transparent background | Make one colour see-through (not an automatic cut-out) |
 | Convert | JPG, PNG, WebP. Opens iPhone HEIC photos (libheif, LGPL-3.0, loaded only when one is picked) |
 | Social media sizes | Instagram, stories, Facebook, X, LinkedIn, YouTube presets; fill or fit |
-| Meme maker | Top and bottom text, Arabic or English |
-| Watermark | Text or logo on many pictures |
+| Meme maker | Top and bottom text, Arabic or English; or click/drag on the picture to place each text |
+| Watermark | Text or logo on many pictures; 9 quick spots, tiling, or click/drag to choose the exact place |
 | Blur or hide areas | Blur, pixels or black box over areas you mark |
 
 ## Video / الفيديو
@@ -39,7 +39,7 @@ Single-threaded, so it is slower than a desktop app; very large files can run ou
 | Resolution and frame rate | 2160p to 240p, 60 to 12 fps |
 | Trim | Fast (copy) or precise (re-encode) |
 | Merge | Different sizes fitted to the first clip; sound kept only if every clip has it |
-| Crop | 9:16, 1:1, 4:5, 16:9, 4:3 or exact pixels, with a frame on the preview |
+| Crop | 9:16, 1:1, 4:5, 16:9, 4:3 or exact pixels, with a draggable frame on the preview (free shape too) |
 | Rotate and flip | 90°, 180°, mirror |
 | Speed | 0.25× to 8×, sound in step |
 | Extract audio | MP3, M4A, WAV, OGG, FLAC |
@@ -69,7 +69,7 @@ All PDF tools work in the browser / كل أدوات PDF شغالة.
 | Merge, Organize pages | Reorder, rotate, delete |
 | Split | By ranges, every N pages, or one file per page; several files come as a ZIP |
 | Extract or remove pages | Keep the pages you name (in that order) or delete them |
-| Crop pages | Margins in mm for all or some pages, with a frame on the preview; turned pages handled |
+| Crop pages | Margins in mm for all or some pages, or drag the frame and its corners on the preview; turned pages handled |
 | Repair | Copies pages into a clean file (keeps text); if that fails, redraws pages as pictures and says so |
 | Export to images | PNG/JPG, 72-300 dpi, ZIP |
 | Scan & OCR | Tesseract, Arabic + English, searchable PDF. Has a poster/photo mode that reads at several sizes. Language data ships with the site |
@@ -115,3 +115,6 @@ no third-party requests.
 
 AGPL-3.0-only (see LICENSE). You may use, study, change and share it, but a modified version, including one offered as a website, must stay open source under the same licence. Earlier copies taken while the project was MIT stay MIT. This project is independent and is not affiliated with or endorsed by Adobe.
 Adobe and Acrobat are trademarks of Adobe Inc.
+
+## Your files stay with you
+The PDF, pictures or video you open are kept in this browser (IndexedDB, never uploaded) so the next tool of the same kind opens with them. A bar under the file lets you delete them or switch keeping off.

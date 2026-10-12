@@ -1,7 +1,8 @@
 import { useEffect } from 'react';
 import { useI18n } from '../i18n';
-import { GENERAL_FEATURES, NOT_AVAILABLE, TOOL_FEATURES } from '../lib/features';
+import { GENERAL_FEATURES, TOOL_FEATURES } from '../lib/features';
 import { GROUPS, TOOLS } from '../lib/tools';
+import { Notice } from './Shell';
 import { SHORTCUTS, SHORTCUT_GROUPS, formatCombo, isMacPlatform } from '../lib/shortcuts';
 
 /** "Ctrl + Shift + N" as key caps, always left to right even inside Arabic text */
@@ -38,6 +39,7 @@ export function FeaturesPage({ scrollTo }: { scrollTo?: 'shortcuts' }) {
     <section className="container tool-page features">
       <h1>{t('featuresTitle')}</h1>
       <p className="muted lead">{t('featuresLead')}</p>
+      <Notice kind="info">{t('featuresNotice')}</Notice>
 
       <h2 className="features-h">{t('featuresGeneral')}</h2>
       <div className="grid">
@@ -110,7 +112,6 @@ export function FeaturesPage({ scrollTo }: { scrollTo?: 'shortcuts' }) {
                     <tr key={s.id}>
                       <td data-label={t('featuresAction')}>
                         {s.label[lang]}
-                        {s.source === 'common' && <span title={t('featuresCommonNote')}> *</span>}
                       </td>
                       <td data-label={t('featuresWindows')}>
                         <Keys combos={s.combos} mac={false} />
@@ -129,15 +130,7 @@ export function FeaturesPage({ scrollTo }: { scrollTo?: 'shortcuts' }) {
           </div>
         );
       })}
-      <p className="hint">* {t('featuresCommonNote')}</p>
       {mac && <p className="hint">{t('featuresMacNote')}</p>}
-
-      <h2 className="features-h">{t('featuresMissing')}</h2>
-      <ul className="feature-list">
-        {NOT_AVAILABLE.map((n) => (
-          <li key={n.en}>{n[lang]}</li>
-        ))}
-      </ul>
     </section>
   );
 }

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useI18n, type Key } from '../i18n';
 import { Checkbox, Field } from '../components/Fields';
 import { VideoTool } from '../components/VideoTool';
+import { CropFrame } from '../components/CropFrame';
 import {
   ASPECT_RATIO,
   AUDIO_MIME,
@@ -228,13 +229,36 @@ export function VidCropTool() {
       overlay={({ info }) => {
         if (!info) return null;
         const r = rectFor(info);
-        return <div className="vid-crop" style={{ left: `${(r.x / info.width) * 100}%`, top: `${(r.y / info.height) * 100}%`, width: `${(r.w / info.width) * 100}%`, height: `${(r.h / info.height) * 100}%` }} aria-hidden />;
+        const box = { x: r.x / info.width, y: r.y / info.height, w: r.w / info.width, h: r.h / info.height };
+        return (
+          <CropFrame
+            box={box}
+            label={t('cropFrameLabel')}
+            resizable={aspect === 'custom'}
+            onChange={(b) => {
+              if (aspect === 'custom') {
+                setC({ x: String(Math.round(b.x * info.width)), y: String(Math.round(b.y * info.height)), w: String(Math.round(b.w * info.width)), h: String(Math.round(b.h * info.height)) });
+              } else {
+                // the shape is fixed: only the place changes
+                setPx(b.w >= 0.999 ? 50 : Math.round(Math.min(1, Math.max(0, b.x / (1 - b.w))) * 100));
+                setPy(b.h >= 0.999 ? 50 : Math.round(Math.min(1, Math.max(0, b.y / (1 - b.h))) * 100));
+              }
+            }}
+          />
+        );
       }}
       options={({ info }) => (
         <>
           <Field label={t('vidAspect')}>
             {(id) => (
-              <select id={id} className="input" value={aspect} onChange={(e) => setAspect(e.target.value as CropAspect)}>
+              <select id={id} className="input" value={aspect} onChange={(e) => {
+                  const v = e.target.value as CropAspect;
+                  if (v === 'custom' && info) {
+                    const r = rectFor(info);
+                    setC({ x: String(r.x), y: String(r.y), w: String(r.w), h: String(r.h) });
+                  }
+                  setAspect(v);
+                }}>
                 {(['portrait916', 'square', 'portrait45', 'landscape169', 'landscape43', 'custom'] as CropAspect[]).map((a) => (
                   <option key={a} value={a}>{t(`vidAspect_${a}` as Key)}</option>
                 ))}
@@ -255,6 +279,7 @@ export function VidCropTool() {
               ))}
             </div>
           )}
+          <p className="hint">{t('vidCropDragHint')}</p>
           {!info && <p className="hint">{t('vidReadingSize')}</p>}
         </>
       )}

@@ -44,10 +44,12 @@ export const TOOL_FEATURES: Record<string, Text[]> = {
   ],
   'img-meme': [
     { en: 'Add text above and below a picture, in Arabic or English, and choose its size and colour', ar: 'أضف نصاً أعلى الصورة وأسفلها، بالعربية أو الإنجليزية، واختر حجمه ولونه' },
+    { en: 'Or place each text yourself: click or drag on the picture to put it exactly where you want', ar: 'أو ضع كل نص بنفسك: انقر أو اسحب على الصورة لتضعه حيث تريد تمامًا' },
   ],
   'img-watermark': [
     { en: 'Stamp text or your logo on many pictures at once, with a live preview', ar: 'ضع نصاً أو شعارك على عدة صور دفعة واحدة، مع معاينة مباشرة' },
     { en: 'Choose the place, size, opacity and rotation, or repeat it across the picture', ar: 'اختر المكان والحجم والشفافية والدوران، أو كرّرها على الصورة كلها' },
+    { en: 'Not limited to the nine spots: choose the exact place by clicking or dragging in a box', ar: 'دون الاقتصار على المواضع التسعة: حدّد المكان بدقة بالنقر أو السحب داخل مربع' },
   ],
   'img-upscale': [
     { en: 'Make pictures 2, 3 or 4 times bigger, many at once, with adjustable sharpening', ar: 'كبّر الصور مرتين أو ثلاثًا أو أربعًا، عدة صور معًا، مع شحذ قابل للضبط' },
@@ -83,7 +85,8 @@ export const TOOL_FEATURES: Record<string, Text[]> = {
   ],
   'vid-crop': [
     { en: 'Vertical 9:16, square, 4:5, 16:9, 4:3, or exact pixels', ar: 'طولي 9:16 أو مربع أو 4:5 أو 16:9 أو 4:3 أو بكسلات محددة' },
-    { en: 'A frame on the preview shows what stays; move it with the sliders', ar: 'يظهر على المعاينة إطار يبيّن ما سيبقى، وتحرّكه بالمنزلقات' },
+    { en: 'Drag the frame on the video to choose what stays, or move it with the sliders', ar: 'اسحب الإطار على الفيديو لتحدد ما سيبقى، أو حرّكه بالمنزلقات' },
+    { en: 'Free shape: drag the frame\'s corners and edges to any size you want', ar: 'شكل حر: اسحب زوايا الإطار وحوافه إلى أي حجم تريده' },
   ],
   'vid-rotate': [
     { en: 'Rotate 90° either way or 180°, or flip left to right or top to bottom', ar: 'دوّر 90° في أي اتجاه أو 180°، أو اقلب أفقيًا أو رأسيًا' },
@@ -118,7 +121,7 @@ export const TOOL_FEATURES: Record<string, Text[]> = {
   ],
   'pdf-crop': [
     { en: 'Cut margins in millimetres from the top, bottom, left and right of all pages or some', ar: 'اقتطع هوامش بالمليمتر من أعلى الصفحات وأسفلها ويسارها ويمينها، لكلها أو لبعضها' },
-    { en: 'A frame on the preview shows what stays; works with turned pages too', ar: 'يظهر على المعاينة إطار يبيّن ما سيبقى، ويعمل مع الصفحات المدارة أيضًا' },
+    { en: 'Drag the frame on the preview, and its corners and edges, to choose the area yourself; the millimetre boxes follow; works with turned pages too', ar: 'اسحب الإطار على المعاينة وزواياه وحوافه لتحدد المنطقة بنفسك، وتتبعه خانات المليمتر؛ ويعمل مع الصفحات المدارة أيضًا' },
   ],
   'pdf-repair': [
     { en: 'Rebuilds a PDF that will not open: copies every page into a clean file, keeping the text', ar: 'يعيد بناء ملف PDF لا يفتح: ينسخ كل صفحة إلى ملف سليم مع الإبقاء على النص' },
@@ -220,21 +223,12 @@ export const TOOL_FEATURES: Record<string, Text[]> = {
 export const GENERAL_FEATURES: { title: Text; text: Text }[] = [
   { title: { en: 'Private by design', ar: 'خصوصية كاملة' }, text: { en: 'Everything runs in your browser. Your files are never uploaded and the site makes no requests to other companies.', ar: 'يعمل كل شيء داخل المتصفح. لا تُرفع ملفاتك إلى أي مكان، ولا يتواصل الموقع مع أي شركة أخرى.' } },
   { title: { en: 'Arabic and English', ar: 'عربي وإنجليزي' }, text: { en: 'The whole interface switches between Arabic (right to left) and English (left to right).', ar: 'تتبدل الواجهة كلها بين العربية (من اليمين إلى اليسار) والإنجليزية (من اليسار إلى اليمين).' } },
-  { title: { en: 'Your file follows you', ar: 'ملفك يرافقك' }, text: { en: 'The PDF you open stays on this device, so another tool or another browser tab opens it without a new upload. You can delete it, or switch the keeping off, under the file name.', ar: 'يبقى ملف PDF الذي تفتحه على جهازك، فتفتحه أي أداة أو تبويب آخر دون رفع جديد. يمكنك حذفه أو إيقاف الحفظ من أسفل اسم الملف.' } },
+  { title: { en: 'Your file follows you', ar: 'ملفك يرافقك' }, text: { en: 'The PDF, pictures or video you open stay on this device, so another tool of the same kind, or another browser tab, opens them without a new upload. You can delete them, or switch the keeping off, under the file.', ar: 'يبقى ملف PDF أو الصور أو الفيديو الذي تفتحه على جهازك، فتفتحه أي أداة من النوع نفسه أو تبويب آخر دون رفع جديد. يمكنك حذفه أو إيقاف الحفظ من أسفل الملف.' } },
+  { title: { en: 'You choose the place', ar: 'أنت تختار المكان' }, text: { en: 'Where something is written, stamped, cropped or cut is never fixed for you: besides the quick spots, you can click or drag on the preview to choose the exact place.', ar: 'لا يُفرض عليك مكان للكتابة أو الختم أو القص أو الاقتصاص: إلى جانب المواضع السريعة يمكنك النقر أو السحب على المعاينة لاختيار المكان بدقة.' } },
   { title: { en: 'Switch tools from anywhere', ar: 'تنقّل بين الأدوات من أي مكان' }, text: { en: 'The bar under the header lists the tools by group, on every page.', ar: 'يعرض الشريط الواقع أسفل الترويسة الأدوات حسب المجموعة، في جميع الصفحات.' } },
   { title: { en: 'Undo and redo', ar: 'التراجع والإعادة' }, text: { en: 'Every tool has undo and redo buttons at the top, and Ctrl+Z and Ctrl+Y work too.', ar: 'في كل أداة زرّا تراجع وإعادة في الأعلى، ويعمل أيضاً Ctrl+Z وCtrl+Y.' } },
   { title: { en: 'Made for phones', ar: 'مصمم للهاتف' }, text: { en: 'Touch friendly buttons, a move-the-page button on the page tools, and pages that fit the screen.', ar: 'أزرار مناسبة للمس، وزر لتحريك الصفحة في أدوات الصفحات، وصفحات تتلاءم مع عرض الشاشة.' } },
-  { title: { en: 'Acrobat keyboard shortcuts', ar: 'اختصارات أكروبات' }, text: { en: 'The shortcuts of Adobe Acrobat DC for Windows and Mac, listed below. They work with any keyboard layout, Arabic included.', ar: 'اختصارات Adobe Acrobat DC لنظامَي ويندوز وماك، مدرجة أدناه. وتعمل مع أي لغة للوحة المفاتيح، ومنها العربية.' } },
+  { title: { en: 'Shortcuts', ar: 'اختصارات' }, text: { en: 'Shortcuts for Windows and Mac, listed below. They work with any keyboard layout, Arabic included.', ar: 'اختصارات لنظامَي ويندوز وماك، مدرجة أدناه. وتعمل مع أي لغة للوحة المفاتيح، ومنها العربية.' } },
   { title: { en: 'The video engine is kept on your device', ar: 'محرك الفيديو يُحفظ على جهازك' }, text: { en: 'The first video job downloads the video engine (about 32 MB) from this site. It is stored in your browser, so later jobs start at once, on a phone or a computer. It is not a third party.', ar: 'تنزّل أول عملية فيديو محرك الفيديو (نحو 32 ميغابايت) من هذا الموقع نفسه، ثم يُحفظ في متصفحك فتبدأ العمليات اللاحقة فورًا على الهاتف أو الحاسوب. وهو ليس من طرف ثالث.' } },
   { title: { en: 'Free and open source', ar: 'مجاني ومفتوح المصدر' }, text: { en: 'Free to use, with the code open under the AGPL-3.0 license.', ar: 'مجاني الاستخدام، وشيفرته مفتوحة برخصة AGPL-3.0.' } },
-];
-
-/** what the site does not do, said plainly */
-export const NOT_AVAILABLE: Text[] = [
-  { en: 'Editing the original text of a PDF', ar: 'تعديل النص الأصلي داخل ملف PDF' },
-  { en: 'Certificate-based digital signatures', ar: 'التوقيع الرقمي بشهادة' },
-  { en: 'PDF/A and print-production checks, accessibility tagging', ar: 'فحوصات PDF/A والطباعة الاحترافية، وتهيئة الملف لذوي الإعاقة (الوسم)' },
-  { en: 'Artificial-intelligence tools (automatic background removal, upscaling, translation, summaries): they need a server or large models, which breaks the no-upload promise', ar: 'أدوات الذكاء الاصطناعي (إزالة الخلفية تلقائياً، رفع الدقة، الترجمة، التلخيص): تحتاج إلى خادم أو نماذج ضخمة، وهذا يخالف وعد عدم رفع الملفات' },
-  { en: 'Downloading videos from websites, and turning Word, Excel or PowerPoint files into PDF with their exact layout', ar: 'تنزيل الفيديو من المواقع، وتحويل ملفات Word وExcel وPowerPoint إلى PDF بتخطيطها الدقيق' },
-  { en: 'Features that need a server: sending files for comments, bulk sending, web forms', ar: 'المزايا التي تحتاج إلى خادم: إرسال الملفات للتعليق عليها، والإرسال الجماعي، والنماذج على الويب' },
 ];

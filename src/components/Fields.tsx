@@ -4,6 +4,8 @@ import { useI18n } from '../i18n';
 import { formatBytes } from '../lib/pdf';
 import { parsePageRange } from '../lib/range';
 import { useSavedFile } from '../hooks/useSavedFile';
+import { useMediaMeta } from '../hooks/useKeptMedia';
+import type { MediaKind } from '../lib/persist';
 
 export function Field({ label, hint, children }: { label: string; hint?: string; children: (id: string) => ReactNode }) {
   const id = useId();
@@ -74,6 +76,36 @@ export function KeepBar({ name, size, onDeleted }: { name: string; size: number;
         {t('keepFile')}
       </label>
       {saved && (
+        <>
+          <span className="muted">{t('keepSaved')}</span>
+          <button
+            type="button"
+            className="btn btn-ghost keepbar-delete"
+            onClick={() => {
+              void forget();
+              onDeleted();
+            }}
+          >
+            <Trash2 size={14} aria-hidden /> {t('keepDelete')}
+          </button>
+        </>
+      )}
+    </div>
+  );
+}
+
+/** Keep switch and delete button for the pictures or videos kept on this device. Shows nothing until something is saved. */
+export function MediaKeepBar({ kind, onDeleted }: { kind: MediaKind; onDeleted: () => void }) {
+  const { t } = useI18n();
+  const { meta, keep, setKeep, forget } = useMediaMeta(kind);
+  const id = useId();
+  return (
+    <div className="keepbar">
+      <label htmlFor={id} className="keepbar-switch">
+        <input id={id} type="checkbox" checked={keep} onChange={(e) => void setKeep(e.target.checked)} />
+        {t('keepFile')}
+      </label>
+      {keep && meta && (
         <>
           <span className="muted">{t('keepSaved')}</span>
           <button

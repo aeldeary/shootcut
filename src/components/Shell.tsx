@@ -20,7 +20,7 @@ export function Header({ showBack, activeId, section }: { showBack: boolean; act
               <span className="back-label">{t('back')}</span>
             </a>
           )}
-          <a className="btn btn-ghost" href="#/features" aria-label={t('navFeatures')}>
+          <a className="btn btn-ghost nav-features" href="#/features" aria-label={t('navFeatures')}>
             <Sparkles size={16} aria-hidden />
             <span className="nav-features-label">{t('navFeatures')}</span>
           </a>

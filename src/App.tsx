@@ -1,3 +1,4 @@
+import { Sparkles } from 'lucide-react';
 import { lazy, Suspense, useEffect, useState } from 'react';
 import { useI18n } from './i18n';
 import { Header, PrivacyBadge } from './components/Shell';
@@ -137,6 +138,13 @@ function Home() {
             );
           })}
         </nav>
+        <a className="features-banner" href="#/features">
+          <Sparkles size={26} aria-hidden />
+          <span className="features-banner-text">
+            <span className="section-name">{t('homeFeatures')}</span>
+            <span className="muted">{t('homeFeaturesDesc')}</span>
+          </span>
+        </a>
       </div>
     </>
   );

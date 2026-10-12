@@ -53,3 +53,29 @@ describe('kept file', () => {
     expect(seen).toHaveBeenCalledTimes(2);
   });
 });
+
+describe('kept pictures and videos', () => {
+  it('keeps the list of files, gives the same bytes back, and deletes them', async () => {
+    const { saveMedia, loadMedia, getMediaMeta, forgetMedia } = await import('./persist');
+    await forgetMedia('image');
+    expect(await loadMedia('image')).toEqual([]);
+    const a = new File(['aaa'], 'a.png', { type: 'image/png' });
+    const b = new File(['bbbb'], 'b.jpg', { type: 'image/jpeg' });
+    await saveMedia('image', [a, b]);
+    const back = await loadMedia('image');
+    expect(back.map((f) => f.name)).toEqual(['a.png', 'b.jpg']);
+    expect(await back[1].text()).toBe('bbbb');
+    expect(await getMediaMeta('image')).toMatchObject({ count: 2 });
+    expect(await loadMedia('video')).toEqual([]); // separate from videos
+    await forgetMedia('image');
+    expect(await loadMedia('image')).toEqual([]);
+  });
+
+  it('switching keeping off deletes kept pictures and videos too', async () => {
+    const { saveMedia, loadMedia } = await import('./persist');
+    await saveMedia('video', [new File(['v'], 'v.mp4', { type: 'video/mp4' })]);
+    await setKeepEnabled(false);
+    expect(await loadMedia('video')).toEqual([]);
+    await setKeepEnabled(true);
+  });
+});

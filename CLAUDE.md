@@ -16,6 +16,9 @@ Whenever a feature is added, changed or removed, update the Features page in the
 - PDF page tools (split, extract/remove, crop, repair) are in `src/lib/ops/pdftools.ts` and `src/tools/PdfPageTools.tsx`.
 - Image tools share `src/components/ImageBatch.tsx` (many pictures) or `src/tools/ImageEditTools.tsx` (one picture); the picture maths lives in `src/lib/ops/imgops.ts` with tests.
 
+- The person chooses places, never a fixed preset only: crops use the draggable `src/components/CropFrame.tsx`; watermark and meme text use `PlacePad.tsx` or clicks on the preview; the PDF stamp has its own free placement.
+- Files the person adds (PDF, pictures, video) are kept in IndexedDB (`src/lib/persist.ts`, `src/hooks/useKeptMedia.ts`, `MediaKeepBar`) so the next tool opens with them, with a delete button and an off switch.
+
 ## Other conventions
 - Arabic text in the interface is Modern Standard Arabic (Fusha), not dialect.
 - Arabic (RTL) and English (LTR) must both work; add every string to `src/i18n.tsx` in both blocks.

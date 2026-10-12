@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState, type PointerEvent as RPointerEvent } from 'react';
 import { useI18n } from '../i18n';
 import { Dropzone } from '../components/Dropzone';
-import { Field } from '../components/Fields';
+import { Checkbox, Field, MediaKeepBar } from '../components/Fields';
+import { useKeptMedia } from '../hooks/useKeptMedia';
 import { Notice, ToolPage } from '../components/Shell';
 import { decodeFile, encodeCanvas, formatOf, outName, MIME, type OutFormat } from '../lib/img';
 import { blackoutRegion, blurRegion, cloneCanvas, cropCanvas, makeTransparent, memeCanvas, pixelAt, pixelateRegion } from '../lib/ops/imgops';
@@ -18,25 +19,30 @@ function useOnePicture() {
   const [pic, setPic] = useState<Loaded | null>(null);
   const [error, setError] = useState(false);
   const url = useRef<string | null>(null);
-  const load = async (file: File | undefined) => {
+  const keep = useKeptMedia('image', (files) => void open(files[0], false));
+  const load = (file: File | undefined) => open(file, true);
+  async function open(file: File | undefined, fromPerson: boolean) {
     if (!file) return;
     setError(false);
     try {
       const canvas = await decodeFile(file);
       if (url.current) URL.revokeObjectURL(url.current);
       url.current = URL.createObjectURL(file);
-      setPic({ file, canvas, url: url.current });
+      // a file restored from the device does not replace what is kept; one the person just added does
+      setPic((old) => (old && !fromPerson ? old : { file, canvas, url: url.current! }));
+      if (fromPerson) keep([file]);
     } catch {
       setError(true);
     }
-  };
+  }
   const reset = () => {
     if (url.current) URL.revokeObjectURL(url.current);
     url.current = null;
     setPic(null);
   };
   useEffect(() => () => { if (url.current) URL.revokeObjectURL(url.current); }, []);
-  return { pic, error, load, reset };
+  const keepBar = <MediaKeepBar kind="image" onDeleted={reset} />;
+  return { pic, error, load, reset, keepBar };
 }
 
 /** A picture on the page where the person can drag; positions come back as fractions (0-1) of the picture. */
@@ -99,7 +105,7 @@ function saveAs(canvas: CanvasLike, file: File, suffix: string, format?: OutForm
 
 export function ImgCropTool() {
   const { t } = useI18n();
-  const { pic, error, load, reset } = useOnePicture();
+  const { pic, error, load, reset, keepBar } = useOnePicture();
   const [rect, setRect] = useState<{ a: [number, number]; b: [number, number] } | null>(null);
   const [ratio, setRatio] = useState<number | null>(null);
   const [busy, setBusy] = useState(false);
@@ -149,6 +155,7 @@ export function ImgCropTool() {
   return (
     <ToolPage title={t('toolImgCrop')} desc={t('toolImgCropDesc')}>
       {!pic && <Dropzone kind="image" onFiles={(f) => load(f[0])} />}
+      {pic && keepBar}
       {error && <Notice kind="error">{t('imgUnreadable')}</Notice>}
       {pic && (
         <div className="split">
@@ -195,7 +202,7 @@ type HideMode = 'blur' | 'pixel' | 'black';
 
 export function ImgBlurTool() {
   const { t } = useI18n();
-  const { pic, error, load, reset } = useOnePicture();
+  const { pic, error, load, reset, keepBar } = useOnePicture();
   const [areas, setAreas] = useState<{ a: [number, number]; b: [number, number] }[]>([]);
   const [live, setLive] = useState<{ a: [number, number]; b: [number, number] } | null>(null);
   const [mode, setMode] = useState<HideMode>('pixel');
@@ -231,6 +238,7 @@ export function ImgBlurTool() {
   return (
     <ToolPage title={t('toolImgBlur')} desc={t('toolImgBlurDesc')}>
       {!pic && <Dropzone kind="image" onFiles={(f) => load(f[0])} />}
+      {pic && keepBar}
       {error && <Notice kind="error">{t('imgUnreadable')}</Notice>}
       {pic && (
         <div className="split">
@@ -289,12 +297,17 @@ export function ImgBlurTool() {
 
 export function ImgMemeTool() {
   const { t } = useI18n();
-  const { pic, error, load, reset } = useOnePicture();
+  const { pic, error, load, reset, keepBar } = useOnePicture();
   const [top, setTop] = useState('');
   const [bottom, setBottom] = useState('');
   const [size, setSize] = useState(9);
   const [color, setColor] = useState('#ffffff');
+  const [mine, setMine] = useState(false);
+  const [which, setWhich] = useState<'top' | 'bottom'>('top');
+  const [topAt, setTopAt] = useState<{ x: number; y: number }>({ x: 0.5, y: 0.03 });
+  const [bottomAt, setBottomAt] = useState<{ x: number; y: number }>({ x: 0.5, y: 0.85 });
   const view = useRef<HTMLCanvasElement>(null);
+  const spec = { top, bottom, size, color, topAt: mine ? topAt : undefined, bottomAt: mine ? bottomAt : undefined };
 
   useEffect(() => {
     if (!pic || !view.current) return;
@@ -302,7 +315,7 @@ export function ImgMemeTool() {
     const draw = async () => {
       await document.fonts?.load?.('800 40px "IBM Plex Sans Arabic"').catch(() => undefined);
       if (!alive || !view.current) return;
-      const out = memeCanvas(pic.canvas, { top, bottom, size, color }) as unknown as HTMLCanvasElement;
+      const out = memeCanvas(pic.canvas, spec) as unknown as HTMLCanvasElement;
       view.current.width = out.width;
       view.current.height = out.height;
       view.current.getContext('2d')!.drawImage(out, 0, 0);
@@ -311,11 +324,20 @@ export function ImgMemeTool() {
     return () => {
       alive = false;
     };
-  }, [pic, top, bottom, size, color]);
+  }, [pic, top, bottom, size, color, mine, topAt, bottomAt]); // eslint-disable-line react-hooks/exhaustive-deps -- `spec` is built from these
+
+  const aim = (e: { clientX: number; clientY: number; currentTarget: HTMLCanvasElement }) => {
+    if (!mine) return;
+    const r = e.currentTarget.getBoundingClientRect();
+    const p = { x: Math.min(1, Math.max(0, (e.clientX - r.left) / (r.width || 1))), y: Math.min(1, Math.max(0, (e.clientY - r.top) / (r.height || 1))) };
+    (which === 'top' ? setTopAt : setBottomAt)(p);
+  };
+  const dragging = useRef(false);
 
   return (
     <ToolPage title={t('toolImgMeme')} desc={t('toolImgMemeDesc')}>
       {!pic && <Dropzone kind="image" onFiles={(f) => load(f[0])} />}
+      {pic && keepBar}
       {error && <Notice kind="error">{t('imgUnreadable')}</Notice>}
       {pic && (
         <div className="split">
@@ -326,13 +348,26 @@ export function ImgMemeTool() {
               <Field label={`${t('imgMemeSize')}: ${size}`}>{(id) => <input id={id} className="input" type="range" min={4} max={18} value={size} onChange={(e) => setSize(Number(e.target.value))} />}</Field>
               <Field label={t('imgMemeColor')}>{(id) => <input id={id} className="input color" type="color" value={color} onChange={(e) => setColor(e.target.value)} />}</Field>
             </div>
+            <Checkbox checked={mine} onChange={setMine}>{t('placeMyself')}</Checkbox>
+            {mine && (
+              <>
+                <p className="hint">{t('memePlaceHint')}</p>
+                <div className="chips">
+                  {(['top', 'bottom'] as const).map((k) => (
+                    <button key={k} type="button" className={`chip${which === k ? ' is-active' : ''}`} aria-pressed={which === k} onClick={() => setWhich(k)}>
+                      {t(k === 'top' ? 'imgMemeTop' : 'imgMemeBottom')}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
             <div className="actions">
               <button
                 type="button"
                 className="btn btn-primary"
                 data-save
                 disabled={!top.trim() && !bottom.trim()}
-                onClick={() => saveAs(memeCanvas(pic.canvas, { top, bottom, size, color }), pic.file, '-meme', 'jpeg')}
+                onClick={() => saveAs(memeCanvas(pic.canvas, spec), pic.file, '-meme', 'jpeg')}
               >
                 {t('imgMemeDownload')}
               </button>
@@ -342,7 +377,20 @@ export function ImgMemeTool() {
             </div>
           </div>
           <div className="preview-box">
-            <canvas ref={view} className="img-canvas" />
+            <canvas
+              ref={view}
+              className="img-canvas"
+              style={mine ? { cursor: 'crosshair', touchAction: 'none' } : undefined}
+              onPointerDown={(e) => {
+                if (!mine) return;
+                dragging.current = true;
+                e.currentTarget.setPointerCapture?.(e.pointerId);
+                aim(e);
+              }}
+              onPointerMove={(e) => dragging.current && aim(e)}
+              onPointerUp={() => (dragging.current = false)}
+              onPointerCancel={() => (dragging.current = false)}
+            />
           </div>
         </div>
       )}
@@ -352,7 +400,7 @@ export function ImgMemeTool() {
 
 export function ImgTransparentTool() {
   const { t } = useI18n();
-  const { pic, error, load, reset } = useOnePicture();
+  const { pic, error, load, reset, keepBar } = useOnePicture();
   const [color, setColor] = useState<[number, number, number] | null>(null);
   const [tol, setTol] = useState(12);
   const [soft, setSoft] = useState(6);
@@ -381,6 +429,7 @@ export function ImgTransparentTool() {
   return (
     <ToolPage title={t('toolImgTransparent')} desc={t('toolImgTransparentDesc')}>
       {!pic && <Dropzone kind="image" onFiles={(f) => load(f[0])} />}
+      {pic && keepBar}
       {error && <Notice kind="error">{t('imgUnreadable')}</Notice>}
       {pic && color && (
         <div className="split">
