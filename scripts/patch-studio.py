@@ -331,6 +331,43 @@ def patch_json(path):
     return False
 
 
+# Fonts the person adds on the site reach these apps through scripts/studio-fonts/bridge.rs
+FONT_BRIDGE = {
+    'designcraft': ('designcraft_fonts::FontDb::global().add_font(bytes)', 'designcraft-fonts'),
+    'wordcraft': ('wordcraft_fonts::FontDb::global().add_font(bytes)', 'wordcraft-fonts'),
+    'deckcraft': ('deckcraft_fonts::FontDb::global().add_font(bytes)', 'deckcraft-fonts'),
+    'vectorcraft': ('vectorcraft_text::FontDb::global().add_font(bytes)', 'vectorcraft-text'),
+}
+
+
+def add_font_bridge(src, repo):
+    if repo not in FONT_BRIDGE:
+        return False
+    expr, crate = FONT_BRIDGE[repo]
+    web = os.path.join(src, 'apps', f'{repo}-web')
+    tpl = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'studio-fonts', 'bridge.rs'), encoding='utf-8').read()
+    open(os.path.join(web, 'src', 'shootcut_fonts.rs'), 'w', encoding='utf-8').write(tpl.replace('__ADD__', expr))
+    main = os.path.join(web, 'src', 'main.rs')
+    m = open(main, encoding='utf-8').read()
+    m2, n = re.subn(r'(#\[cfg\(target_arch = "wasm32"\)\]\nmod web;)', '#[cfg(target_arch = "wasm32")]\nmod shootcut_fonts;\n\\1', m, count=1)
+    if not n:
+        sys.exit(f'patch-studio: no `mod web;` in {main}')
+    open(main, 'w', encoding='utf-8').write(m2)
+    w = os.path.join(web, 'src', 'web.rs')
+    t = open(w, encoding='utf-8').read()
+    start = 'eframe::WebLogger::init(log::LevelFilter::Info).ok();'
+    if start not in t:
+        sys.exit(f'patch-studio: no WebLogger line in {w}')
+    open(w, 'w', encoding='utf-8').write(t.replace(start, start + '\n    crate::shootcut_fonts::watch();', 1))
+    cargo = os.path.join(web, 'Cargo.toml')
+    c = open(cargo, encoding='utf-8').read()
+    dep = crate + ' = '
+    if not re.search(r'^' + re.escape(crate) + r'\s*=', c, re.M):
+        c = c.replace('[dependencies]\n', f'[dependencies]\n{crate} = {{ workspace = true }}\n', 1)
+        open(cargo, 'w', encoding='utf-8').write(c)
+    return True
+
+
 def cmd_source(src, repo):
     FAILED.clear()
     HIT.clear()
@@ -352,6 +389,7 @@ def cmd_source(src, repo):
                                      and not re.search(r'(colors|chart|smart_art|swatch|palette|lumetri|masks|label)', b)):
             if recolor_file(p):
                 c += 1
+    add_font_bridge(src, repo)
     pics = replace_pictures(src)
     logos = replace_drawn_logos(src)
     missing = [(repo, i) for i in range(len(EDITS.get(repo, []))) if (repo, i) not in HIT]

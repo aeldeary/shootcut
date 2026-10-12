@@ -2653,3 +2653,35 @@ button.version-card .tag {
   border-radius: var(--radius);
   background: var(--surface);
 }
+.fonts-panel {
+  padding-block: 12px;
+  border-block-start: 1px solid var(--border);
+}
+.fonts-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.fonts-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  align-items: center;
+  margin-block: 8px;
+}
+.fonts-list {
+  list-style: none;
+  margin: 8px 0;
+  padding: 0;
+  max-height: 220px;
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.fonts-list li {
+  padding: 4px 10px;
+}
+.fonts-installed input[type='search'] {
+  width: 100%;
+  max-width: 360px;
+}

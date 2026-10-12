@@ -116,7 +116,7 @@ Light tools, no server: a spreadsheet (26 columns × 200 rows, formulas, XLSX an
 
 ## Studios / الاستوديوهات
 
-Five studios (Docs, Design, Film, Audio, CAD) embed full open-source web apps (MIT OR Apache-2.0), built by `.github/workflows/studios.yml` with Shootcut's names, colours and logos (`scripts/patch-studio.py`) into the `studios` branch and served under `/studio/<app>/`; their licence texts are listed on the in-site notices page. The person chooses the **full** or the **light** version first (phones are pointed to light). The inside of the full apps is English only for now and they are alpha; Shootcut's frame, notices and light tools follow the chosen language.
+Five studios (Docs, Design, Film, Audio, CAD) embed full open-source web apps (MIT OR Apache-2.0), built by `.github/workflows/studios.yml` with Shootcut's names, colours and logos (`scripts/patch-studio.py`) into the `studios` branch and served under `/studio/<app>/`; their licence texts are listed on the in-site notices page. The person chooses the **full** or the **light** version first (phones are pointed to light). A **Device fonts** button adds fonts from the person's computer to the apps (font files in any browser; the installed fonts through Local Font Access in Chrome, Edge and Opera), kept in IndexedDB and handed over by `scripts/studio-fonts/bridge.rs` (Docs, Design, Slides and Vector apps so far). The inside of the full apps is English only for now and they are alpha; Shootcut's frame, notices and light tools follow the chosen language.
 
 | Studio | Full apps | Light version |
 | --- | --- | --- |

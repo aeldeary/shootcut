@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
-import { ArrowLeft, ExternalLink, Gauge, Maximize, RefreshCw, Smartphone, Monitor } from 'lucide-react';
+import { ArrowLeft, ExternalLink, Gauge, Maximize, RefreshCw, Smartphone, Monitor, Type } from 'lucide-react';
 import { useI18n } from '../i18n';
 import { TOOLS } from '../lib/tools';
+import { StudioFonts } from './StudioFonts';
+import { sendSaved } from '../lib/localFonts';
 import {
   STUDIOS,
   looksLikePhone,
@@ -173,6 +175,7 @@ export function StudioLauncher({ studio, app }: { studio: Studio; app: StudioApp
   const [webgl, setWebgl] = useState(false);
   const [nonce, setNonce] = useState(0);
   const [loaded, setLoaded] = useState(false);
+  const [fontsOpen, setFontsOpen] = useState(false);
   const frame = useRef<HTMLIFrameElement>(null);
   const src = `${studioBase(app.id)}index.html${webgl ? '?webgl' : ''}`;
 
@@ -195,6 +198,9 @@ export function StudioLauncher({ studio, app }: { studio: Studio; app: StudioApp
             />
             <Gauge size={14} aria-hidden /> {t('studioWebgl')}
           </label>
+          <button type="button" className="btn btn-ghost" aria-expanded={fontsOpen} onClick={() => setFontsOpen((v) => !v)}>
+            <Type size={14} aria-hidden /> {t('fontsBtn')}
+          </button>
           <button type="button" className="btn btn-ghost" onClick={() => { setLoaded(false); setNonce((n) => n + 1); }}>
             <RefreshCw size={14} aria-hidden /> {t('studioReload')}
           </button>
@@ -206,6 +212,7 @@ export function StudioLauncher({ studio, app }: { studio: Studio; app: StudioApp
           </a>
         </span>
       </div>
+      {fontsOpen && <StudioFonts frame={frame} onClose={() => setFontsOpen(false)} />}
       <div className="frame-wrap">
         {!loaded && <p className="muted frame-loading" role="status">{t('studioLoading')}</p>}
         <iframe
@@ -216,7 +223,10 @@ export function StudioLauncher({ studio, app }: { studio: Studio; app: StudioApp
           src={src}
           sandbox="allow-scripts allow-same-origin allow-downloads allow-popups allow-modals"
           allow="fullscreen; clipboard-read; clipboard-write; autoplay"
-          onLoad={() => setLoaded(true)}
+          onLoad={() => {
+            setLoaded(true);
+            void sendSaved(frame.current?.contentWindow);
+          }}
         />
       </div>
     </div>
