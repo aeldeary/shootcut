@@ -6,13 +6,15 @@ import { isPdf } from '../lib/pdf';
 interface Props {
   /** what the zone accepts; default PDF */
   kind?: 'pdf' | 'image' | 'scan' | 'video' | 'audio';
+  /** replaces the default sentence of the zone */
+  title?: string;
   multiple?: boolean;
   compact?: boolean;
   onFiles: (files: File[]) => void;
   onRejected?: () => void;
 }
 
-export function Dropzone({ kind = 'pdf', multiple = false, compact = false, onFiles, onRejected }: Props) {
+export function Dropzone({ kind = 'pdf', multiple = false, compact = false, title, onFiles, onRejected }: Props) {
   const { t } = useI18n();
   const input = useRef<HTMLInputElement>(null);
   const [active, setActive] = useState(false);
@@ -45,7 +47,7 @@ export function Dropzone({ kind = 'pdf', multiple = false, compact = false, onFi
       onDrop={onDrop}
     >
       <Upload size={compact ? 20 : 32} aria-hidden />
-      <p className="dropzone-title">{active ? t('dropActive') : kind === 'image' ? t('dropImages') : kind === 'video' ? t('dropVideos') : kind === 'audio' ? t('dropAudio') : kind === 'scan' ? t('dropScan') : t('dropTitle')}</p>
+      <p className="dropzone-title">{active ? t('dropActive') : title ? title : kind === 'image' ? t('dropImages') : kind === 'video' ? t('dropVideos') : kind === 'audio' ? t('dropAudio') : kind === 'scan' ? t('dropScan') : t('dropTitle')}</p>
       {!compact && <p className="muted">{t('dropOr')}</p>}
       <button type="button" className="btn btn-primary" onClick={() => input.current?.click()}>
         {t('browse')}

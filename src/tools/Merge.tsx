@@ -4,6 +4,7 @@ import { useReopenKept } from '../hooks/useReopenKept';
 import { PDFDocument } from 'pdf-lib';
 import { ArrowDown, ArrowUp, GripVertical, Trash2 } from 'lucide-react';
 import { useI18n, type Key } from '../i18n';
+import { toCreateImage } from '../lib/ops/imagefile';
 import { Dropzone } from '../components/Dropzone';
 import { Notice, ToolPage } from '../components/Shell';
 import { classifyError, downloadBytes, formatBytes, nextId, readBytes, type PdfErrorKind } from '../lib/pdf';
@@ -14,7 +15,13 @@ interface Item {
   id: string;
   file: File;
   pages: number;
+  /** a picture is added as one page */
+  image?: boolean;
 }
+
+const isPicture = (f: File) => f.type.startsWith('image/') || /\.(png|jpe?g|webp|gif|bmp|avif|heic|heif)$/i.test(f.name);
+/** the longest side a picture page may have, in points (A4 height); smaller pictures keep their own size */
+const MAX_SIDE = 842;
 
 const ERR_KEY: Record<PdfErrorKind, Key> = {
   encrypted: 'errEncrypted',
@@ -39,6 +46,11 @@ export function MergeTool() {
     const added: Item[] = [];
     for (const file of files) {
       try {
+        if (isPicture(file)) {
+          await toCreateImage(file); // checks the browser can read it
+          added.push({ id: nextId(), file, pages: 1, image: true });
+          continue;
+        }
         const doc = await PDFDocument.load(await readBytes(file));
         added.push({ id: nextId(), file, pages: doc.getPageCount() });
       } catch (err) {
@@ -67,6 +79,15 @@ export function MergeTool() {
     try {
       const out = await PDFDocument.create();
       for (const item of items) {
+        if (item.image) {
+          const img = await toCreateImage(item.file, false);
+          const e = img.mime === 'image/png' ? await out.embedPng(img.bytes) : await out.embedJpg(img.bytes);
+          const k = Math.min(1, MAX_SIDE / Math.max(e.width, e.height));
+          const w = e.width * k;
+          const h = e.height * k;
+          out.addPage([w, h]).drawImage(e, { x: 0, y: 0, width: w, height: h });
+          continue;
+        }
         const src = await PDFDocument.load(await readBytes(item.file));
         const copied = await out.copyPages(src, src.getPageIndices());
         copied.forEach((p) => out.addPage(p));
@@ -85,7 +106,7 @@ export function MergeTool() {
 
   return (
     <ToolPage title={t('toolMerge')} desc={t('toolMergeDesc')}>
-      <Dropzone multiple compact={items.length > 0} onFiles={addFiles} onRejected={() => { setError('onlyPdf'); setErrorFile(''); }} />
+      <Dropzone kind="scan" title={t('dropMerge')} multiple compact={items.length > 0} onFiles={addFiles} onRejected={() => { setError('onlyPdfOrImage'); setErrorFile(''); }} />
 
       {error && (
         <Notice kind="error">

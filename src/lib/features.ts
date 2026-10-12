@@ -204,7 +204,7 @@ export const TOOL_FEATURES: Record<string, Text[]> = {
     { en: 'On a phone, take photos of pages with the camera and make a PDF from them (each photo is straightened)', ar: 'على الهاتف، صوّر الصفحات بالكاميرا واصنع منها ملف PDF (تُعدَّل كل صورة لتكون مستقيمة)' },
   ],
   merge: [
-    { en: 'Join several PDFs into one', ar: 'ادمج عدة ملفات PDF في ملف واحد' },
+    { en: 'Join PDFs and pictures (JPG, PNG, WebP, HEIC…) into one PDF; each picture becomes a page at its own size', ar: 'ادمج ملفات PDF والصور (JPG وPNG وWebP وHEIC…) في ملف PDF واحد؛ وتصبح كل صورة صفحة بحجمها' },
     { en: 'Put them in order by dragging or with the arrow buttons, and remove the ones you do not want', ar: 'رتّبها بالسحب أو بأزرار الأسهم، واحذف ما لا تريده' },
   ],
   organize: [

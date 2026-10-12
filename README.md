@@ -77,7 +77,7 @@ All PDF tools work in the browser / كل أدوات PDF شغالة.
 | Share | System share sheet (WhatsApp, Mail, ...) for the file; message links for WhatsApp, Telegram, email. No upload, so no file links |
 | Export to… | Word, Excel, PowerPoint, Markdown, text, RTF, HTML, XML (text only; Excel keeps table columns; PowerPoint is page pictures) |
 | Create PDF | Images and text (Arabic + English) into one PDF; on a phone, photograph pages with the camera (straightened) |
-| Merge, Organize pages | Reorder, rotate, delete; insert blank pages, duplicate pages, add pages from another PDF |
+| Merge, Organize pages | Merge PDFs and pictures into one PDF; reorder, rotate, delete; insert blank pages, duplicate pages, add pages from another PDF |
 | Split | By ranges, every N pages, or one file per page; several files come as a ZIP |
 | Extract or remove pages | Keep the pages you name (in that order) or delete them |
 | Crop pages | Margins in mm for all or some pages, or drag the frame and its corners on the preview; turned pages handled |

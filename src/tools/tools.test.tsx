@@ -81,6 +81,18 @@ describe('MergeTool', () => {
     expect(screen.getByRole('alert').textContent).toContain('bad.pdf');
   });
 
+  it('merges a picture with a PDF into one PDF, the picture as its own page', async () => {
+    renderTool(<MergeTool />);
+    const png = Uint8Array.from(atob('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=='), (c) => c.charCodeAt(0));
+    upload([pdfFile(await makePdf([301, 302]), 'a.pdf'), new NodeFile([png], 'photo.png', { type: 'image/png' }) as unknown as File]);
+    await screen.findByText('photo.png');
+    fireEvent.click(screen.getByRole('button', { name: 'Merge and download' }));
+    await waitFor(() => expect(downloads).toHaveLength(1));
+    const out = await PDFDocument.load(downloads[0].bytes);
+    expect(out.getPageCount()).toBe(3);
+    expect(out.getPages().map((p) => Math.round(p.getWidth()))).toEqual([301, 302, 1]);
+  });
+
   it('rejects non-PDF files', async () => {
     renderTool(<MergeTool />);
     const txt = new NodeFile(['hi'], 'notes.txt', { type: 'text/plain' }) as unknown as File;

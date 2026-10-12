@@ -5,11 +5,9 @@ import { Dropzone } from '../components/Dropzone';
 import { Field } from '../components/Fields';
 import { Notice, ToolPage } from '../components/Shell';
 import { Camera } from 'lucide-react';
-import { canvasToBytes, decodeImage, downloadBytes, formatBytes, nextId } from '../lib/pdf';
-import { decodeFile } from '../lib/img';
-import { isHeic } from '../lib/heic';
-import { fitWithin, resizeCanvas } from '../lib/ops/imgops';
+import { downloadBytes, formatBytes, nextId } from '../lib/pdf';
 import { createPdf, type CreateImage, type CreatePageSize } from '../lib/ops/create';
+import { toCreateImage } from '../lib/ops/imagefile';
 import { moveItem } from '../lib/reorder';
 import { useHistory } from '../hooks/useHistory';
 
@@ -19,22 +17,6 @@ interface Item {
   size: number;
   image: CreateImage;
   url: string;
-}
-
-/** JPEG and PNG go in as they are; any other format the browser can read is converted to PNG. */
-async function toCreateImage(file: File, fromCamera = false): Promise<CreateImage> {
-  if (fromCamera) {
-    // a phone photo stores "turned sideways" in a tag the PDF would ignore: draw it upright, and keep it to a sensible size
-    const full = await decodeFile(file);
-    const s = fitWithin(full.width, full.height, 2400, 2400);
-    const canvas = s.width < full.width ? resizeCanvas(full, s.width, s.height) : full;
-    return { bytes: await canvasToBytes(canvas, 'image/jpeg', 0.85), mime: 'image/jpeg' };
-  }
-  const bytes = new Uint8Array(await file.arrayBuffer());
-  if (file.type === 'image/jpeg' || /\.jpe?g$/i.test(file.name)) return { bytes, mime: 'image/jpeg' };
-  if (file.type === 'image/png' || /\.png$/i.test(file.name)) return { bytes, mime: 'image/png' };
-  const canvas = await (isHeic(file) ? decodeFile(file) : decodeImage(bytes));
-  return { bytes: await canvasToBytes(canvas, 'image/png'), mime: 'image/png' };
 }
 
 export function CreateTool() {
