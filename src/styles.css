@@ -2190,3 +2190,119 @@ kbd {
 .whats-new a { display: flex; flex-wrap: wrap; gap: 6px 8px; align-items: baseline; padding: 6px 4px; border-radius: 8px; text-decoration: none; color: inherit; }
 .whats-new a:hover { background: var(--bg); }
 .whats-new .tag { margin-inline-start: 0; align-self: center; }
+
+/* Studios */
+.studios {
+  margin-block: 8px 40px;
+}
+.studio-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 16px;
+  margin-top: 12px;
+}
+@media (max-width: 1000px) {
+  .studio-grid {
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  }
+}
+.studio-card {
+  padding: 24px 16px;
+}
+.studio-card .section-name {
+  font-size: 1.15rem;
+}
+.studio-page h1 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.version-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-block: 12px;
+}
+button.version-card {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  width: 100%;
+  flex-direction: column;
+  text-align: center;
+}
+button.version-card .muted {
+  display: block;
+}
+button.version-card .tag {
+  white-space: normal;
+}
+.notice {
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-inline-start: 4px solid var(--primary);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+.notes {
+  padding-inline-start: 20px;
+  color: var(--muted, inherit);
+}
+.app-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-start;
+}
+.app-card .btn {
+  margin-top: auto;
+}
+.small {
+  font-size: 0.85rem;
+}
+.launcher-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+  padding-block: 10px;
+}
+.launcher-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  align-items: center;
+  margin-inline-start: auto;
+}
+.frame-wrap {
+  position: relative;
+  height: calc(100vh - 170px);
+  min-height: 420px;
+  border-block: 1px solid var(--border);
+  background: #111;
+}
+.studio-frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+.frame-loading {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  color: #ddd;
+  text-align: center;
+  padding: 20px;
+}
+.credit {
+  padding-block: 10px;
+}
+@media (max-width: 720px) {
+  .version-grid {
+    grid-template-columns: 1fr;
+  }
+}

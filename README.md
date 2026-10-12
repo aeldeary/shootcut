@@ -99,6 +99,18 @@ npm test           # unit + component tests
 npm run build      # outputs dist/
 ```
 
+## Studios / الاستوديوهات
+
+Five studios (Docs, Design, Film, Audio, CAD) embed full web apps from the open-source [storytold](https://github.com/storytold) projects (MIT OR Apache-2.0), built unmodified by `.github/workflows/studios.yml` into the `studios` branch and served under `/studio/<app>/`. The person chooses the **full** or the **light** version first (phones are pointed to light). The inside of the full apps is English only for now and they are alpha; Shootcut's frame, notices and light tools follow the chosen language.
+
+| Studio | Full apps | Light version |
+| --- | --- | --- |
+| Docs | Documents, Spreadsheets, Presentations | Create and convert PDF |
+| Design | Photo editor, Photo developer, Vector drawing, Graphic design | Picture tools |
+| Film | Video editor, Motion effects | Video tools |
+| Audio | Audio workstation | Extract audio (more soon) |
+| CAD | CAD drafting | not yet |
+
 ## Deploy to GitHub Pages
 
 1. Push this repository to GitHub (default branch `main`).

@@ -19,6 +19,8 @@ Whenever a feature is added, changed or removed, update the Features page in the
 - The person chooses places, never a fixed preset only: crops use the draggable `src/components/CropFrame.tsx`; watermark and meme text use `PlacePad.tsx` or clicks on the preview; the PDF stamp has its own free placement.
 - Files the person adds (PDF, pictures, video) are kept in IndexedDB (`src/lib/persist.ts`, `src/hooks/useKeptMedia.ts`, `MediaKeepBar`) so the next tool opens with them, with a delete button and an off switch.
 
+- Studios (`src/lib/studios.ts`, `src/components/Studios.tsx`): five studios embed storytold's web apps, built unmodified by `.github/workflows/studios.yml` (matrix must match `STUDIOS`, a test checks it) into the `studios` branch; `deploy.yml` copies that branch into `public/studio`. The person must choose Full or Light before anything opens. Never use ArtCraft names or logos as Shootcut's own branding. Their inner UI is English only.
+
 ## Other conventions
 - Arabic text in the interface is Modern Standard Arabic (Fusha), not dialect.
 - Arabic (RTL) and English (LTR) must both work; add every string to `src/i18n.tsx` in both blocks.

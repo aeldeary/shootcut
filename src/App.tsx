@@ -8,6 +8,8 @@ import { useShortcuts } from './hooks/useShortcuts';
 import { holdFile } from './lib/handoff';
 import { saveFile } from './lib/persist';
 import { notify, useToast } from './lib/toast';
+import { StudiosBlock, StudioPage, StudioLauncher } from './components/Studios';
+import { parseStudioRoute } from './lib/studios';
 
 const COMPONENTS: Record<string, ReturnType<typeof lazy>> = {
   'img-compress': lazy(() => import('./tools/ImageBatchTools').then((m) => ({ default: m.ImgCompressTool }))),
@@ -142,6 +144,7 @@ function Home() {
             );
           })}
         </nav>
+        <StudiosBlock />
         <section className="whats-new" aria-labelledby="whats-new-title">
           <h2 id="whats-new-title">{t('whatsNew')}</h2>
           <ul>
@@ -238,16 +241,23 @@ export default function App() {
   const tool = findTool(route);
   const page = route === 'features' || route === 'shortcuts';
   const section = sectionOfRoute(route);
+  const studioRoute = parseStudioRoute(route);
   const sectionPage = route === 'pdf' || route === 'image' || route === 'video' ? route : null;
   const active = tool && tool.status === 'ready' ? tool.id : null;
   const Active = active ? COMPONENTS[active] : undefined;
 
   return (
     <>
-      <Header showBack={active !== null || page || sectionPage !== null} activeId={active} section={section} />
+      <Header showBack={active !== null || page || sectionPage !== null || studioRoute !== null} activeId={active} section={section} />
       <main>
         <Suspense fallback={null}>
-          {page ? (
+          {studioRoute ? (
+            studioRoute.app ? (
+              <StudioLauncher key={studioRoute.app.id} studio={studioRoute.studio} app={studioRoute.app} />
+            ) : (
+              <StudioPage key={studioRoute.studio.id} studio={studioRoute.studio} />
+            )
+          ) : page ? (
             <FeaturesPage scrollTo={route === 'shortcuts' ? 'shortcuts' : undefined} />
           ) : sectionPage ? (
             <SectionPage section={sectionPage} />
