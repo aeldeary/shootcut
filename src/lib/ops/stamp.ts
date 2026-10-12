@@ -71,6 +71,18 @@ const rot = (x: number, y: number, deg: number): [number, number] => {
   return [x * Math.cos(a) - y * Math.sin(a), x * Math.sin(a) + y * Math.cos(a)];
 };
 
+/**
+ * Fills in a numbering template: {n} page number, {n:6} the same padded with zeros to 6 digits (Bates style:
+ * "CASE-{n:6}"), {total} page count, {date} today as 2026-10-12.
+ */
+export function fillTemplate(template: string, n: number, total: number, today = new Date()): string {
+  const date = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+  return template
+    .replace(/\{n(?::(\d{1,2}))?\}/g, (_, w) => String(n).padStart(w ? Number(w) : 0, '0'))
+    .replace(/\{total\}/g, String(total))
+    .replace(/\{date\}/g, date);
+}
+
 export async function stampPdf(bytes: Uint8Array, o: StampOptions): Promise<Uint8Array> {
   const doc = await PDFDocument.load(bytes, { updateMetadata: false });
   const fonts = o.kind === 'image' ? null : await embedFonts(doc, 'bold');
@@ -98,7 +110,7 @@ export async function stampPdf(bytes: Uint8Array, o: StampOptions): Promise<Uint
       });
       continue;
     }
-    const text = o.kind === 'numbers' ? (o.text ?? '{n}').replace('{n}', String((o.startAt ?? 1) + index)).replace('{total}', String(o.total ?? total)) : (o.text as string);
+    const text = o.kind === 'numbers' ? fillTemplate(o.text ?? '{n}', (o.startAt ?? 1) + index, o.total ?? total) : (o.text as string);
     const size = o.size ?? (o.kind === 'numbers' ? 11 : 64);
     const pad = o.border ? size * 0.3 : 0;
     const w = measureLine(text, fonts as FontSet, size) + pad * 2;

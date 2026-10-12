@@ -7,7 +7,7 @@ import { createCanvas } from '@napi-rs/canvas';
 import { PDFDocument, degrees } from 'pdf-lib';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { initNodeEnv } from '../../test/node';
-import { stampPdf } from './stamp';
+import { stampPdf, fillTemplate } from './stamp';
 
 beforeAll(initNodeEnv);
 const dir = mkdtempSync(join(tmpdir(), 'sc-'));
@@ -94,5 +94,16 @@ describe('stampPdf', () => {
   it('validates input', async () => {
     await expect(stampPdf(await blank(1), { kind: 'text', text: '  ' })).rejects.toThrow();
     await expect(stampPdf(await blank(1), { kind: 'image' })).rejects.toThrow();
+  });
+});
+
+describe('numbering templates', () => {
+  const day = new Date(2026, 9, 12);
+  it('fills page number, total and date', () => {
+    expect(fillTemplate('Page {n} of {total} — {date}', 3, 10, day)).toBe('Page 3 of 10 — 2026-10-12');
+  });
+  it('pads Bates-style numbers', () => {
+    expect(fillTemplate('CASE-{n:6}', 42, 100, day)).toBe('CASE-000042');
+    expect(fillTemplate('{n:3}/{n}', 7, 9, day)).toBe('007/7');
   });
 });

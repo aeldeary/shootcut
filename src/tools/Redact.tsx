@@ -12,6 +12,7 @@ import { usePdfFile } from '../hooks/usePdfFile';
 import { baseName, downloadBytes, nextId } from '../lib/pdf';
 import { redactPdf, type RedactBox } from '../lib/ops/redact';
 import { findTextBoxes, rectFromPoints } from '../lib/ops/textselect';
+import { findPatternBoxes, PATTERN_KINDS, type PatternKind } from '../lib/ops/patterns';
 import { useHistory } from '../hooks/useHistory';
 
 type Box = RedactBox & { id: string };
@@ -26,6 +27,8 @@ export function RedactTool() {
   const [query, setQuery] = useState('');
   const [found, setFound] = useState<number | null>(null);
   const [searching, setSearching] = useState(false);
+  const [kinds, setKinds] = useState<PatternKind[]>([]);
+  const [foundKinds, setFoundKinds] = useState<number | null>(null);
   const [strip, setStrip] = useState(true);
   const [sure, setSure] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -66,6 +69,19 @@ export function RedactTool() {
     }
     setBoxes((prev) => [...prev, ...added]);
     setFound(added.length);
+    setSearching(false);
+    setDone(false);
+  };
+
+  const searchKinds = async () => {
+    if (!pdf || kinds.length === 0) return;
+    setSearching(true);
+    const added: Box[] = [];
+    for (let i = 0; i < pdf.numPages; i++) {
+      for (const r of findPatternBoxes(await pdf.preview.textItems(i), kinds)) added.push({ ...r, page: i, id: nextId() });
+    }
+    setBoxes((prev) => [...prev, ...added]);
+    setFoundKinds(added.length);
     setSearching(false);
     setDone(false);
   };
@@ -133,6 +149,19 @@ export function RedactTool() {
                   )}
                 </Field>
                 {found !== null && <p className="muted">{found === 0 ? t('redactNoMatch') : `${found} ${t('redactMatches')}`}</p>}
+                <fieldset className="choices">
+                  <legend>{t('redactPatterns')}</legend>
+                  <p className="hint">{t('redactPatternsHint')}</p>
+                  {PATTERN_KINDS.map((k) => (
+                    <Checkbox key={k} checked={kinds.includes(k)} onChange={(v) => { setKinds((prev) => (v ? [...prev, k] : prev.filter((x) => x !== k))); setFoundKinds(null); }}>
+                      {t(`redactKind_${k}` as Key)}
+                    </Checkbox>
+                  ))}
+                  <button type="button" className="btn" disabled={kinds.length === 0 || searching} onClick={searchKinds}>
+                    {t('redactFindKinds')}
+                  </button>
+                  {foundKinds !== null && <p className="muted">{foundKinds === 0 ? t('redactNoMatch') : `${foundKinds} ${t('redactMatches')}`}</p>}
+                </fieldset>
               </div>
               <div className="panel">
                 <p className="panel-title">

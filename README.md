@@ -66,7 +66,7 @@ All PDF tools work in the browser / كل أدوات PDF شغالة.
 | Share | System share sheet (WhatsApp, Mail, ...) for the file; message links for WhatsApp, Telegram, email. No upload, so no file links |
 | Export to… | Word, Excel, PowerPoint, Markdown, text, RTF, HTML, XML (text only; Excel keeps table columns; PowerPoint is page pictures) |
 | Create PDF | Images and text (Arabic + English) into one PDF; on a phone, photograph pages with the camera (straightened) |
-| Merge, Organize pages | Reorder, rotate, delete |
+| Merge, Organize pages | Reorder, rotate, delete; insert blank pages, duplicate pages, add pages from another PDF |
 | Split | By ranges, every N pages, or one file per page; several files come as a ZIP |
 | Extract or remove pages | Keep the pages you name (in that order) or delete them |
 | Crop pages | Margins in mm for all or some pages, or drag the frame and its corners on the preview; turned pages handled |
@@ -76,15 +76,18 @@ All PDF tools work in the browser / كل أدوات PDF شغالة.
 | Fill & sign | Fill forms, text, check marks, drawn/image signature (visual, not certificate-based) |
 | Prepare form | Examines the file first and suggests fields (empty table cells, blanks, lines, tick boxes, labels with a colon), or draw them yourself. Add text, multiline, checkbox, radio, dropdown, list fields. Boxes can be moved and resized (handles, arrow keys, or exact width/height in points) |
 | Comment & highlight | Real PDF highlight, underline, strike-out and sticky-note annotations; drag selects text like a reader, "Free area" for pictures |
-| Stamp | Text/image stamps, watermarks, page numbers, live preview. Place it anywhere: click or drag on the preview, or type exact percentages (plus 9 quick spots and tiling) |
+| Stamp | Text/image stamps, watermarks, page numbers (`{n}`, `{total}`, `{date}`, Bates `{n:6}`), odd/even page ranges, live preview. Place it anywhere: click or drag on the preview, or type exact percentages (plus 9 quick spots and tiling) |
 | Compare | Text diff and visual diff |
 | Measure | Calibrated distance and area |
 | Protect | AES-256 password, or remove a password you know |
-| Redact | Search or draw; affected pages are rasterized so the text is really gone |
+| Redact | Search, draw, or find private data by shape (emails, phones incl. Arabic digits, cards with check digit, ID numbers, dates, links); affected pages are rasterized so the text is really gone |
+| Pages per sheet, Booklet | 2 to 16 pages per sheet (A4/A3/Letter), or an imposed booklet that folds into a book (right-to-left too) |
+| Clean hidden information | Audit and remove metadata, JavaScript, attachments, comments, links, bookmarks, thumbnails; removed objects are dropped from the file, not just unlinked |
+| Accessibility check | Title, language, tags, real text, figure descriptions, bookmarks, field tooltips; sets title and language. Reading order and contrast stay manual |
 | Optimize | Light (lossless), balanced, strong, flatten |
 
 Out of scope for a browser-only app: AI tools (background removal, AI upscaling, translation, summaries), downloading videos from sites, Word/Excel/PowerPoint to PDF with exact layout, PDF/A and print-production
-checks, accessibility tagging, certificate-based signing, "Certified PDF" and "Reader Extended PDF", PostScript export, links to files (needs upload), cloud features (send for comments,
+checks, building accessibility tags, certificate-based signing, "Certified PDF" and "Reader Extended PDF", PostScript export, links to files (needs upload), cloud features (send for comments,
 bulk send, web forms).
 
 ## Develop

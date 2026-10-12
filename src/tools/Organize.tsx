@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { PDFDocument, degrees } from 'pdf-lib';
-import { ChevronLeft, ChevronRight, RotateCcw, RotateCw, Trash2, Undo2 } from 'lucide-react';
+import { PDFDocument } from 'pdf-lib';
+import { ChevronLeft, ChevronRight, Copy, FilePlus, RotateCcw, RotateCw, Trash2, Undo2 } from 'lucide-react';
 import { useI18n, type Key } from '../i18n';
 import { Dropzone } from '../components/Dropzone';
 import { KeepBar } from '../components/Fields';
@@ -19,11 +19,15 @@ import {
 } from '../lib/pdf';
 import { moveItem, useDragReorder } from '../lib/reorder';
 import { useHistory } from '../hooks/useHistory';
+import { buildOrganized } from '../lib/ops/organize';
 
 interface PageItem {
   id: string;
   /** 0-based index in the source file */
   src: number;
+  /** index in the added files, when the page comes from one; undefined for the main file */
+  from?: number;
+  blank?: boolean;
   /** extra rotation in degrees (multiple of 90, may be negative) */
   rotation: number;
   deleted: boolean;
@@ -42,7 +46,10 @@ export function OrganizeTool() {
   const [file, setFile] = useState<File | null>(null);
   const [bytes, setBytes] = useState<Uint8Array | null>(null);
   const [pages, setPages] = useState<PageItem[]>([]);
-  const [thumbs, setThumbs] = useState<Record<number, string>>({});
+  const [thumbs, setThumbs] = useState<Record<string, string>>({});
+  const [extras, setExtras] = useState<{ name: string; bytes: Uint8Array }[]>([]);
+  const extraPreviews = useRef<PdfPreview[]>([]);
+  const picker = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<Key | null>(null);
@@ -56,7 +63,10 @@ export function OrganizeTool() {
   const closePreview = () => {
     previewRef.current?.destroy();
     previewRef.current = null;
+    extraPreviews.current.forEach((p) => p.destroy());
+    extraPreviews.current = [];
   };
+  const key = (p: { from?: number; src: number }) => `${p.from ?? 'm'}-${p.src}`;
 
   useEffect(() => () => {
     runRef.current += 1;
@@ -69,6 +79,7 @@ export function OrganizeTool() {
     setError(null);
     setDone(false);
     setThumbs({});
+    setExtras([]);
     setPages([]);
     setLoading(true);
     try {
@@ -92,7 +103,7 @@ export function OrganizeTool() {
         try {
           const url = await preview.render(i, THUMB_WIDTH);
           if (run !== runRef.current) return;
-          setThumbs((prev) => ({ ...prev, [i]: url }));
+          setThumbs((prev) => ({ ...prev, [`m-${i}`]: url }));
         } catch {
           /* a single unreadable page should not block the rest */
         }
@@ -118,6 +129,41 @@ export function OrganizeTool() {
     setPages(next);
   };
 
+  const duplicate = (i: number) => {
+    setDone(false);
+    setPages((prev) => [...prev.slice(0, i + 1), { ...prev[i], id: nextId() }, ...prev.slice(i + 1)]);
+  };
+  const addBlank = (i: number) => {
+    setDone(false);
+    setPages((prev) => [...prev.slice(0, i + 1), { id: nextId(), src: 0, blank: true, rotation: 0, deleted: false }, ...prev.slice(i + 1)]);
+  };
+  // pages of another PDF join the end; move them where they belong
+  const addFrom = async (f: File) => {
+    setError(null);
+    try {
+      const data = await readBytes(f);
+      const count = (await PDFDocument.load(data)).getPageCount();
+      const preview = await openPreview(data);
+      const from = extras.length;
+      extraPreviews.current.push(preview);
+      setExtras((prev) => [...prev, { name: f.name, bytes: data }]);
+      setDone(false);
+      setPages((prev) => [...prev, ...Array.from({ length: count }, (_, i) => ({ id: nextId(), src: i, from, rotation: 0, deleted: false }))]);
+      const run = runRef.current;
+      for (let i = 0; i < count; i++) {
+        if (run !== runRef.current) return;
+        try {
+          const url = await preview.render(i, THUMB_WIDTH);
+          setThumbs((prev) => ({ ...prev, [`${from}-${i}`]: url }));
+        } catch {
+          /* one unreadable page should not block the rest */
+        }
+      }
+    } catch (err) {
+      setError(ERR_KEY[classifyError(err)]);
+    }
+  };
+
   const kept = pages.filter((p) => !p.deleted);
 
   const save = async () => {
@@ -126,18 +172,8 @@ export function OrganizeTool() {
     setError(null);
     setDone(false);
     try {
-      const src = await PDFDocument.load(bytes);
-      const out = await PDFDocument.create();
-      const copied = await out.copyPages(src, kept.map((p) => p.src));
-      copied.forEach((page, i) => {
-        const delta = kept[i].rotation;
-        if (delta !== 0) {
-          const current = page.getRotation().angle;
-          page.setRotation(degrees(((current + delta) % 360 + 360) % 360));
-        }
-        out.addPage(page);
-      });
-      downloadBytes(await out.save(), `${baseName(file.name)}${t('organizeSuffix')}.pdf`);
+      const out = await buildOrganized(bytes, extras.map((e) => e.bytes), kept);
+      downloadBytes(out, `${baseName(file.name)}${t('organizeSuffix')}.pdf`);
       setDone(true);
     } catch (err) {
       setError(ERR_KEY[classifyError(err)]);
@@ -153,6 +189,7 @@ export function OrganizeTool() {
     setBytes(null);
     setPages([]);
     setThumbs({});
+    setExtras([]);
     setError(null);
     setDone(false);
   };
@@ -172,6 +209,13 @@ export function OrganizeTool() {
               <bdi>{file.name}</bdi> · {kept.length}/{pages.length} {pages.length === 1 ? t('pageSingular') : t('pagePlural')} — {t('organizeHint')}
             </p>
             <div className="toolbar-actions">
+              <input ref={picker} type="file" accept="application/pdf,.pdf" hidden aria-label={t('organizeAddFile')} onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ''; if (f) void addFrom(f); }} />
+              <button type="button" className="btn" onClick={() => picker.current?.click()} disabled={busy}>
+                {t('organizeAddFile')}
+              </button>
+              <button type="button" className="btn" onClick={() => addBlank(pages.length - 1)} disabled={busy}>
+                {t('organizeAddBlank')}
+              </button>
               <button type="button" className="btn" onClick={reset} disabled={busy}>
                 {t('clearAll')}
               </button>
@@ -192,9 +236,11 @@ export function OrganizeTool() {
                 aria-label={`${t('pageLabel')} ${i + 1}`}
               >
                 <div className="thumb">
-                  {thumbs[p.src] ? (
+                  {p.blank ? (
+                    <span className="thumb-blank" style={{ transform: `rotate(${p.rotation}deg)` }} aria-hidden>{t('organizeBlank')}</span>
+                  ) : thumbs[key(p)] ? (
                     <img
-                      src={thumbs[p.src]}
+                      src={thumbs[key(p)]}
                       alt=""
                       draggable={false}
                       style={{ transform: `rotate(${p.rotation}deg)` }}
@@ -216,6 +262,12 @@ export function OrganizeTool() {
                   </button>
                   <button type="button" className="icon-btn" title={t('rotateRight')} aria-label={t('rotateRight')} disabled={p.deleted} onClick={() => update(p.id, (x) => ({ ...x, rotation: x.rotation + 90 }))}>
                     <RotateCw size={16} aria-hidden />
+                  </button>
+                  <button type="button" className="icon-btn" title={t('organizeDuplicate')} aria-label={t('organizeDuplicate')} disabled={p.deleted} onClick={() => duplicate(i)}>
+                    <Copy size={16} aria-hidden />
+                  </button>
+                  <button type="button" className="icon-btn" title={t('organizeBlankAfter')} aria-label={t('organizeBlankAfter')} onClick={() => addBlank(i)}>
+                    <FilePlus size={16} aria-hidden />
                   </button>
                   {p.deleted ? (
                     <button type="button" className="icon-btn" title={t('restore')} aria-label={t('restore')} onClick={() => update(p.id, (x) => ({ ...x, deleted: false }))}>

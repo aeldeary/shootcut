@@ -123,6 +123,21 @@ export const TOOL_FEATURES: Record<string, Text[]> = {
     { en: 'Cut margins in millimetres from the top, bottom, left and right of all pages or some', ar: 'اقتطع هوامش بالمليمتر من أعلى الصفحات وأسفلها ويسارها ويمينها، لكلها أو لبعضها' },
     { en: 'Drag the frame on the preview, and its corners and edges, to choose the area yourself; the millimetre boxes follow; works with turned pages too', ar: 'اسحب الإطار على المعاينة وزواياه وحوافه لتحدد المنطقة بنفسك، وتتبعه خانات المليمتر؛ ويعمل مع الصفحات المدارة أيضًا' },
   ],
+  'pdf-layout': [
+    { en: 'Pages per sheet: 2, 4, 6, 9, 12 or 16 pages on each sheet, on A4, A3 or Letter, upright or sideways', ar: 'صفحات متعددة في الورقة: 2 أو 4 أو 6 أو 9 أو 12 أو 16 صفحة في كل ورقة، على A4 أو A3 أو Letter، بالطول أو بالعرض' },
+    { en: 'Booklet: pages in the order that folds into a book when printed on both sides; blank pages fill up to a multiple of 4', ar: 'كتيّب: تُرتَّب الصفحات بالترتيب الذي يُطوى كتابًا عند الطباعة على الوجهين؛ وتُكمَّل بصفحات فارغة حتى مضاعف الرقم 4' },
+    { en: 'Right-to-left reading for Arabic books', ar: 'قراءة من اليمين إلى اليسار للكتب العربية' },
+  ],
+  'pdf-clean': [
+    { en: 'Shows what the file carries besides its pages: author and dates, scripts, attached files, comments, links, bookmarks, thumbnails', ar: 'يعرض ما يحمله الملف غير صفحاته: المؤلف والتواريخ والسكربتات والملفات المرفقة والتعليقات والروابط والإشارات المرجعية والصور المصغرة' },
+    { en: 'Removes what you tick from the file itself, so nothing is left behind; the pages stay as they are', ar: 'يزيل ما تحدده من الملف نفسه فلا يبقى له أثر؛ وتبقى الصفحات كما هي' },
+    { en: 'It does not remove text hidden under a black box: use Redact for that', ar: 'لا يزيل النص المخفي تحت مربع أسود: استخدم أداة الحجب لذلك' },
+  ],
+  'pdf-a11y': [
+    { en: 'Checks the title, language, tags, real text, picture descriptions, bookmarks and form tooltips', ar: 'يفحص العنوان واللغة والوسوم والنص الحقيقي وأوصاف الصور والإشارات المرجعية وتلميحات النماذج' },
+    { en: 'Sets the title and the language of the document, then checks again', ar: 'يضبط عنوان المستند ولغته ثم يعيد الفحص' },
+    { en: 'It cannot judge reading order, colour contrast or the quality of descriptions: those need a person', ar: 'لا يستطيع الحكم على ترتيب القراءة وتباين الألوان وجودة الأوصاف: فهذه تحتاج إلى إنسان' },
+  ],
   'pdf-repair': [
     { en: 'Rebuilds a PDF that will not open: copies every page into a clean file, keeping the text', ar: 'يعيد بناء ملف PDF لا يفتح: ينسخ كل صفحة إلى ملف سليم مع الإبقاء على النص' },
     { en: 'When that is impossible, redraws the pages as pictures and says so (the text is lost)', ar: 'وإن تعذّر ذلك أعاد رسم الصفحات صورًا وأخبرك بذلك (يضيع النص)' },
@@ -163,6 +178,7 @@ export const TOOL_FEATURES: Record<string, Text[]> = {
     { en: 'Reorder, rotate and delete pages while looking at their thumbnails', ar: 'أعد ترتيب الصفحات وأدرها واحذف منها وأنت ترى صورها المصغّرة' },
     { en: 'Move pages with the buttons on a touch screen, or drag them on a computer', ar: 'انقل الصفحات بالأزرار على شاشة اللمس، أو اسحبها على الحاسوب' },
     { en: 'Save only the pages you kept as a new file', ar: 'احفظ الصفحات التي أبقيتها فقط في ملف جديد' },
+    { en: 'Add a blank page after any page, duplicate a page, or add pages from another PDF and place them where you want', ar: 'أضف صفحة فارغة بعد أي صفحة، أو كرّر صفحة، أو أضف صفحات من ملف PDF آخر وضعها حيث تشاء' },
   ],
   export: [
     { en: 'Save every page as a PNG or JPG picture', ar: 'احفظ كل صفحة صورة بصيغة PNG أو JPG' },
@@ -197,6 +213,8 @@ export const TOOL_FEATURES: Record<string, Text[]> = {
     { en: 'Put the stamp anywhere: click or drag on the preview, or type exact percentages. Nine quick spots and tiling are still there', ar: 'ضع الختم في أي مكان: انقر أو اسحب على المعاينة، أو اكتب النسبة المئوية بدقة. وتبقى الأماكن التسعة السريعة والتكرار متاحة' },
     { en: 'Number the pages', ar: 'رقّم الصفحات' },
     { en: 'See the result before saving', ar: 'شاهد النتيجة قبل الحفظ' },
+    { en: 'Numbering templates: {n}, {total}, {date}, and Bates-style numbers such as CASE-{n:6}', ar: 'قوالب الترقيم: {n} و{total} و{date}، وأرقام بنمط بيتس مثل CASE-{n:6}' },
+    { en: 'Choose pages like odd, even or even 3-20 (also in Arabic: فردي، زوجي)', ar: 'اختر الصفحات مثل odd أو even أو even 3-20 (وبالعربية: فردي، زوجي)' },
   ],
   compare: [
     { en: 'Compare an old and a new version of a file', ar: 'قارن بين نسخة قديمة ونسخة جديدة من الملف' },
@@ -212,6 +230,7 @@ export const TOOL_FEATURES: Record<string, Text[]> = {
   redact: [
     { en: 'Remove sensitive content for good: search for it or draw boxes over it', ar: 'احذف المحتوى الحساس نهائياً: ابحث عنه أو ارسم مربعات فوقه' },
     { en: 'The affected pages are turned into pictures, so the hidden text is really gone', ar: 'تتحول الصفحات المتأثرة إلى صور، فيُحذف النص المخفي فعلياً' },
+    { en: 'Find private data by its shape: emails, phone numbers (also in Arabic digits), bank cards (checked), ID numbers, dates and links; every match gets a box you can still edit', ar: 'ابحث عن البيانات الخاصة بشكلها: البريد الإلكتروني وأرقام الهواتف (حتى بالأرقام العربية) والبطاقات المصرفية (مع التحقق منها) وأرقام الهوية والتواريخ والروابط؛ ويوضع مربع على كل نتيجة يمكنك تعديله' },
   ],
   optimize: [
     { en: 'Make the file smaller: light (no quality loss), balanced or strong', ar: 'قلّل حجم الملف: خفيف (دون فقدان في الجودة) أو متوازن أو قوي' },

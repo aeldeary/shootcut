@@ -44,6 +44,9 @@ import {
   ListChecks,
   Wrench,
   ZoomIn,
+  Accessibility,
+  BrushCleaning,
+  BookCopy,
   type LucideIcon,
 } from 'lucide-react';
 import type { Key } from '../i18n';
@@ -108,6 +111,9 @@ export const TOOLS: ToolDef[] = [
   { id: 'pdf-split', group: 'create', icon: Split, name: 'toolPdfSplit', desc: 'toolPdfSplitDesc', status: 'ready' },
   { id: 'pdf-extract', group: 'create', icon: ListChecks, name: 'toolPdfExtract', desc: 'toolPdfExtractDesc', status: 'ready' },
   { id: 'pdf-crop', group: 'create', icon: Crop, name: 'toolPdfCrop', desc: 'toolPdfCropDesc', status: 'ready' },
+  { id: 'pdf-layout', group: 'create', icon: BookCopy, name: 'toolPdfLayout', desc: 'toolPdfLayoutDesc', status: 'ready' },
+  { id: 'pdf-clean', group: 'protect', icon: BrushCleaning, name: 'toolPdfClean', desc: 'toolPdfCleanDesc', status: 'ready' },
+  { id: 'pdf-a11y', group: 'review', icon: Accessibility, name: 'toolPdfA11y', desc: 'toolPdfA11yDesc', status: 'ready' },
   { id: 'pdf-repair', group: 'protect', icon: Wrench, name: 'toolPdfRepair', desc: 'toolPdfRepairDesc', status: 'ready' },
   { id: 'fill-sign', group: 'review', icon: PenLine, name: 'toolFillSign', desc: 'toolFillSignDesc', status: 'ready' },
   { id: 'form', group: 'forms', icon: TextCursorInput, name: 'toolForm', desc: 'toolFormDesc', status: 'ready' },
