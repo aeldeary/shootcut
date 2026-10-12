@@ -94,6 +94,20 @@ export const TOOL_FEATURES: Record<string, Text[]> = {
   'vid-speed': [
     { en: 'From 0.25× slow motion to 8× fast, with the sound kept in step and the same pitch', ar: 'من 0.25× للحركة البطيئة إلى 8× للسريعة، مع مزامنة الصوت وثبات درجته' },
   ],
+  'aud-trim': [
+    { en: 'Keep only the part you need from a sound file, at the exact seconds you type or the player position', ar: 'احتفظ بالجزء الذي تحتاجه فقط من الملف الصوتي عند الثواني التي تكتبها أو موضع المشغّل' },
+    { en: 'Save it as MP3, M4A, WAV, OGG or FLAC', ar: 'احفظه بصيغة MP3 أو M4A أو WAV أو OGG أو FLAC' },
+  ],
+  'aud-convert': [
+    { en: 'Change a sound file to MP3, M4A, WAV, OGG or FLAC, with the quality you choose', ar: 'غيّر الملف الصوتي إلى MP3 أو M4A أو WAV أو OGG أو FLAC بالجودة التي تختارها' },
+  ],
+  'aud-merge': [
+    { en: 'Join several sound files one after another, in the order you set; different formats and rates are matched automatically', ar: 'ادمج عدة ملفات صوتية بعضها خلف بعض بالترتيب الذي تحدده، وتُوفَّق الصيغ والمعدلات المختلفة تلقائياً' },
+  ],
+  'aud-polish': [
+    { en: 'Raise or lower the volume in decibels, and level the loudness to about \u221216 LUFS for podcasts and video', ar: 'ارفع مستوى الصوت أو اخفضه بالديسيبل، وسوِّ الجهارة إلى نحو \u221216 LUFS للبودكاست والفيديو' },
+    { en: 'Fade in and out, change the speed (0.25 to 4) and make it mono', ar: 'تلاشٍ تصاعدي وتنازلي، وتغيير السرعة (من 0.25 إلى 4)، وجعله أحادي القناة' },
+  ],
   'vid-audio': [
     { en: 'Save the sound of a video as MP3, M4A, WAV, OGG or FLAC', ar: 'احفظ صوت الفيديو بصيغة MP3 أو M4A أو WAV أو OGG أو FLAC' },
     { en: 'Choose the bitrate for the compressed formats', ar: 'اختر معدل البتات للصيغ المضغوطة' },

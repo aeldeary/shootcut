@@ -5,7 +5,7 @@ import { isPdf } from '../lib/pdf';
 
 interface Props {
   /** what the zone accepts; default PDF */
-  kind?: 'pdf' | 'image' | 'scan' | 'video';
+  kind?: 'pdf' | 'image' | 'scan' | 'video' | 'audio';
   multiple?: boolean;
   compact?: boolean;
   onFiles: (files: File[]) => void;
@@ -22,7 +22,8 @@ export function Dropzone({ kind = 'pdf', multiple = false, compact = false, onFi
     const all = Array.from(list);
     const isImg = (f: File) => f.type.startsWith('image/') || /\.(png|jpe?g|webp|gif|bmp|avif|heic|heif)$/i.test(f.name);
     const isVid = (f: File) => f.type.startsWith('video/') || /\.(mp4|m4v|mov|webm|mkv|avi|3gp|flv|wmv|mpg|mpeg|ts|mts)$/i.test(f.name);
-    const pdfs = all.filter((f) => (kind === 'image' ? isImg(f) : kind === 'video' ? isVid(f) : kind === 'scan' ? isImg(f) || isPdf(f) : isPdf(f)));
+    const isAud = (f: File) => f.type.startsWith('audio/') || /\.(mp3|m4a|aac|wav|ogg|oga|opus|flac|wma|aiff?|amr|weba)$/i.test(f.name);
+    const pdfs = all.filter((f) => (kind === 'image' ? isImg(f) : kind === 'video' ? isVid(f) : kind === 'audio' ? isAud(f) : kind === 'scan' ? isImg(f) || isPdf(f) : isPdf(f)));
     if (pdfs.length < all.length) onRejected?.();
     if (pdfs.length) onFiles(multiple ? pdfs : pdfs.slice(0, 1));
   };
@@ -44,7 +45,7 @@ export function Dropzone({ kind = 'pdf', multiple = false, compact = false, onFi
       onDrop={onDrop}
     >
       <Upload size={compact ? 20 : 32} aria-hidden />
-      <p className="dropzone-title">{active ? t('dropActive') : kind === 'image' ? t('dropImages') : kind === 'video' ? t('dropVideos') : kind === 'scan' ? t('dropScan') : t('dropTitle')}</p>
+      <p className="dropzone-title">{active ? t('dropActive') : kind === 'image' ? t('dropImages') : kind === 'video' ? t('dropVideos') : kind === 'audio' ? t('dropAudio') : kind === 'scan' ? t('dropScan') : t('dropTitle')}</p>
       {!compact && <p className="muted">{t('dropOr')}</p>}
       <button type="button" className="btn btn-primary" onClick={() => input.current?.click()}>
         {t('browse')}
@@ -52,7 +53,7 @@ export function Dropzone({ kind = 'pdf', multiple = false, compact = false, onFi
       <input
         ref={input}
         type="file"
-        accept={kind === 'image' ? 'image/*,.heic,.heif' : kind === 'video' ? 'video/*,.mkv,.avi,.flv,.wmv,.3gp,.ts,.mts' : kind === 'scan' ? 'application/pdf,.pdf,image/*' : 'application/pdf,.pdf'}
+        accept={kind === 'image' ? 'image/*,.heic,.heif' : kind === 'video' ? 'video/*,.mkv,.avi,.flv,.wmv,.3gp,.ts,.mts' : kind === 'audio' ? 'audio/*,.mp3,.m4a,.aac,.wav,.ogg,.opus,.flac,.wma,.aiff,.amr' : kind === 'scan' ? 'application/pdf,.pdf,image/*' : 'application/pdf,.pdf'}
         multiple={multiple}
         hidden
         onChange={(e) => {

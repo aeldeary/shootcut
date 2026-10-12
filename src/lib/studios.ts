@@ -65,7 +65,7 @@ export const STUDIOS: Studio[] = [
     desc: 'studioAudioDesc',
     icon: AudioLines,
     apps: [{ id: 'sound', repo: 'soundcraft', name: 'appSound', desc: 'appSoundDesc' }],
-    light: ['vid-audio'],
+    light: ['aud-trim', 'aud-convert', 'aud-merge', 'aud-polish', 'vid-audio'],
   },
   {
     id: 'cad',

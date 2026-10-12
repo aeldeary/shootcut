@@ -206,3 +206,23 @@ export function readMeta(file: File): Promise<{ duration: number; width: number;
     v.src = url;
   });
 }
+
+/** Like readMeta, for sound files: the browser's own reading of the length (no engine needed). */
+export function readAudioMeta(file: File): Promise<{ duration: number; width: number; height: number } | null> {
+  return new Promise((resolve) => {
+    const url = URL.createObjectURL(file);
+    const a = document.createElement('audio');
+    const done = (r: { duration: number; width: number; height: number } | null) => {
+      clearTimeout(timer);
+      a.removeAttribute('src');
+      a.load();
+      URL.revokeObjectURL(url);
+      resolve(r);
+    };
+    const timer = setTimeout(() => done(null), 6000);
+    a.preload = 'metadata';
+    a.onloadedmetadata = () => done(Number.isFinite(a.duration) ? { duration: a.duration, width: 0, height: 0 } : null);
+    a.onerror = () => done(null);
+    a.src = url;
+  });
+}

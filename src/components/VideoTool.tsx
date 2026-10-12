@@ -6,7 +6,7 @@ import { MediaKeepBar } from './Fields';
 import { useKeptMedia } from '../hooks/useKeptMedia';
 import { Notice, ToolPage } from './Shell';
 import { baseName, downloadBytes, formatBytes } from '../lib/pdf';
-import { cancelEngine, engineCached, probeFile, readMeta, runFfmpeg } from '../lib/video/engine';
+import { cancelEngine, engineCached, probeFile, readAudioMeta, readMeta, runFfmpeg } from '../lib/video/engine';
 import { formatTime, type VideoInfo } from '../lib/video/args';
 
 export interface VideoCtx {
@@ -41,6 +41,8 @@ interface Props {
   note?: ReactNode;
   /** drawn over the preview player (the crop frame) */
   overlay?: (ctx: VideoCtx) => ReactNode;
+  /** what the tool takes in: video (default) or sound files */
+  media?: 'video' | 'audio';
 }
 
 const LARGE = 400 * 1024 * 1024;
@@ -49,7 +51,7 @@ const LARGE = 400 * 1024 * 1024;
  * Shared page for the video tools: add a video, set the options, run FFmpeg on the device, preview and download.
  * The engine (about 32 MB) is downloaded once and then kept in the browser's storage.
  */
-export function VideoTool({ title, desc, multiple = false, options, job, action = 'vidStart', result = 'video', note, overlay }: Props) {
+export function VideoTool({ title, desc, multiple = false, options, job, action = 'vidStart', result = 'video', note, overlay, media = 'video' }: Props) {
   const { t } = useI18n();
   const [files, setFiles] = useState<File[]>([]);
   const [info, setInfo] = useState<VideoCtx['info']>(null);
@@ -88,8 +90,7 @@ export function VideoTool({ title, desc, multiple = false, options, job, action 
     const u = URL.createObjectURL(first);
     setUrl(u);
     let live = true;
-    readMeta(first)
-      .then((m) => m ?? probeFile(first).then((p) => (p.width > 0 ? p : null)).catch(() => null))
+    (media === 'audio' ? readAudioMeta(first).then((m) => m ?? probeFile(first).then((p) => (p.duration > 0 ? p : null)).catch(() => null)) : readMeta(first).then((m) => m ?? probeFile(first).then((p) => (p.width > 0 ? p : null)).catch(() => null)))
       .then((m) => live && setInfo(m));
     return () => {
       live = false;
@@ -101,7 +102,7 @@ export function VideoTool({ title, desc, multiple = false, options, job, action 
   const j = files.length > 0 ? job(ctx) : null;
   const busy = progress !== null || engine !== null;
 
-  const keep = useKeptMedia('video', (kept) => setFiles((prev) => (prev.length > 0 ? prev : multiple ? kept : kept.slice(0, 1))));
+  const keep = useKeptMedia(media, (kept) => setFiles((prev) => (prev.length > 0 ? prev : multiple ? kept : kept.slice(0, 1))));
   const add = (list: File[]) => {
     forget();
     setSkipped(false);
@@ -145,7 +146,7 @@ export function VideoTool({ title, desc, multiple = false, options, job, action 
       );
       const blobUrl = URL.createObjectURL(new Blob([bytes as unknown as BlobPart], { type: j.mime }));
       outUrl.current = blobUrl;
-      setOut({ bytes, name: `${baseName(files[0].name) || 'video'}${j.suffix}.${j.ext}`, url: blobUrl, mime: j.mime });
+      setOut({ bytes, name: `${baseName(files[0].name) || media}${j.suffix}.${j.ext}`, url: blobUrl, mime: j.mime });
       setStored(true);
     } catch (e) {
       console.error('[shootcut] video job failed', e instanceof Error ? `${e.message}\n${e.stack ?? ''}` : e);
@@ -166,10 +167,10 @@ export function VideoTool({ title, desc, multiple = false, options, job, action 
 
   return (
     <ToolPage title={t(title)} desc={t(desc)}>
-      <Dropzone kind="video" multiple={multiple} compact={files.length > 0} onFiles={add} onRejected={() => setSkipped(true)} />
-      {skipped && <Notice kind="error">{t('vidNotVideo')}</Notice>}
+      <Dropzone kind={media} multiple={multiple} compact={files.length > 0} onFiles={add} onRejected={() => setSkipped(true)} />
+      {skipped && <Notice kind="error">{t(media === 'audio' ? 'audNotAudio' : 'vidNotVideo')}</Notice>}
       {stored === false && files.length === 0 && <p className="hint">{t('vidEngineOnce')}</p>}
-      {files.length > 0 && <MediaKeepBar kind="video" onDeleted={() => { forget(); setFiles([]); }} />}
+      {files.length > 0 && <MediaKeepBar kind={media} onDeleted={() => { forget(); setFiles([]); }} />}
       {files.length > 0 && (
         <div className="split">
           <div className="panel">
@@ -190,7 +191,7 @@ export function VideoTool({ title, desc, multiple = false, options, job, action 
             </ul>
             {info && (
               <p className="muted">
-                <bdi>{info.width}×{info.height}</bdi> · <bdi>{formatTime(info.duration)}</bdi>
+                {info.width > 0 && <><bdi>{info.width}×{info.height}</bdi> · </>}<bdi>{formatTime(info.duration)}</bdi>
               </p>
             )}
             {total > LARGE && <Notice kind="info">{t('vidLargeWarn')}</Notice>}
@@ -231,7 +232,11 @@ export function VideoTool({ title, desc, multiple = false, options, job, action 
               </div>
             ) : url ? (
               <div className="vid-stage">
-                <video ref={player} src={url} controls playsInline className="vid-player" />
+                {media === 'audio' ? (
+                  <audio ref={player as unknown as RefObject<HTMLAudioElement>} src={url} controls className="vid-audio" />
+                ) : (
+                  <video ref={player} src={url} controls playsInline className="vid-player" />
+                )}
                 {overlay?.(ctx)}
               </div>
             ) : (

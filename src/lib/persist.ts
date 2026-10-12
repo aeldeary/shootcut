@@ -100,6 +100,7 @@ export async function setKeepEnabled(on: boolean): Promise<void> {
     await forgetSaved();
     await forgetMedia('image');
     await forgetMedia('video');
+    await forgetMedia('audio');
   } else broadcast();
 }
 
@@ -157,7 +158,7 @@ export async function forgetSaved(): Promise<void> {
 /* ------------------------------------------------------------------ pictures and videos */
 
 /** The pictures or the videos last added, kept like the PDF so another tool of the same section opens them without a new upload. */
-export type MediaKind = 'image' | 'video';
+export type MediaKind = 'image' | 'video' | 'audio';
 
 export interface MediaMeta {
   names: string[];

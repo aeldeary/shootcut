@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, expect, it } from 'vitest';
-import { atempoChain, audioArgs, compressArgs, cropRect, even, formatTime, gifArgs, mergeArgs, parseInfo, parseTime, speedArgs, targetBitrateKbps, trimArgs } from './args';
+import { atempoChain, audioArgs, audioMergeArgs, audioTrimArgs, polishArgs, polishFilter, compressArgs, cropRect, even, formatTime, gifArgs, mergeArgs, parseInfo, parseTime, speedArgs, targetBitrateKbps, trimArgs } from './args';
 
 describe('video arguments', () => {
   it('rounds to even sizes', () => {
@@ -75,5 +75,35 @@ describe('video arguments', () => {
   Stream #0:1[0x2](und): Audio: aac (LC) (mp4a / 0x6D703461), 44100 Hz, stereo, fltp, 96 kb/s`;
     expect(parseInfo(log)).toMatchObject({ duration: 65.5, width: 1280, height: 720, fps: 29.97, videoCodec: 'h264', audioCodec: 'aac', hasAudio: true, bitrateKbps: 1200 });
     expect(parseInfo('Stream #0:0: Video: vp9, yuv420p, 640x360, 30 fps').hasAudio).toBe(false);
+  });
+});
+
+describe('audio tools', () => {
+  const none = { volumeDb: 0, normalize: false, fadeIn: 0, fadeOut: 0, speed: 1, mono: false, duration: 0 };
+  it('trims by re-encoding at the exact seconds', () => {
+    const a = audioTrimArgs('i.mp3', 'o.mp3', 5, 12.5, 'mp3', 128);
+    expect(a.join(' ')).toBe('-ss 5 -i i.mp3 -t 7.5 -vn -c:a libmp3lame -b:a 128k o.mp3');
+  });
+  it('joins files after bringing them to one format', () => {
+    const a = audioMergeArgs(['a.wav', 'b.mp3', 'c.m4a'], 'o.wav', 'wav', 192).join(' ');
+    expect(a).toContain('-i a.wav -i b.mp3 -i c.m4a');
+    expect(a).toContain('[a0][a1][a2]concat=n=3:v=0:a=1[a]');
+    expect(a).toContain('-map [a] -c:a pcm_s16le o.wav');
+  });
+  it('builds no filter when nothing is asked, and chains the asked ones in order', () => {
+    expect(polishFilter(none)).toBe('');
+    expect(polishArgs('i.mp3', 'o.mp3', none, 'mp3', 192)).not.toContain('-af');
+    expect(polishFilter({ ...none, speed: 2, volumeDb: 6, normalize: true, fadeIn: 1 })).toBe('atempo=2,volume=6dB,loudnorm=I=-16:TP=-1.5:LRA=11,afade=t=in:st=0:d=1');
+  });
+  it('places the fade out from the end of the sped-up result', () => {
+    expect(polishFilter({ ...none, fadeOut: 2, duration: 20 })).toBe('afade=t=out:st=18:d=2');
+    expect(polishFilter({ ...none, fadeOut: 2, duration: 20, speed: 2 })).toBe('atempo=2,afade=t=out:st=8:d=2');
+    // a fade longer than the sound is shortened to it
+    expect(polishFilter({ ...none, fadeOut: 30, duration: 10 })).toBe('afade=t=out:st=0:d=10');
+    // length unknown: no fade out rather than a wrong one
+    expect(polishFilter({ ...none, fadeOut: 2, duration: 0 })).toBe('');
+  });
+  it('mono adds one channel option', () => {
+    expect(polishArgs('i.wav', 'o.mp3', { ...none, mono: true }, 'mp3', 128).join(' ')).toContain('-ac 1');
   });
 });

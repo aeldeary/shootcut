@@ -49,6 +49,17 @@ Single-threaded, so it is slower than a desktop app; very large files can run ou
 
 Known limits: the VP9 encoder crashes in this WebAssembly build, so WebM uses VP8; no AI features, no downloading from websites.
 
+## Audio / الصوت
+
+Same FFmpeg engine as the video tools.
+
+| Tool | Notes |
+| --- | --- |
+| Trim | Exact seconds or the player position; MP3, M4A, WAV, OGG, FLAC |
+| Convert | MP3, M4A, WAV, OGG, FLAC with a quality choice |
+| Join | Several files in a chosen order, matched to 44.1 kHz stereo |
+| Improve | Volume in dB, loudness levelling (about −16 LUFS), fades, speed 0.25 to 4, mono |
+
 ## PDF
 
 ## Status / الحالة
@@ -108,7 +119,7 @@ Five studios (Docs, Design, Film, Audio, CAD) embed full web apps from the open-
 | Docs | Documents, Spreadsheets, Presentations | Create and convert PDF |
 | Design | Photo editor, Photo developer, Vector drawing, Graphic design | Picture tools |
 | Film | Video editor, Motion effects | Video tools |
-| Audio | Audio workstation | Extract audio (more soon) |
+| Audio | Audio workstation | Trim, convert, join and improve sound |
 | CAD | CAD drafting | not yet |
 
 ## Deploy to GitHub Pages

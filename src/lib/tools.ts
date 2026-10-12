@@ -47,12 +47,16 @@ import {
   Accessibility,
   BrushCleaning,
   BookCopy,
+  AudioLines,
+  AudioWaveform,
+  ListMusic,
+  Volume2,
   type LucideIcon,
 } from 'lucide-react';
 import type { Key } from '../i18n';
 
 export type SectionId = 'pdf' | 'image' | 'video';
-export type GroupId = 'view' | 'create' | 'forms' | 'review' | 'protect' | 'imgOptimize' | 'imgEdit' | 'imgConvert' | 'imgCreate' | 'imgPrivacy' | 'vidFormat' | 'vidEdit' | 'vidExtract';
+export type GroupId = 'view' | 'create' | 'forms' | 'review' | 'protect' | 'imgOptimize' | 'imgEdit' | 'imgConvert' | 'imgCreate' | 'imgPrivacy' | 'vidFormat' | 'vidEdit' | 'vidExtract' | 'audio';
 
 /** The three parts of the site, chosen first on the home page. */
 export const SECTIONS: { id: SectionId; title: Key; desc: Key; icon: LucideIcon }[] = [
@@ -72,6 +76,8 @@ export interface ToolDef {
 
 /** Tools to point out on the home page and in the tool cards. Keep it short: drop ids when they stop being news. */
 export const WHATS_NEW: { id: string; kind: 'new' | 'updated'; note: Key }[] = [
+  { id: 'aud-polish', kind: 'new', note: 'newAudio' },
+  { id: 'aud-trim', kind: 'new', note: 'newAudio' },
   { id: 'pdf-layout', kind: 'new', note: 'newPdfLayout' },
   { id: 'pdf-clean', kind: 'new', note: 'newPdfClean' },
   { id: 'pdf-a11y', kind: 'new', note: 'newPdfA11y' },
@@ -94,6 +100,7 @@ export const GROUPS: { id: GroupId; title: Key; section: SectionId }[] = [
   { id: 'vidFormat', title: 'groupVidFormat', section: 'video' },
   { id: 'vidEdit', title: 'groupVidEdit', section: 'video' },
   { id: 'vidExtract', title: 'groupVidExtract', section: 'video' },
+  { id: 'audio', title: 'groupAudio', section: 'video' },
 ];
 
 export function sectionOfGroup(g: GroupId): SectionId {
@@ -157,6 +164,10 @@ export const TOOLS: ToolDef[] = [
   { id: 'vid-audio', group: 'vidExtract', icon: Music, name: 'toolVidAudio', desc: 'toolVidAudioDesc', status: 'ready' },
   { id: 'vid-gif', group: 'vidExtract', icon: Clapperboard, name: 'toolVidGif', desc: 'toolVidGifDesc', status: 'ready' },
   { id: 'vid-thumb', group: 'vidExtract', icon: ImageIcon, name: 'toolVidThumb', desc: 'toolVidThumbDesc', status: 'ready' },
+  { id: 'aud-trim', group: 'audio', icon: AudioWaveform, name: 'toolAudTrim', desc: 'toolAudTrimDesc', status: 'ready' },
+  { id: 'aud-convert', group: 'audio', icon: AudioLines, name: 'toolAudConvert', desc: 'toolAudConvertDesc', status: 'ready' },
+  { id: 'aud-merge', group: 'audio', icon: ListMusic, name: 'toolAudMerge', desc: 'toolAudMergeDesc', status: 'ready' },
+  { id: 'aud-polish', group: 'audio', icon: Volume2, name: 'toolAudPolish', desc: 'toolAudPolishDesc', status: 'ready' },
   { id: 'vid-info', group: 'vidExtract', icon: Info, name: 'toolVidInfo', desc: 'toolVidInfoDesc', status: 'ready' },
 ];
 

@@ -173,7 +173,8 @@ export function resizeArgs(input: string, output: string, o: { height: number | 
   return ['-i', input, ...(vf ? ['-vf', vf] : []), ...codecArgs(format), output];
 }
 
-export function audioArgs(input: string, output: string, format: AudioFormat, kbps: number): string[] {
+/** Encoder options for a sound format (`kbps` is ignored by the lossless ones). */
+export function audioCodecArgs(format: AudioFormat, kbps: number): string[] {
   const codec: Record<AudioFormat, string[]> = {
     mp3: ['-c:a', 'libmp3lame', '-b:a', `${kbps}k`],
     m4a: ['-c:a', 'aac', '-b:a', `${kbps}k`],
@@ -181,7 +182,56 @@ export function audioArgs(input: string, output: string, format: AudioFormat, kb
     wav: ['-c:a', 'pcm_s16le'],
     flac: ['-c:a', 'flac'],
   };
-  return ['-i', input, '-vn', ...codec[format], output];
+  return codec[format];
+}
+
+export function audioArgs(input: string, output: string, format: AudioFormat, kbps: number): string[] {
+  return ['-i', input, '-vn', ...audioCodecArgs(format, kbps), output];
+}
+
+/** Keeps `start`–`end` seconds of a sound file (always re-encoded, so the cut is exact). */
+export function audioTrimArgs(input: string, output: string, start: number, end: number, format: AudioFormat, kbps: number): string[] {
+  return ['-ss', String(start), '-i', input, '-t', String(end - start), '-vn', ...audioCodecArgs(format, kbps), output];
+}
+
+/** Joins sound files one after another; every file is brought to 44.1 kHz stereo first so different files fit together. */
+export function audioMergeArgs(inputs: string[], output: string, format: AudioFormat, kbps: number): string[] {
+  const parts = inputs.map((_, i) => `[${i}:a]aresample=44100,aformat=sample_fmts=fltp:channel_layouts=stereo[a${i}]`);
+  parts.push(`${inputs.map((_, i) => `[a${i}]`).join('')}concat=n=${inputs.length}:v=0:a=1[a]`);
+  return [...inputs.flatMap((f) => ['-i', f]), '-filter_complex', parts.join(';'), '-map', '[a]', ...audioCodecArgs(format, kbps), output];
+}
+
+export interface PolishOptions {
+  /** change in decibels; 0 keeps it */
+  volumeDb: number;
+  /** level the loudness to about −16 LUFS */
+  normalize: boolean;
+  fadeIn: number;
+  fadeOut: number;
+  speed: number;
+  mono: boolean;
+  /** length of the source in seconds (needed to place the fade out); 0 when unknown */
+  duration: number;
+}
+
+/** The audio filter chain for the "improve sound" tool; empty when nothing is asked for. */
+export function polishFilter(o: PolishOptions): string {
+  const f: string[] = [];
+  if (o.speed !== 1) f.push(atempoChain(o.speed));
+  if (o.volumeDb !== 0) f.push(`volume=${o.volumeDb}dB`);
+  if (o.normalize) f.push('loudnorm=I=-16:TP=-1.5:LRA=11');
+  if (o.fadeIn > 0) f.push(`afade=t=in:st=0:d=${o.fadeIn}`);
+  if (o.fadeOut > 0 && o.duration > 0) {
+    const out = o.duration / o.speed;
+    const d = Math.min(o.fadeOut, out);
+    f.push(`afade=t=out:st=${Math.round((out - d) * 1000) / 1000}:d=${d}`);
+  }
+  return f.join(',');
+}
+
+export function polishArgs(input: string, output: string, o: PolishOptions, format: AudioFormat, kbps: number): string[] {
+  const af = polishFilter(o);
+  return ['-i', input, '-vn', ...(af ? ['-af', af] : []), ...(o.mono ? ['-ac', '1'] : []), ...audioCodecArgs(format, kbps), output];
 }
 
 export function gifArgs(input: string, output: string, o: { start: number; duration: number; fps: number; width: number }): string[] {
