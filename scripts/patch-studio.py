@@ -473,7 +473,10 @@ def add_font_bridge(src, repo):
     cargo = os.path.join(web, 'Cargo.toml')
     c = open(cargo, encoding='utf-8').read()
     if not re.search(r'^' + re.escape(crate) + r'\s*=', c, re.M):
-        c = c.replace('[dependencies]\n', f'[dependencies]\n{crate} = {{ workspace = true }}\n', 1)
+        # the dependency table may be the plain one or a target-specific one (wasm32 only)
+        c, k = re.subn(r"^(\[(?:target\.[^\]\n]*\.)?dependencies\]\n)", lambda mm: mm.group(1) + f'{crate} = {{ workspace = true }}\n', c, count=1, flags=re.M)
+        if not k:
+            sys.exit(f'patch-studio: no dependencies table in {cargo}')
         open(cargo, 'w', encoding='utf-8').write(c)
     return True
 
