@@ -267,7 +267,7 @@ export default function App() {
             ) : (
               <StudioPage key={studioRoute.studio.id} studio={studioRoute.studio} />
             )
-          ) : route === 'notices' ? (
+          ) : route === 'noticesssssshotcuts' ? (
             <NoticesPage />
           ) : page ? (
             <FeaturesPage scrollTo={route === 'shortcuts' ? 'shortcuts' : undefined} />

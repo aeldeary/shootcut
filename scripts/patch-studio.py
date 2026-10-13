@@ -128,7 +128,22 @@ EDITS = {
         ('src/chrome.rs', r'(fn community_card\(app: &mut DesignApp, ui: &mut egui::Ui\) \{\n).*?(\n\}\n)', r'\1    let _ = (app, ui);\2'),
         ('src/about.rs', r'\n\s*ui\.add_space\(14\.0\);\n\s*ui\.horizontal\(\|ui\| \{\n\s*// Centre the row of links\..*?\n\s*\}\);\n(?=\s*ui\.add_space\(16\.0\);)', '\n'),
     ],
+    'soundcraft': [
+        # Familiar editor key layout: split, marker, delete, import, loop get the keys people expect
+        ('cmd/mod.rs', r'(v\.extend\(video::specs\(\)\);\n)(\s*)v\n',
+         r'''\1\2const KEYS: [(&str, &str); 9] = [("edit.separate", "Cmd+K"), ("options.pre_post_roll", "Cmd+Alt+K"), ("edit.clear", "Delete"), ("markers.add", "M"), ("file.import_audio", "Cmd+I"), ("event.identify_beat", "Cmd+Alt+Shift+I"), ("options.loop_playback", "Cmd+L"), ("clip.edit_lock", "Cmd+Alt+Shift+L"), ("edit.duplicate", "Cmd+D")];
+\2for s in v.iter_mut() {
+\2    if let Some((_, k)) = KEYS.iter().find(|(i, _)| *i == s.id) {
+\2        s.shortcut = Some(*k);
+\2    }
+\2}
+\2v
+'''),
+    ],
     'filmcraft': [
+        # The classic editing key layout is the default one, under a Shootcut name
+        ('engine/src/shortcuts.rs', r'PREMIERE_PRESET: &str = "[^"]*";', 'PREMIERE_PRESET: &str = "Shootcut Classic Editing";'),
+        ('engine/src/shortcuts.rs', r'DEFAULT_PRESET => Vec::new\(\),', 'DEFAULT_PRESET => presets::premiere(),'),
         ('text/build.rs', r'if wasm && !\(\*family == "BIZ UDPGothic" && \*style == "Regular"\) \{', 'if wasm && !(*family == "BIZ UDPGothic" && *style == "Regular") && !scripts.split(\',\').any(|s| s.trim() == "Arab") {'),
         ('src/links.rs', r'ALL: \[\(&str, &str, &str\); 5\]', 'ALL: [(&str, &str, &str); 1]'),
         ('src/header.rs', r'let label = "Discord";\n.*?ui\.painter\(\)\.galley\(pos2\(r\.min\.x \+ 25\.0, [^\n]*\n',
