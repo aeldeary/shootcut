@@ -14,6 +14,7 @@ export const TOOL_FEATURES: Record<string, Text[]> = {
   'img-compress': [
     { en: 'Make many pictures lighter at once, and see how much smaller each one became', ar: 'اجعل عدة صور أخفّ حجماً دفعة واحدة، وشاهد مقدار ما صغُر حجم كل صورة' },
     { en: 'Choose JPG or WebP and the quality, and optionally limit the longest side', ar: 'اختر JPG أو WebP والجودة، ويمكنك تحديد أطول ضلع' },
+    { en: 'Never makes a file bigger: if the result would not be smaller, your original is kept and you are told', ar: 'لا تكبّر الملف أبداً: إن لم يكن الناتج أصغر يُبقى الأصل وتُنبَّه إلى ذلك' },
     { en: 'Saving again also removes camera data such as the place a photo was taken', ar: 'يزيل الحفظ مجدداً بيانات الكاميرا، كمكان التقاط الصورة' },
   ],
   'img-resize': [

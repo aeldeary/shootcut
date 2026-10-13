@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type PointerEvent as RPointerEvent } from 'react';
+import { POS_KEY } from '../lib/posKeys';
 import { useI18n, type Key } from '../i18n';
 import { Dropzone } from '../components/Dropzone';
 import { Checkbox, Field, FileBar, PageRangeField } from '../components/Fields';
@@ -11,7 +12,7 @@ import { useHistory } from '../hooks/useHistory';
 
 type Kind = 'text' | 'numbers' | 'image';
 
-const POSITIONS: StampPosition[] = ['top-left', 'top-center', 'top-right', 'middle-left', 'center', 'middle-right', 'bottom-left', 'bottom-center', 'bottom-right'];
+const POSITIONS: (keyof typeof POS_KEY)[] = ['top-left', 'top-center', 'top-right', 'middle-left', 'center', 'middle-right', 'bottom-left', 'bottom-center', 'bottom-right'];
 
 const clamp01 = (n: number) => Math.min(1, Math.max(0, Number.isFinite(n) ? n : 0));
 
@@ -204,7 +205,7 @@ export function StampTool() {
               <legend>{t('stampPosition')}</legend>
               <div className="pos-grid" dir="ltr">
                 {POSITIONS.map((p) => (
-                  <button key={p} type="button" aria-label={p} aria-pressed={position === p} className={`pos${position === p ? ' is-active' : ''}`} onClick={() => setPosition(p)} />
+                  <button key={p} type="button" aria-label={t(POS_KEY[p])} aria-pressed={position === p} className={`pos${position === p ? ' is-active' : ''}`} onClick={() => setPosition(p)} />
                 ))}
               </div>
               <p className="muted">{t('stampPickHint')}</p>

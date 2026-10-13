@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { POS_KEY } from '../lib/posKeys';
 import { useI18n } from '../i18n';
 import { Checkbox, Field } from '../components/Fields';
 import { PlacePad } from '../components/PlacePad';
@@ -20,6 +21,7 @@ export function ImgCompressTool() {
       suffix="-compressed"
       defaultFormat="jpeg"
       defaultQuality={70}
+      neverGrow
       note={t('imgStripNote')}
       deps={[limit]}
       process={(src) => {
@@ -195,7 +197,7 @@ export function ImgSocialTool() {
   );
 }
 
-const PLACES: Place[] = ['top-left', 'top-center', 'top-right', 'middle-left', 'center', 'middle-right', 'bottom-left', 'bottom-center', 'bottom-right'];
+const PLACES: (keyof typeof POS_KEY)[] = ['top-left', 'top-center', 'top-right', 'middle-left', 'center', 'middle-right', 'bottom-left', 'bottom-center', 'bottom-right'];
 
 export function ImgWatermarkTool() {
   const { t } = useI18n();
@@ -260,7 +262,7 @@ export function ImgWatermarkTool() {
             <legend>{t('imgWmPlace')}</legend>
             <div className="pos-grid" dir="ltr">
               {PLACES.map((p) => (
-                <button key={p} type="button" aria-label={p} aria-pressed={place === p} className={`pos${place === p ? ' is-active' : ''}`} onClick={() => setPlace(p)} />
+                <button key={p} type="button" aria-label={t(POS_KEY[p])} aria-pressed={place === p} className={`pos${place === p ? ' is-active' : ''}`} onClick={() => setPlace(p)} />
               ))}
             </div>
             <Checkbox checked={place === 'tile'} onChange={(v) => setPlace(v ? 'tile' : 'bottom-right')}>{t('imgWmTile')}</Checkbox>

@@ -17,6 +17,8 @@ interface Result {
   url: string;
   before: number;
   after: number;
+  /** the original was kept because the new file would not have been smaller */
+  kept?: boolean;
   width: number;
   height: number;
 }
@@ -40,6 +42,8 @@ interface Props {
   note?: ReactNode;
   /** the format the chooser starts on */
   defaultFormat?: FormatChoice;
+  /** compression: never hand back a file bigger than the original; keep the original instead */
+  neverGrow?: boolean;
   /** the action button's text */
   action?: Key;
   /** starting JPG/WebP quality, percent */
@@ -50,7 +54,7 @@ interface Props {
  * Shared page for the tools that treat many pictures the same way: add pictures, set the options,
  * apply, then download one by one or as a ZIP. Everything happens on the device.
  */
-export function ImageBatch({ title, desc, options, process, suffix, fixedFormat, preview, deps = [], ready = true, note, defaultFormat = 'keep', action = 'imgApply', defaultQuality = 85 }: Props) {
+export function ImageBatch({ title, desc, options, process, suffix, fixedFormat, preview, deps = [], ready = true, note, defaultFormat = 'keep', neverGrow = false, action = 'imgApply', defaultQuality = 85 }: Props) {
   const { t } = useI18n();
   const [files, setFiles] = useState<File[]>([]);
   const [format, setFormat] = useState<FormatChoice>(defaultFormat);
@@ -102,10 +106,20 @@ export function ImageBatch({ title, desc, options, process, suffix, fixedFormat,
       try {
         const out = await processRef.current(await decodeFile(file), i);
         const fmt = chosen(file);
-        const bytes = await encodeCanvas(out, fmt, quality / 100);
-        const url = URL.createObjectURL(new Blob([bytes as unknown as BlobPart], { type: MIME[fmt] }));
+        let bytes = await encodeCanvas(out, fmt, quality / 100);
+        let outFmt = fmt;
+        let name = outName(file, suffix, fmt);
+        let kept = false;
+        if (neverGrow && bytes.length >= file.size) {
+          // the new file is not smaller: hand back the original untouched
+          bytes = new Uint8Array(await file.arrayBuffer());
+          outFmt = formatOf(file);
+          name = file.name;
+          kept = true;
+        }
+        const url = URL.createObjectURL(new Blob([bytes as unknown as BlobPart], { type: MIME[outFmt] }));
         urls.current.push(url);
-        made.push({ id: i, name: outName(file, suffix, fmt), format: fmt, bytes, url, before: file.size, after: bytes.length, width: out.width, height: out.height });
+        made.push({ id: i, name, format: outFmt, bytes, url, before: file.size, after: bytes.length, kept, width: out.width, height: out.height });
       } catch (e) {
         // a tool can say a picture would come out too big for the device's memory
         (e instanceof Error && e.message === 'too-large' ? tooLarge : failed).push(file.name);
@@ -198,7 +212,11 @@ export function ImageBatch({ title, desc, options, process, suffix, fixedFormat,
                 {busy ? `${t('processing')} ${busy[0] + 1}/${busy[1]}` : t(action)}
               </button>
             </div>
-            {done && <Notice kind="success">{t('imgDone')}</Notice>}
+            {done && results.length > 0 && results.every((r) => r.kept || r.after >= r.before) ? (
+              <Notice kind="info">{t('imgNoSaving')}</Notice>
+            ) : (
+              done && <Notice kind="success">{t('imgDone')}</Notice>
+            )}
             {large.map((n) => (
               <Notice key={`l-${n}`} kind="error">
                 {t('imgTooLarge')} <bdi>{n}</bdi>
@@ -230,7 +248,8 @@ export function ImageBatch({ title, desc, options, process, suffix, fixedFormat,
                           <bdi className="img-result-name">{r.name}</bdi>
                           <span className="muted">
                             <bdi>{r.width}×{r.height}</bdi> · <bdi>{formatBytes(r.before)} → {formatBytes(r.after)}</bdi>
-                            {pct !== 0 && <> · <bdi>{Math.abs(pct)}%</bdi> {t(pct > 0 ? 'imgSmaller' : 'imgLarger')}</>}
+                            {r.kept && <> · {t('imgKept')}</>}
+                            {!r.kept && pct !== 0 && <> · <bdi>{Math.abs(pct)}%</bdi> {t(pct > 0 ? 'imgSmaller' : 'imgLarger')}</>}
                           </span>
                         </div>
                         <button type="button" className="btn" onClick={() => downloadBytes(r.bytes, r.name, MIME[r.format])}>

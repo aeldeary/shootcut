@@ -60,7 +60,16 @@ describe('Studios', () => {
     wrap(<StudioPage studio={findStudio('docs')!} />);
     expect(document.querySelector('[data-version=light] .tag-new')).toBeTruthy();
     expect(document.querySelector('[data-version=full] .tag-new')).toBeNull();
-    expect(screen.getByRole('note')).toBeTruthy();
+    expect(screen.getAllByRole('note').length).toBeGreaterThan(0);
+  });
+
+  it('without WebGL it recommends the light version and offers it', () => {
+    vi.stubGlobal('matchMedia', (q: string) => ({ matches: false, media: q, addEventListener() {}, removeEventListener() {} }));
+    vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(null);
+    wrap(<StudioPage studio={findStudio('docs')!} />);
+    expect(document.querySelector('[data-version=light] .tag-new')).toBeTruthy();
+    expect(document.querySelector('[data-version=full] .tag-new')).toBeNull();
+    expect(screen.getAllByRole('button', { name: /light version|النسخة الخفيفة/i }).length).toBeGreaterThan(1);
   });
 
   it('the launcher frames the built app with the right sandbox and credit', async () => {

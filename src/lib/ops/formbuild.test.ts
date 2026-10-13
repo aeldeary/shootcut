@@ -98,3 +98,16 @@ describe('addFormFields', () => {
     expect(form.getTextField('c').getAlignment()).toBe(TextAlignment.Left);
   });
 });
+
+import { PDFDocument as PD, PDFName as PN } from 'pdf-lib';
+import { addFormFields as add2 } from './formbuild';
+describe('no border colour', () => {
+  it('writes no /BC so viewers draw no black frame', async () => {
+    const d = await PD.create();
+    d.addPage([200, 200]);
+    const out = await add2(await d.save(), [{ kind: 'text', name: 'a', page: 0, rect: { x: 10, y: 10, width: 80, height: 20 } }]);
+    const f = (await PD.load(out)).getForm().getTextField('a');
+    const mk = f.acroField.getWidgets()[0].dict.get(PN.of('MK'));
+    expect(String(mk ?? '')).not.toContain('/BC');
+  });
+});

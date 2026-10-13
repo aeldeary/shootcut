@@ -27,7 +27,7 @@ export async function addFormFields(bytes: Uint8Array, fields: NewField[]): Prom
   const existing = new Set(form.getFields().map((f) => f.getName()));
   const radios = new Map<string, ReturnType<typeof form.createRadioGroup>>();
   // no frame and no fill: the page looks exactly as it did; readers still highlight the fields when asked
-  const style = { borderWidth: 0 };
+  const style = { borderWidth: 0, borderColor: undefined };
 
   for (const f of fields) {
     const name = f.name.trim();

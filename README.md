@@ -14,7 +14,7 @@ The home page has four sections: PDF, Images, Video and audio, Sheets and slides
 | Tool | Notes |
 | --- | --- |
 | Enlarge | 2×, 3× or 4× with sharpening. Smooth enlarging, not AI: it cannot add detail; limited to 36 megapixels |
-| Compress | Many pictures at once, JPG/WebP quality, optional longest-side limit; re-encoding strips camera data |
+| Compress | Many pictures at once, JPG/WebP quality, optional longest-side limit; never returns a larger file (keeps the original); re-encoding strips camera data |
 | Resize | By pixels or percent, many at once |
 | Crop | Drag an area, free or fixed shape |
 | Rotate and flip | Many at once, live preview |

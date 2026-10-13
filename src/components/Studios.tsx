@@ -43,12 +43,23 @@ export function StudiosBlock() {
 
 type Version = 'full' | 'light';
 
+/** Whether this browser can create a WebGL context, which the full apps need to draw. */
+function hasGraphics(): boolean {
+  try {
+    const c = document.createElement('canvas');
+    return !!(c.getContext('webgl2') || c.getContext('webgl'));
+  } catch {
+    return false;
+  }
+}
+
 /** A studio's page. The person picks the full or the light version first; nothing opens before that. */
 export function StudioPage({ studio }: { studio: Studio }) {
   const { t } = useI18n();
   const [version, setVersion] = useState<Version | null>(null);
   const phone = looksLikePhone();
-  const recommended: Version = phone ? 'light' : 'full';
+  const [graphics] = useState(hasGraphics);
+  const recommended: Version = phone || !graphics ? 'light' : 'full';
   const Icon = studio.icon;
 
   return (
@@ -62,6 +73,14 @@ export function StudioPage({ studio }: { studio: Studio }) {
         <section aria-labelledby="studio-choose">
           <h2 id="studio-choose">{t('studioChoose')}</h2>
           {phone && <p className="notice" role="note">{t('studioPhoneWarn')}</p>}
+          {!graphics && (
+            <p className="notice" role="note">
+              {t('studioNoGraphics')}{' '}
+              <button type="button" className="btn" onClick={() => setVersion('light')}>
+                {t('studioUseLight')}
+              </button>
+            </p>
+          )}
           <div className="version-grid">
             {(['full', 'light'] as const).map((v) => (
               <button key={v} type="button" className="section-card version-card" data-version={v} onClick={() => setVersion(v)}>
