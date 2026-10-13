@@ -33,6 +33,7 @@ export function StudiosBlock() {
                 {t(s.name)}
               </span>
               <span className="muted">{t(s.desc)}</span>
+              <span className="tag tag-new is-updated">{t('studioBeta')}</span>
             </a>
           );
         })}

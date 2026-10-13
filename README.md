@@ -75,7 +75,7 @@ All PDF tools work in the browser / كل أدوات PDF شغالة.
 | View & find | Read, search (Arabic-friendly), rotate view, read mode, full screen |
 | Print | Colour, grey or black and white (applied to the pages, so it works with any printer) |
 | Share | System share sheet (WhatsApp, Mail, ...) for the file; message links for WhatsApp, Telegram, email. No upload, so no file links |
-| Export to… | Word, Excel, PowerPoint, Markdown, text, RTF, HTML, XML (text only; Excel keeps table columns; PowerPoint is page pictures) |
+| Extract text to… | Word, Excel, PowerPoint, Markdown, text, RTF, HTML, XML (text only; Excel keeps table columns; PowerPoint is page pictures) |
 | Create PDF | Images and text (Arabic + English) into one PDF; on a phone, photograph pages with the camera (straightened) |
 | Merge, Organize pages | Merge PDFs and pictures into one PDF; reorder, rotate, delete; insert blank pages, duplicate pages, add pages from another PDF |
 | Split | By ranges, every N pages, or one file per page; several files come as a ZIP |
@@ -91,7 +91,7 @@ All PDF tools work in the browser / كل أدوات PDF شغالة.
 | Compare | Text diff and visual diff |
 | Measure | Calibrated distance and area |
 | Protect | AES-256 password, or remove a password you know |
-| Redact | Search, draw, or find private data by shape (emails, phones incl. Arabic digits, cards with check digit, ID numbers, dates, links); affected pages are rasterized so the text is really gone |
+| Redact sensitive data | Search, draw, or find private data by shape (emails, phones incl. Arabic digits, cards with check digit, ID numbers, dates, links); affected pages are rasterized so the text is really gone |
 | Pages per sheet, Booklet | 2 to 16 pages per sheet (A4/A3/Letter), or an imposed booklet that folds into a book (right-to-left too) |
 | Clean hidden information | Audit and remove metadata, JavaScript, attachments, comments, links, bookmarks, thumbnails; removed objects are dropped from the file, not just unlinked |
 | Accessibility check | Title, language, tags, real text, figure descriptions, bookmarks, field tooltips; sets title and language. Reading order and contrast stay manual |

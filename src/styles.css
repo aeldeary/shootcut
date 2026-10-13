@@ -14,26 +14,8 @@
   --success-soft: #e7f6ee;
   --radius: 14px;
   --shadow: 0 1px 2px rgb(16 24 40 / 6%), 0 1px 3px rgb(16 24 40 / 8%);
-  color-scheme: light dark;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #111112;
-    --surface: #1b1b1d;
-    --text: #f2f2f3;
-    --muted: #a8a9ac;
-    --border: #2f2f32;
-    --primary: #e53a41;
-    --primary-hover: #f0585e;
-    --primary-ink: #ffffff;
-    --accent-soft: #3a1618;
-    --danger: #fda29b;
-    --danger-soft: #3a1815;
-    --success: #75e0a7;
-    --success-soft: #0f2e20;
-    --shadow: none;
-  }
+  /* always the daylight colours, even when the device is in dark mode */
+  color-scheme: light;
 }
 
 * {
