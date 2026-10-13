@@ -126,6 +126,11 @@ export interface DrawLineOptions {
   /** how `x` relates to the text: its left edge, centre, right edge, or the start edge for the paragraph direction */
   align?: Align;
   base?: BaseDir;
+  /** slanted letters */
+  italic?: boolean;
+  /** thicker strokes, for a font that has no bold file: the text is drawn twice, a hair apart */
+  embolden?: boolean;
+  underline?: boolean;
 }
 
 /** Draws one line of text and returns its width. */
@@ -148,9 +153,35 @@ export function drawLine(page: PDFPage, text: string, o: DrawLineOptions): numbe
         color: o.color ?? rgb(0, 0, 0),
         opacity: o.opacity,
         rotate: o.rotate ? degrees(o.rotate) : undefined,
+        ySkew: o.italic ? degrees(12) : undefined,
       });
+      if (o.embolden) {
+        const d = o.size * 0.025 + offset;
+        page.drawText(c.text, {
+          x: o.x + d * cos,
+          y: o.y + d * sin,
+          size: o.size,
+          font: c.font,
+          color: o.color ?? rgb(0, 0, 0),
+          opacity: o.opacity,
+          rotate: o.rotate ? degrees(o.rotate) : undefined,
+          ySkew: o.italic ? degrees(12) : undefined,
+        });
+      }
     }
     offset += c.width;
+  }
+  if (o.underline && line.width > 0) {
+    const drop = o.size * 0.14;
+    const x0 = shift;
+    const x1 = shift + line.width;
+    page.drawLine({
+      start: { x: o.x + x0 * cos + drop * sin, y: o.y + x0 * sin - drop * cos },
+      end: { x: o.x + x1 * cos + drop * sin, y: o.y + x1 * sin - drop * cos },
+      thickness: Math.max(0.5, o.size / 18),
+      color: o.color ?? rgb(0, 0, 0),
+      opacity: o.opacity,
+    });
   }
   return line.width;
 }

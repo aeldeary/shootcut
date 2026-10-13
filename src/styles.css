@@ -2685,3 +2685,35 @@ button.version-card .tag {
   width: 100%;
   max-width: 360px;
 }
+
+.fill-input {
+  position: absolute;
+  box-sizing: border-box;
+  padding: 0 2px;
+  margin: 0;
+  border: 1.5px dashed #2563eb;
+  border-radius: 2px;
+  background: rgb(219 234 254 / 55%);
+  line-height: 1.25;
+  resize: none;
+  overflow: hidden;
+  touch-action: manipulation;
+}
+.fill-input:focus {
+  outline: none;
+  border: 2px solid #dc2626;
+  background: rgb(255 255 255 / 92%);
+}
+.fill-input.is-selected {
+  border-color: #dc2626;
+}
+
+/* while filling, the style controls stay in view beside the page, so nothing needs scrolling to reach them */
+@media (min-width: 1000px) {
+  .side.is-sticky {
+    position: sticky;
+    top: 8px;
+    max-height: calc(100vh - 16px);
+    overflow-y: auto;
+  }
+}

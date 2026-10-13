@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { CheckSquare, ChevronDownSquare, Circle, ListChecks, RectangleHorizontal, TextCursorInput, Trash2 } from 'lucide-react';
 import { useI18n, type Key } from '../i18n';
 import { Dropzone } from '../components/Dropzone';
@@ -17,8 +17,11 @@ import { addFormFields, type NewField, type NewFieldKind } from '../lib/ops/form
 import { rectFromPoints } from '../lib/ops/textselect';
 import { useShortcuts } from '../hooks/useShortcuts';
 import { useHistory } from '../hooks/useHistory';
+import { FillBox } from '../components/FillBox';
+import { FillStyle, type AddedFont } from '../components/FillStyle';
+import { DEFAULT_BOX_STYLE, readingOrder, writeBoxes, type BoxStyle } from '../lib/ops/fillboxes';
 
-type Item = NewField & { id: string };
+type Item = NewField & { id: string; text?: string; style?: BoxStyle };
 
 const KINDS: { id: NewFieldKind; label: Key; icon: typeof TextCursorInput; click?: number }[] = [
   { id: 'text', label: 'formText', icon: TextCursorInput },
@@ -46,6 +49,13 @@ export function FormTool() {
   const [analyzing, setAnalyzing] = useState(false);
   const [sugg, setSugg] = useState<(Suggestion & { id: string; page: number })[]>([]);
   const [dismissed, setDismissed] = useState(false);
+  const [mode, setMode] = useState<'prepare' | 'fill'>('prepare');
+  const [gs, setGs] = useState<BoxStyle>(DEFAULT_BOX_STYLE);
+  const [applyAll, setApplyAll] = useState(true);
+  const [addedFonts, setAddedFonts] = useState<AddedFont[]>([]);
+  const [fontErr, setFontErr] = useState<string | null>(null);
+  const fontFiles = useRef<Record<string, Uint8Array>>({});
+  const [pendingFocus, setPendingFocus] = useState<string | null>(null);
   const startView = useRef<[number, number] | null>(null);
   const startPdf = useRef<[number, number] | null>(null);
 
@@ -98,7 +108,7 @@ export function FormTool() {
     startPdf.current = p.pdf;
     setDrag({ a: p.view, b: p.view });
   };
-  const move = (p: StagePointer) => {
+  const moveDrag = (p: StagePointer) => {
     if (startView.current) setDrag({ a: startView.current, b: p.view });
   };
   const up = (p: StagePointer) => {
@@ -151,8 +161,74 @@ export function FormTool() {
     setDone(false);
   };
 
+  const textItems = useMemo(() => items.filter((i) => i.kind === 'text' || i.kind === 'multiline'), [items]);
+  const order = useMemo(() => readingOrder(textItems, gs.mode === 'rtl'), [textItems, gs.mode]);
+  const styleOf = (i: Item): BoxStyle => i.style ?? gs;
+  const filled = textItems.filter((i) => (i.text ?? '').trim()).length;
+
+  // focus the box Tab asked for, once its page is showing
+  useEffect(() => {
+    if (!pendingFocus || mode !== 'fill') return;
+    const el = document.querySelector<HTMLElement>(`[data-fill-id="${pendingFocus}"]`);
+    if (el) {
+      el.focus();
+      setPendingFocus(null);
+    }
+  });
+
+  const move = (id: string, delta: 1 | -1) => {
+    const i = order.findIndex((x) => x.id === id);
+    const target = order[(i + delta + order.length) % order.length];
+    if (!target) return;
+    if (target.page !== page) setPage(target.page);
+    setPendingFocus(target.id);
+  };
+
+  const styleSel = items.find((i) => i.id === selected && (i.kind === 'text' || i.kind === 'multiline'));
+  const shownStyle = applyAll || !styleSel ? gs : styleOf(styleSel);
+  const changeStyle = (patch: Partial<BoxStyle>) => {
+    if (applyAll || !styleSel) {
+      setGs((g) => ({ ...g, ...patch }));
+      setItems((prev) => prev.map((x) => (x.style ? { ...x, style: undefined } : x)));
+    } else {
+      update(styleSel.id, { style: { ...styleOf(styleSel), ...patch } } as Partial<Item>);
+    }
+  };
+
+  const addFont = async (file: File) => {
+    setFontErr(null);
+    try {
+      const bytes = new Uint8Array(await file.arrayBuffer());
+      const id = `file-${addedFonts.length + 1}`;
+      const family = `sc-fill-${id}`;
+      const face = new FontFace(family, bytes);
+      await face.load();
+      document.fonts.add(face);
+      fontFiles.current[id] = bytes;
+      setAddedFonts((f) => [...f, { id, name: file.name.replace(/\.[^.]+$/, '') }]);
+      changeStyle({ font: id });
+    } catch {
+      setFontErr(t('fillFontFail'));
+    }
+  };
+
+  const saveFilled = async () => {
+    if (!pdf) return;
+    setBusy(true);
+    setFailed(null);
+    try {
+      const boxes = textItems.map((i) => ({ page: i.page, rect: i.rect, text: i.text ?? '', multiline: i.kind === 'multiline', style: styleOf(i) }));
+      downloadBytes(await writeBoxes(pdf.bytes, boxes, fontFiles.current), `${baseName(pdf.file.name)}${t('formFillSuffix')}.pdf`);
+      setDone(true);
+    } catch (err) {
+      setFailed((err as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const sel = items.find((i) => i.id === selected);
-  const update = (id: string, patch: Partial<NewField>) => setItems((prev) => prev.map((x) => (x.id === id ? { ...x, ...patch } : x)));
+  const update = (id: string, patch: Partial<Item>) => setItems((prev) => prev.map((x) => (x.id === id ? { ...x, ...patch } : x)));
 
   // names must be unique, except radio buttons that deliberately share a group
   const nameClash = (() => {
@@ -194,10 +270,27 @@ export function FormTool() {
         <>
           <FileBar name={pdf.file.name} pages={pdf.numPages} size={pdf.file.size} onReset={() => { reset(); setItems([]); setSelected(null); setPage(0); setDone(false); }} />
           <div className="work">
-            <PageStage preview={pdf.preview} page={page} onPage={setPage} cursor="crosshair" onPointerDown={down} onPointerMove={move} onPointerUp={up}>
+            <PageStage preview={pdf.preview} page={page} onPage={setPage} cursor={mode === 'fill' ? 'text' : 'crosshair'} onPointerDown={mode === 'fill' ? undefined : down} onPointerMove={mode === 'fill' ? undefined : moveDrag} onPointerUp={mode === 'fill' ? undefined : up}>
               {(vp) => (
                 <>
-                  {items
+                  {mode === 'fill' && textItems.filter((i) => i.page === page).map((i) => (
+                    <FillBox
+                      key={i.id}
+                      id={i.id}
+                      vp={vp}
+                      rect={i.rect}
+                      value={i.text ?? ''}
+                      multiline={i.kind === 'multiline'}
+                      style={styleOf(i)}
+                      family={styleOf(i).font !== 'plain' ? `sc-fill-${styleOf(i).font}` : undefined}
+                      label={i.tooltip || i.name}
+                      selected={selected === i.id}
+                      onChange={(text) => { update(i.id, { text } as Partial<Item>); setDone(false); }}
+                      onFocus={() => setSelected(i.id)}
+                      onMove={(d) => move(i.id, d)}
+                    />
+                  ))}
+                  {mode === 'prepare' && items
                     .filter((i) => i.page === page)
                     .map((i) => (
                       <EditableBox
@@ -214,7 +307,7 @@ export function FormTool() {
                         <span className="box-label">{i.name}</span>
                       </EditableBox>
                     ))}
- {!dismissed && sugg.filter((g) => g.page === page).map((g) => (
+ {(mode === 'prepare' || items.length === 0) && !dismissed && sugg.filter((g) => g.page === page).map((g) => (
                     <button
                       key={g.id}
                       type="button"
@@ -234,7 +327,33 @@ export function FormTool() {
               )}
             </PageStage>
 
-            <aside className="side">
+            <aside className={`side${mode === 'fill' ? ' is-sticky' : ''}`}>
+              <div className="panel">
+                <div className="mode-bar" role="group" aria-label={t('toolForm')}>
+                  <button type="button" className="mode-btn" aria-pressed={mode === 'prepare'} onClick={() => setMode('prepare')}>{t('formModePrepare')}</button>
+                  <button type="button" className="mode-btn" aria-pressed={mode === 'fill'} onClick={() => { setMode('fill'); setDone(false); }}>{t('formModeFill')}</button>
+                </div>
+              </div>
+              {mode === 'fill' && (
+                <>
+                  <div className="panel">
+                    <p className="hint">{t('fillHint')}</p>
+                    {textItems.length === 0 ? (
+                      <p className="muted">{t('fillEmpty')}</p>
+                    ) : (
+                      <p>{t('fillCount').replace('{n}', String(filled)).replace('{m}', String(textItems.length))}</p>
+                    )}
+                  </div>
+                  <FillStyle style={shownStyle} all={applyAll || !styleSel} fonts={addedFonts} error={fontErr} onAll={setApplyAll} onChange={changeStyle} onAddFont={addFont} />
+                  <div className="panel">
+                    <button type="button" className="btn btn-primary" disabled={busy || filled === 0} onClick={saveFilled}>
+                      {busy ? t('processing') : t('formFillSave')}
+                    </button>
+                    {done && <Notice kind="success">{t('formFillDone')}</Notice>}
+                    {failed && <Notice kind="error">{failed}</Notice>}
+                  </div>
+                </>
+              )}
               <div className="panel suggest-panel" aria-live="polite">
                 <p className="panel-title">{t('formSuggestTitle')}</p>
                 {analyzing && <p className="muted">{t('formSuggestRunning')}</p>}
@@ -263,6 +382,8 @@ export function FormTool() {
                 )}
                 <p className="hint"><strong>{t('formDrawTitle')}</strong> {t('formDrawHint')}</p>
               </div>
+              {mode === 'prepare' && (
+              <>
               <div className="panel">
                 <div className="mode-bar" role="group" aria-label={t('formTools')}>
                   {KINDS.map(({ id, label, icon: Icon }) => (
@@ -328,6 +449,8 @@ export function FormTool() {
                 {done && <Notice kind="success">{t('formDone')}</Notice>}
                 {failed && <Notice kind="error">{failed}</Notice>}
               </div>
+              </>
+              )}
             </aside>
           </div>
         </>

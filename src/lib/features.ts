@@ -236,6 +236,8 @@ export const TOOL_FEATURES: Record<string, Text[]> = {
     { en: 'Or draw each field yourself: pick the type and drag a rectangle on the page', ar: 'أو ارسم كل حقل بنفسك: اختر النوع ثم اسحب مستطيلاً على الصفحة' },
     { en: 'Add fields people can fill in: text, multi-line text, check box, radio button, drop-down and list', ar: 'أضف حقولاً قابلة للتعبئة: نص، ونص متعدد الأسطر، ومربع اختيار، وزر اختيار، وقائمة منسدلة، وقائمة' },
     { en: 'Move and resize each box with its handles, the arrow keys, or exact width and height', ar: 'حرّك كل مربع وغيّر مقاسه بالمقابض أو بمفاتيح الأسهم أو بعرض وطول دقيقين' },
+    { en: 'Switch to \u201cFill in\u201d and type straight inside each rectangle on the page, so you see what you wrote without scrolling down to a list. Tab goes to the next box, Shift+Tab to the previous one, row by row from the top', ar: 'انتقل إلى «تعبئة» واكتب مباشرة داخل كل مستطيل على الصفحة، فترى ما كتبته دون النزول إلى قائمة. مفتاح Tab ينقلك إلى الخانة التالية وShift+Tab إلى السابقة، صفاً بعد صف من الأعلى' },
+    { en: 'Choose how the text sits: right to left, left to right, or centred in the box; the text colour; the font (the built-in one for Latin and Arabic, or a font file from your device); and bold, italic or underline, for all boxes or for one', ar: 'اختر موضع الكتابة: من اليمين إلى اليسار أو من اليسار إلى اليمين أو في منتصف الخانة، ولون الكتابة، والخط (الافتراضي للاتينية والعربية أو ملف خط من جهازك)، وعريض أو مائل أو تحته خط، لكل الخانات أو لخانة واحدة' },
   ],
   comment: [
     { en: 'Highlight, underline and strike out text, and add sticky notes, as real PDF annotations', ar: 'ظلّل النصوص وضع تحتها خطاً واشطبها وأضف ملاحظات، على هيئة تعليقات PDF حقيقية' },
