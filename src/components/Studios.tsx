@@ -251,7 +251,7 @@ export function StudioLauncher({ studio, app }: { studio: Studio; app: StudioApp
           <button type="button" className="btn btn-ghost" onClick={() => { setLoaded(false); setNonce((n) => n + 1); }}>
             <RefreshCw size={14} aria-hidden /> {t('studioReload')}
           </button>
-          <button type="button" className="btn btn-ghost" onClick={() => void goFullscreen(frame.current)}>
+          <button type="button" className="btn btn-primary fs-attn" onClick={() => void goFullscreen(frame.current)}>
             <Maximize size={14} aria-hidden /> {t('studioFullscreen')}
           </button>
           <a className="btn btn-ghost" href={src} target="_blank" rel="noopener">
@@ -259,7 +259,17 @@ export function StudioLauncher({ studio, app }: { studio: Studio; app: StudioApp
           </a>
         </span>
       </div>
-      <p className="container muted hint">{t('studioLockHint')}</p>
+      <div className="container">
+        <div className="fs-callout" role="note">
+          <Maximize size={22} aria-hidden />
+          <p>
+            <strong>{t('studioLockTitle')}</strong> {t('studioLockHint')}
+          </p>
+          <button type="button" className="btn btn-primary" onClick={() => void goFullscreen(frame.current)}>
+            {t('studioFullscreen')}
+          </button>
+        </div>
+      </div>
       {fontsOpen && <StudioFonts frame={frame} onClose={() => setFontsOpen(false)} />}
       <div className="frame-wrap">
         {!loaded && <p className="muted frame-loading" role="status">{t('studioLoading')}</p>}
