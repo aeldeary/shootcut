@@ -189,6 +189,33 @@ function LightList({ studio }: { studio: Studio }) {
   );
 }
 
+/**
+ * Full screen, and in browsers that support it (Chrome, Edge) the keys the browser normally keeps for itself
+ * (Ctrl+T, Ctrl+N, Ctrl+W) are handed to the app, so Free Transform and the like work. Released when full screen ends.
+ */
+async function goFullscreen(el: HTMLElement | null): Promise<void> {
+  if (!el?.requestFullscreen) return;
+  try {
+    await el.requestFullscreen();
+  } catch {
+    return;
+  }
+  const kb = (navigator as Navigator & { keyboard?: { lock?: (codes: string[]) => Promise<void>; unlock?: () => void } }).keyboard;
+  try {
+    await kb?.lock?.(['KeyT', 'KeyN', 'KeyW']);
+  } catch {
+    /* not supported here: full screen still works */
+  }
+  el.focus();
+  const release = () => {
+    if (!document.fullscreenElement) {
+      kb?.unlock?.();
+      document.removeEventListener('fullscreenchange', release);
+    }
+  };
+  document.addEventListener('fullscreenchange', release);
+}
+
 /** Runs one built app in a frame, with Shootcut's own toolbar and credit line around it. */
 export function StudioLauncher({ studio, app }: { studio: Studio; app: StudioApp }) {
   const { t } = useI18n();
@@ -224,7 +251,7 @@ export function StudioLauncher({ studio, app }: { studio: Studio; app: StudioApp
           <button type="button" className="btn btn-ghost" onClick={() => { setLoaded(false); setNonce((n) => n + 1); }}>
             <RefreshCw size={14} aria-hidden /> {t('studioReload')}
           </button>
-          <button type="button" className="btn btn-ghost" onClick={() => void frame.current?.requestFullscreen?.()}>
+          <button type="button" className="btn btn-ghost" onClick={() => void goFullscreen(frame.current)}>
             <Maximize size={14} aria-hidden /> {t('studioFullscreen')}
           </button>
           <a className="btn btn-ghost" href={src} target="_blank" rel="noopener">
@@ -232,6 +259,7 @@ export function StudioLauncher({ studio, app }: { studio: Studio; app: StudioApp
           </a>
         </span>
       </div>
+      <p className="container muted hint">{t('studioLockHint')}</p>
       {fontsOpen && <StudioFonts frame={frame} onClose={() => setFontsOpen(false)} />}
       <div className="frame-wrap">
         {!loaded && <p className="muted frame-loading" role="status">{t('studioLoading')}</p>}
