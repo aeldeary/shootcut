@@ -81,14 +81,30 @@ async function run<T>(mode: IDBTransactionMode, fn: (s: IDBObjectStore) => IDBRe
   });
 }
 
-/** keeping the file is on unless the person switched it off */
-export function isKeepEnabled(): boolean {
+/** Saved files are dropped after this long, so nothing stays on the device for good by accident. */
+export const RETENTION_MS = 24 * 60 * 60 * 1000;
+
+/** null until the person has chosen once; keeping is off until then */
+export function keepChoice(): boolean | null {
   try {
-    return localStorage.getItem(PREF_KEY) !== '0';
+    const v = localStorage.getItem(PREF_KEY);
+    return v === '1' ? true : v === '0' ? false : null;
   } catch {
-    return true;
+    return false;
   }
 }
+
+export const isKeepEnabled = (): boolean => keepChoice() === true;
+
+/** removes every saved PDF, picture, video and audio file from this device */
+export async function forgetAll(): Promise<void> {
+  await forgetSaved();
+  await forgetMedia('image');
+  await forgetMedia('video');
+  await forgetMedia('audio');
+}
+
+const expired = (savedAt: number): boolean => Date.now() - savedAt > RETENTION_MS;
 
 export async function setKeepEnabled(on: boolean): Promise<void> {
   try {
@@ -96,12 +112,8 @@ export async function setKeepEnabled(on: boolean): Promise<void> {
   } catch {
     /* storage blocked: the setting only lasts until the page closes */
   }
-  if (!on) {
-    await forgetSaved();
-    await forgetMedia('image');
-    await forgetMedia('video');
-    await forgetMedia('audio');
-  } else broadcast();
+  if (!on) await forgetAll();
+  else broadcast();
 }
 
 /** Saves the file as the one to reopen. Returns false when keeping is off or the browser refused (no room). */
@@ -133,7 +145,12 @@ export async function saveFile(file: File): Promise<boolean> {
 }
 
 export async function getSavedMeta(): Promise<SavedMeta | null> {
-  return (await run<SavedMeta | undefined>('readonly', (s) => s.get(META_KEY))) ?? null;
+  const m = (await run<SavedMeta | undefined>('readonly', (s) => s.get(META_KEY))) ?? null;
+  if (m && expired(m.savedAt)) {
+    await forgetSaved();
+    return null;
+  }
+  return m;
 }
 
 /** the saved file as a File, or null when there is none */
@@ -203,10 +220,16 @@ export async function saveMedia(kind: MediaKind, files: File[]): Promise<boolean
 }
 
 export async function getMediaMeta(kind: MediaKind): Promise<MediaMeta | null> {
-  return (await run<MediaMeta | undefined>('readonly', (s) => s.get(mediaMetaKey(kind)))) ?? null;
+  const m = (await run<MediaMeta | undefined>('readonly', (s) => s.get(mediaMetaKey(kind)))) ?? null;
+  if (m && expired(m.savedAt)) {
+    await forgetMedia(kind);
+    return null;
+  }
+  return m;
 }
 
 export async function loadMedia(kind: MediaKind): Promise<File[]> {
+  if (!(await getMediaMeta(kind))) return [];
   const rec = await run<MediaRecord | undefined>('readonly', (s) => s.get(mediaKey(kind)));
   if (!rec) return [];
   return rec.files.map((f) => new File([f.data], f.name, { type: f.type, lastModified: f.lastModified }));

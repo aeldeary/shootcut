@@ -4,6 +4,7 @@ import { useI18n } from '../i18n';
 import { formatBytes } from '../lib/pdf';
 import { parsePageRange } from '../lib/range';
 import { useSavedFile } from '../hooks/useSavedFile';
+import { forgetAll } from '../lib/persist';
 import { useMediaMeta } from '../hooks/useKeptMedia';
 import type { MediaKind } from '../lib/persist';
 
@@ -63,11 +64,28 @@ export function FileBar({
   );
 }
 
+/** First use: nothing is kept until the person says yes. */
+function KeepAsk({ onChoose }: { onChoose: (keep: boolean) => void }) {
+  const { t } = useI18n();
+  return (
+    <div className="keepbar" role="group" aria-label={t('keepAsk')}>
+      <span>{t('keepAsk')}</span>
+      <button type="button" className="btn" data-keep-yes onClick={() => onChoose(true)}>
+        {t('keepYes')}
+      </button>
+      <button type="button" className="btn btn-ghost" data-keep-no onClick={() => onChoose(false)}>
+        {t('keepNo')}
+      </button>
+    </div>
+  );
+}
+
 /** "Kept on this device only": a switch to stop keeping files, and a button that deletes the saved copy. */
 export function KeepBar({ name, size, onDeleted }: { name: string; size: number; onDeleted: () => void }) {
   const { t } = useI18n();
-  const { meta, keep, setKeep, forget } = useSavedFile();
+  const { meta, keep, ask, setKeep, forget } = useSavedFile();
   const id = useId();
+  if (ask) return <KeepAsk onChoose={(v) => void setKeep(v)} />;
   const saved = keep && meta !== null && meta.name === name && meta.size === size;
   return (
     <div className="keepbar">
@@ -90,6 +108,12 @@ export function KeepBar({ name, size, onDeleted }: { name: string; size: number;
           </button>
         </>
       )}
+      {keep && (
+        <button type="button" className="btn btn-ghost keepbar-delete" onClick={() => void forgetAll().then(onDeleted)}>
+          <Trash2 size={14} aria-hidden /> {t('keepDeleteAll')}
+        </button>
+      )}
+      {keep && <span className="muted">{t('keepRetention')}</span>}
     </div>
   );
 }
@@ -97,8 +121,9 @@ export function KeepBar({ name, size, onDeleted }: { name: string; size: number;
 /** Keep switch and delete button for the pictures or videos kept on this device. Shows nothing until something is saved. */
 export function MediaKeepBar({ kind, onDeleted }: { kind: MediaKind; onDeleted: () => void }) {
   const { t } = useI18n();
-  const { meta, keep, setKeep, forget } = useMediaMeta(kind);
+  const { meta, keep, ask, setKeep, forget } = useMediaMeta(kind);
   const id = useId();
+  if (ask) return <KeepAsk onChoose={(v) => void setKeep(v)} />;
   return (
     <div className="keepbar">
       <label htmlFor={id} className="keepbar-switch">
@@ -120,6 +145,12 @@ export function MediaKeepBar({ kind, onDeleted }: { kind: MediaKind; onDeleted: 
           </button>
         </>
       )}
+      {keep && (
+        <button type="button" className="btn btn-ghost keepbar-delete" onClick={() => void forgetAll().then(onDeleted)}>
+          <Trash2 size={14} aria-hidden /> {t('keepDeleteAll')}
+        </button>
+      )}
+      {keep && <span className="muted">{t('keepRetention')}</span>}
     </div>
   );
 }

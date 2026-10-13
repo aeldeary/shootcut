@@ -1,11 +1,12 @@
 import 'fake-indexeddb/auto';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { forgetSaved, getSavedMeta, isKeepEnabled, loadSaved, saveFile, setKeepEnabled, subscribe } from './persist';
+import { forgetAll, keepChoice, RETENTION_MS, forgetSaved, getSavedMeta, isKeepEnabled, loadSaved, saveFile, setKeepEnabled, subscribe } from './persist';
 
 const pdf = (name: string, text = '%PDF-1.7 hello') => new File([text], name, { type: 'application/pdf' });
 
 beforeEach(async () => {
   localStorage.clear();
+  localStorage.setItem('shootcut:keep', '1');
   await forgetSaved();
 });
 
@@ -77,5 +78,28 @@ describe('kept pictures and videos', () => {
     await setKeepEnabled(false);
     expect(await loadMedia('video')).toEqual([]);
     await setKeepEnabled(true);
+  });
+});
+
+describe('first-use choice and retention', () => {
+  it('keeps nothing until the person chooses', async () => {
+    localStorage.removeItem('shootcut:keep');
+    expect(keepChoice()).toBeNull();
+    expect(isKeepEnabled()).toBe(false);
+    expect(await saveFile(new File([new Uint8Array(4)], 'x.pdf'))).toBe(false);
+  });
+
+  it('drops a file older than the retention period', async () => {
+    await saveFile(new File([new Uint8Array(4)], 'old.pdf'));
+    const now = Date.now();
+    vi.spyOn(Date, 'now').mockReturnValue(now + RETENTION_MS + 1000);
+    expect(await getSavedMeta()).toBeNull();
+    vi.restoreAllMocks();
+  });
+
+  it('forgetAll clears the PDF and the pictures', async () => {
+    await saveFile(new File([new Uint8Array(4)], 'a.pdf'));
+    await forgetAll();
+    expect(await getSavedMeta()).toBeNull();
   });
 });

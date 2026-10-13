@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { forgetMedia, getMediaMeta, isKeepEnabled, loadMedia, saveMedia, setKeepEnabled, subscribe, type MediaKind, type MediaMeta } from '../lib/persist';
+import { forgetMedia, getMediaMeta, isKeepEnabled, keepChoice, loadMedia, saveMedia, setKeepEnabled, subscribe, type MediaKind, type MediaMeta } from '../lib/persist';
 
 /**
  * Keeps the pictures or videos the person added, so the next tool of the same section opens with them.
@@ -32,10 +32,12 @@ export function useKeptMedia(kind: MediaKind, restore: (files: File[]) => void) 
 export function useMediaMeta(kind: MediaKind) {
   const [meta, setMeta] = useState<MediaMeta | null>(null);
   const [on, setOn] = useState(isKeepEnabled);
+  const [ask, setAsk] = useState(() => keepChoice() === null);
   useEffect(() => {
     let alive = true;
     const refresh = () => {
       setOn(isKeepEnabled());
+      setAsk(keepChoice() === null);
       void getMediaMeta(kind).then((m) => alive && setMeta(m));
     };
     refresh();
@@ -49,5 +51,5 @@ export function useMediaMeta(kind: MediaKind) {
     setOn(v);
     return setKeepEnabled(v);
   }, []);
-  return { meta, keep: on, setKeep, forget: () => forgetMedia(kind) };
+  return { meta, keep: on, ask, setKeep, forget: () => forgetMedia(kind) };
 }

@@ -19,6 +19,7 @@ beforeAll(() => {
 });
 beforeEach(async () => {
   localStorage.clear();
+  localStorage.setItem('shootcut:keep', '1');
   localStorage.setItem('shootcut:lang', 'en');
   await forgetSaved();
 });

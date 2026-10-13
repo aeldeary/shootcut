@@ -147,4 +147,4 @@ AGPL-3.0-only (see LICENSE). You may use, study, change and share it, but a modi
 Adobe and Acrobat are trademarks of Adobe Inc.
 
 ## Your files stay with you
-The PDF, pictures or video you open are kept in this browser (IndexedDB, never uploaded) so the next tool of the same kind opens with them. A bar under the file lets you delete them or switch keeping off.
+The PDF, pictures or video you open are kept in this browser (IndexedDB, never uploaded) only after you say yes the first time, and for 24 hours, so the next tool of the same kind opens with them. A bar under the file lets you delete one file, delete all saved files, or switch keeping off.

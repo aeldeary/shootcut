@@ -46,7 +46,7 @@ const pick = (files: File[]) => fireEvent.change(document.querySelector('input[t
 describe('video tools', () => {
   it('converts a video and offers the download', async () => {
     wrap(<VidConvertTool />);
-    expect(await screen.findByText(/downloads the video engine/)).toBeTruthy(); // said before the first job
+    expect(await screen.findByText(/downloads the media engine/)).toBeTruthy(); // said before the first job
     pick([clip()]);
     await screen.findByText(/640×360/);
     fireEvent.change(screen.getByLabelText('Format'), { target: { value: 'webm' } });

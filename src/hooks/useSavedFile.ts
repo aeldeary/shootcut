@@ -1,15 +1,17 @@
 import { useCallback, useEffect, useState } from 'react';
-import { forgetSaved, getSavedMeta, isKeepEnabled, setKeepEnabled, subscribe, type SavedMeta } from '../lib/persist';
+import { forgetSaved, getSavedMeta, isKeepEnabled, keepChoice, setKeepEnabled, subscribe, type SavedMeta } from '../lib/persist';
 
 /** What is kept on this device right now, kept up to date across tools and browser tabs. */
 export function useSavedFile() {
   const [meta, setMeta] = useState<SavedMeta | null>(null);
   const [keep, setKeepState] = useState(isKeepEnabled);
+  const [ask, setAsk] = useState(() => keepChoice() === null);
 
   useEffect(() => {
     let alive = true;
     const refresh = () => {
       setKeepState(isKeepEnabled());
+      setAsk(keepChoice() === null);
       void getSavedMeta().then((m) => alive && setMeta(m));
     };
     refresh();
@@ -25,5 +27,5 @@ export function useSavedFile() {
     return setKeepEnabled(on);
   }, []);
   const forget = useCallback(() => forgetSaved(), []);
-  return { meta, keep, setKeep, forget };
+  return { meta, keep, ask, setKeep, forget };
 }
