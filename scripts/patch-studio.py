@@ -9,7 +9,7 @@ Only text the person can see is touched: string literals in Rust, the translatio
 Identifiers, file extensions and saved-file magic keep their names, so nothing is lost. The licence files stay
 in the build (MIT / Apache-2.0 require it) and are listed on Shootcut's "open-source notices" page.
 """
-import json, os, re, sys
+import json, os, re, shutil, sys
 
 PRODUCT = {
     'Word': 'Docs', 'Grid': 'Sheets', 'Deck': 'Slides', 'Photo': 'Photo', 'Light': 'Photo Editor', 'Vector': 'Vector',
@@ -497,6 +497,41 @@ def add_font_bridge(src, repo):
     return True
 
 
+SET_FONTS = re.compile(r'(?<![\w:])(\w+(?:\.\w+)*)\.set_fonts\(([^;\n]*)\);')
+
+
+def add_arabic_ui(src):
+    """Gives every app's interface an Arabic face: each `ctx.set_fonts(X)` becomes set_fonts(X + the Arabic face)."""
+    ui = os.path.join(src, 'crates', 'ui-egui', 'src')
+    lib = os.path.join(ui, 'lib.rs')
+    if not os.path.isfile(lib):
+        sys.exit(f'patch-studio: no ui-egui crate at {ui}')
+    here = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'studio-fonts')
+    shutil.copy(os.path.join(here, 'shootcut_arabic.ttf'), os.path.join(ui, 'shootcut_arabic.ttf'))
+    shutil.copy(os.path.join(here, 'shootcut_arabic.rs'), os.path.join(ui, 'shootcut_arabic.rs'))
+    t = open(lib, encoding='utf-8').read()
+    if 'mod shootcut_arabic;' not in t:
+        m = re.search(r'^(?:pub )?mod \w+;', t, re.M)
+        if not m:
+            sys.exit(f'patch-studio: no module declaration in {lib}')
+        t = t[:m.start()] + 'mod shootcut_arabic;\n' + t[m.start():]
+        open(lib, 'w', encoding='utf-8').write(t)
+    count = 0
+    for d, dirs, files in os.walk(ui):
+        for f in files:
+            p = os.path.join(d, f)
+            if not f.endswith('.rs') or f == 'shootcut_arabic.rs' or is_test_file(p):
+                continue
+            x = open(p, encoding='utf-8').read()
+            y, n = SET_FONTS.subn(lambda m: '{ let mut __sf = %s; crate::shootcut_arabic::add(&mut __sf); %s.set_fonts(__sf); }' % (m.group(2), m.group(1)), x)
+            if n:
+                open(p, 'w', encoding='utf-8').write(y)
+                count += n
+    if not count:
+        sys.exit(f'patch-studio: no set_fonts call found under {ui}')
+    return count
+
+
 def cmd_source(src, repo):
     FAILED.clear()
     HIT.clear()
@@ -521,6 +556,7 @@ def cmd_source(src, repo):
             if recolor_file(p):
                 c += 1
     add_font_bridge(src, repo)
+    add_arabic_ui(src)
     pics = replace_pictures(src)
     logos = replace_drawn_logos(src)
     missing = [(repo, i) for i in range(len(EDITS.get(repo, []))) if (repo, i) not in HIT]
