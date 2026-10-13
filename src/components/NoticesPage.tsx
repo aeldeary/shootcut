@@ -24,6 +24,12 @@ export function NoticesPage() {
           </li>
         ))}
       </ul>
+      <p className="muted">
+        {t('noticesFonts')}{' '}
+        <a href={`${import.meta.env.BASE_URL}fonts/library/OFL.txt`} target="_blank" rel="noopener">OFL</a>
+        {' · '}
+        <a href={`${import.meta.env.BASE_URL}fonts/library/manifest.json`} target="_blank" rel="noopener">{'copyrights'}</a>
+      </p>
     </section>
   );
 }

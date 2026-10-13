@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Type, Trash2, X } from 'lucide-react';
+import { Type, Trash2, X, Plus } from 'lucide-react';
 import { useI18n } from '../i18n';
 import {
   FONT_ACCEPT,
@@ -15,6 +15,15 @@ import {
   type SavedFont,
 } from '../lib/localFonts';
 
+interface LibFamily {
+  family: string;
+  arabic: boolean;
+  copyright: string;
+  files: { file: string; style: string; size: number }[];
+}
+
+const LIB = `${import.meta.env.BASE_URL}fonts/library/`;
+
 /** The device-fonts panel of a Studios app: font files, or installed fonts where the browser allows it. */
 export function StudioFonts({ frame, onClose }: { frame: React.RefObject<HTMLIFrameElement | null>; onClose: () => void }) {
   const { t } = useI18n();
@@ -24,10 +33,32 @@ export function StudioFonts({ frame, onClose }: { frame: React.RefObject<HTMLIFr
   const [query, setQuery] = useState('');
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState('');
+  const [lib, setLib] = useState<LibFamily[] | null>(null);
 
   useEffect(() => {
     void savedFonts().then(setSaved);
+    fetch(`${LIB}manifest.json`)
+      .then((r) => (r.ok ? r.json() : []))
+      .then((l: LibFamily[]) => setLib(l))
+      .catch(() => setLib([]));
   }, []);
+
+  const addFamily = async (f: LibFamily) => {
+    setBusy(true);
+    try {
+      const items: { name: string; bytes: ArrayBuffer }[] = [];
+      for (const x of f.files) {
+        const r = await fetch(`${LIB}${x.file}`);
+        if (!r.ok) throw new Error('font');
+        items.push({ name: x.file, bytes: await r.arrayBuffer() });
+      }
+      await give(items);
+    } catch {
+      setMessage(t('fontsLibFail'));
+    } finally {
+      setBusy(false);
+    }
+  };
 
   const give = async (items: { name: string; bytes: ArrayBuffer }[]) => {
     const kept: SavedFont[] = [];
@@ -111,6 +142,22 @@ export function StudioFonts({ frame, onClose }: { frame: React.RefObject<HTMLIFr
           <span className="muted small">{t('fontsNoQuery')}</span>
         )}
       </div>
+      <h4>{t('fontsLibTitle')}</h4>
+      <p className="muted small">{t('fontsLibIntro')}</p>
+      {lib === null ? (
+        <p className="muted small">{t('fontsLibLoading')}</p>
+      ) : (
+        <ul className="fonts-list" data-testid="font-library">
+          {lib.map((f) => (
+            <li key={f.family}>
+              <span dir="auto">{f.family}</span> <span className="muted small">({f.files.length})</span>{' '}
+              <button type="button" className="btn btn-ghost" disabled={busy} aria-label={`${t('fontsLibAdd')}: ${f.family}`} onClick={() => void addFamily(f)}>
+                <Plus size={14} aria-hidden /> {t('fontsLibAdd')}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
       {installed && (
         <div className="fonts-installed">
           <input type="search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder={t('fontsSearch')} aria-label={t('fontsSearch')} />

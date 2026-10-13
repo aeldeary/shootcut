@@ -1,0 +1,279 @@
+[
+ {
+  "family": "Alexandria",
+  "arabic": true,
+  "copyright": "Copyright 2022 The Alexandria Project Authors (https://github.com/Gue3bara/Alexandria)",
+  "license": "SIL Open Font License 1.1",
+  "files": [
+   {
+    "file": "Alexandria-VariableFont_wght.ttf",
+    "style": "Regular",
+    "size": 321836
+   }
+  ]
+ },
+ {
+  "family": "Almarai",
+  "arabic": true,
+  "copyright": "Copyright (c) 2019 by Almarai. All rights reserved.",
+  "license": "SIL Open Font License 1.1",
+  "files": [
+   {
+    "file": "Almarai-Bold.ttf",
+    "style": "Regular",
+    "size": 152744
+   },
+   {
+    "file": "Almarai-ExtraBold.ttf",
+    "style": "Regular",
+    "size": 163924
+   },
+   {
+    "file": "Almarai-Light.ttf",
+    "style": "Regular",
+    "size": 145536
+   },
+   {
+    "file": "Almarai-Regular.ttf",
+    "style": "Regular",
+    "size": 148808
+   }
+  ]
+ },
+ {
+  "family": "Beiruti",
+  "arabic": true,
+  "copyright": "Copyright 2024 The Beiruti Project Authors (https://github.com/googlefonts/beiruti)",
+  "license": "SIL Open Font License 1.1",
+  "files": [
+   {
+    "file": "Beiruti-VariableFont_wght.ttf",
+    "style": "Regular",
+    "size": 679376
+   }
+  ]
+ },
+ {
+  "family": "Blaka",
+  "arabic": true,
+  "copyright": "Copyright 2019 The Blaka Project Authors (https://github.com/Gue3bara/Blaka)",
+  "license": "SIL Open Font License 1.1",
+  "files": [
+   {
+    "file": "Blaka.ttf",
+    "style": "Regular",
+    "size": 55164
+   }
+  ]
+ },
+ {
+  "family": "IBM Plex Sans Arabic",
+  "arabic": true,
+  "copyright": "Copyright 2019 IBM Corp. All rights reserved.",
+  "license": "SIL Open Font License 1.1",
+  "files": [
+   {
+    "file": "IBMPlexSansArabic-Bold.ttf",
+    "style": "Bold",
+    "size": 236256
+   },
+   {
+    "file": "IBMPlexSansArabic-ExtraLight.ttf",
+    "style": "Regular",
+    "size": 232212
+   },
+   {
+    "file": "IBMPlexSansArabic-Light.ttf",
+    "style": "Regular",
+    "size": 229156
+   },
+   {
+    "file": "IBMPlexSansArabic-Medium.ttf",
+    "style": "Regular",
+    "size": 231796
+   },
+   {
+    "file": "IBMPlexSansArabic-Regular.ttf",
+    "style": "Regular",
+    "size": 226560
+   },
+   {
+    "file": "IBMPlexSansArabic-SemiBold.ttf",
+    "style": "Regular",
+    "size": 234232
+   },
+   {
+    "file": "IBMPlexSansArabic-Thin.ttf",
+    "style": "Regular",
+    "size": 232408
+   }
+  ]
+ },
+ {
+  "family": "Kufam",
+  "arabic": true,
+  "copyright": "Copyright 2019 The Kufam Project Authors (https://github.com/originaltype/kufam)",
+  "license": "SIL Open Font License 1.1",
+  "files": [
+   {
+    "file": "Kufam-Italic-VariableFont_wght.ttf",
+    "style": "Italic",
+    "size": 429592
+   },
+   {
+    "file": "Kufam-VariableFont_wght.ttf",
+    "style": "Regular",
+    "size": 421712
+   }
+  ]
+ },
+ {
+  "family": "Lateef Swashes",
+  "arabic": true,
+  "copyright": "Copyright (c) 1994-2023 SIL International.",
+  "license": "SIL Open Font License 1.1",
+  "files": [
+   {
+    "file": "LateefSwashes-Bold.otf",
+    "style": "Bold",
+    "size": 237528
+   }
+  ]
+ },
+ {
+  "family": "Noto Nastaliq Urdu",
+  "arabic": true,
+  "copyright": "Copyright 2017 Google Inc. All Rights Reserved.",
+  "license": "SIL Open Font License 1.1",
+  "files": [
+   {
+    "file": "NotoNastaliqUrdu-Bold.ttf",
+    "style": "Bold",
+    "size": 588696
+   }
+  ]
+ },
+ {
+  "family": "Readex Pro",
+  "arabic": true,
+  "copyright": "Copyright 2019 The Readex Pro Project Authors (https://github.com/ThomasJockin/readexpro)",
+  "license": "SIL Open Font License 1.1",
+  "files": [
+   {
+    "file": "ReadexPro-VariableFont_HEXP-wght.ttf",
+    "style": "Regular",
+    "size": 276388
+   }
+  ]
+ },
+ {
+  "family": "Rubik",
+  "arabic": true,
+  "copyright": "Copyright 2015 The Rubik Project Authors (https://github.com/googlefonts/rubik)",
+  "license": "SIL Open Font License 1.1",
+  "files": [
+   {
+    "file": "Rubik-Italic-VariableFont_wght.ttf",
+    "style": "Italic",
+    "size": 348892
+   },
+   {
+    "file": "Rubik-VariableFont_wght.ttf",
+    "style": "Regular",
+    "size": 353768
+   }
+  ]
+ },
+ {
+  "family": "Tajawal",
+  "arabic": true,
+  "copyright": "(c) 2017 by Boutros International. All rights reserved.",
+  "license": "SIL Open Font License 1.1",
+  "files": [
+   {
+    "file": "Tajawal-Black.ttf",
+    "style": "Regular",
+    "size": 55712
+   },
+   {
+    "file": "Tajawal-Bold.ttf",
+    "style": "Bold",
+    "size": 56568
+   },
+   {
+    "file": "Tajawal-ExtraBold.ttf",
+    "style": "Regular",
+    "size": 56292
+   },
+   {
+    "file": "Tajawal-ExtraLight.ttf",
+    "style": "Regular",
+    "size": 52444
+   },
+   {
+    "file": "Tajawal-Light.ttf",
+    "style": "Regular",
+    "size": 57320
+   },
+   {
+    "file": "Tajawal-Medium.ttf",
+    "style": "Regular",
+    "size": 57360
+   },
+   {
+    "file": "Tajawal-Regular.ttf",
+    "style": "Regular",
+    "size": 56088
+   }
+  ]
+ },
+ {
+  "family": "IBM Plex Sans",
+  "arabic": false,
+  "copyright": "Copyright 2019 IBM Corp. All rights reserved.",
+  "license": "SIL Open Font License 1.1",
+  "files": [
+   {
+    "file": "IBMPlexSans-Italic-VariableFont_wdth-wght.ttf",
+    "style": "Italic",
+    "size": 594116
+   },
+   {
+    "file": "IBMPlexSans-VariableFont_wdth-wght.ttf",
+    "style": "Regular",
+    "size": 532740
+   }
+  ]
+ },
+ {
+  "family": "Inter",
+  "arabic": false,
+  "copyright": "Copyright 2016 The Inter Project Authors (https://github.com/rsms/inter)",
+  "license": "SIL Open Font License 1.1",
+  "files": [
+   {
+    "file": "Inter-Italic-VariableFont_opsz-wght.ttf",
+    "style": "Italic",
+    "size": 904532
+   },
+   {
+    "file": "Inter-VariableFont_opsz-wght.ttf",
+    "style": "Regular",
+    "size": 874708
+   }
+  ]
+ },
+ {
+  "family": "League Spartan",
+  "arabic": false,
+  "copyright": "Copyright 2020 The League Spartan Project Authors (https://github.com/theleagueof/league-spartan)",
+  "license": "SIL Open Font License 1.1",
+  "files": [
+   {
+    "file": "LeagueSpartan-VariableFont_wght.ttf",
+    "style": "Regular",
+    "size": 94268
+   }
+  ]
+ }
+]
