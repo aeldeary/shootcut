@@ -1,4 +1,4 @@
-import { PDFDocument, PDFHexString, PDFName, rgb } from 'pdf-lib';
+import { PDFDocument, PDFHexString, PDFName, rgb, TextAlignment } from 'pdf-lib';
 import type { Rect } from './textselect';
 
 export type NewFieldKind = 'text' | 'multiline' | 'checkbox' | 'dropdown' | 'radio' | 'list';
@@ -16,6 +16,8 @@ export interface NewField {
   required?: boolean;
   /** hint shown when hovering in most viewers */
   tooltip?: string;
+  /** where typing starts in a text field: the right edge suits Arabic, the middle centres it */
+  align?: 'left' | 'center' | 'right';
 }
 
 /** Adds fillable fields. Names must not clash with fields that already exist (radio buttons may share one). */
@@ -50,6 +52,7 @@ export async function addFormFields(bytes: Uint8Array, fields: NewField[]): Prom
     if (f.kind === 'text' || f.kind === 'multiline') {
       const field = form.createTextField(name);
       if (f.kind === 'multiline') field.enableMultiline();
+      if (f.align) field.setAlignment(f.align === 'right' ? TextAlignment.Right : f.align === 'center' ? TextAlignment.Center : TextAlignment.Left);
       if (f.defaultValue) field.setText(f.defaultValue);
       field.addToPage(page, { ...box, textColor: rgb(0, 0, 0) });
       if (f.required) field.enableRequired();

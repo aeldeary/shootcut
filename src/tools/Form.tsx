@@ -45,6 +45,7 @@ export function FormTool() {
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
   const [interDone, setInterDone] = useState(false);
+  const [fieldAlign, setFieldAlign] = useState<'right' | 'center'>('right');
   const [failed, setFailed] = useState<string | null>(null);
   useHistory({ items }, (s) => { setItems(s.items); setSelected(null); setDone(false); }, pdf);
   const [analysis, setAnalysis] = useState<DocumentAnalysis | null>(null);
@@ -234,7 +235,7 @@ export function FormTool() {
           continue;
         }
         const { id: _id, text: _t, style: _s, ...f } = i;
-        fields.push({ ...f, options: f.options?.filter((o) => o.trim()), defaultValue: isText && typed ? typed : f.defaultValue });
+        fields.push({ ...f, options: f.options?.filter((o) => o.trim()), defaultValue: isText && typed ? typed : f.defaultValue, align: isText ? fieldAlign : undefined });
       }
       let out = await addFormFields(pdf.bytes, fields);
       if (flat.length) out = await writeBoxes(out, flat, fontFiles.current);
@@ -375,6 +376,11 @@ export function FormTool() {
                   {busy ? t('processing') : t('formInteractive')}
                 </button>
                 <p className="hint">{t('formInteractiveHint')}</p>
+                <p className="panel-title">{t('formInteractiveAlign')}</p>
+                <div className="mode-bar" role="group" aria-label={t('formInteractiveAlign')}>
+                  <button type="button" className="mode-btn" aria-pressed={fieldAlign === 'right'} onClick={() => setFieldAlign('right')}>{t('formAlignRight')}</button>
+                  <button type="button" className="mode-btn" aria-pressed={fieldAlign === 'center'} onClick={() => setFieldAlign('center')}>{t('formAlignCenter')}</button>
+                </div>
                 {interDone && <Notice kind="success">{t('formInteractiveDone')}</Notice>}
               </div>
               {mode === 'fill' && (

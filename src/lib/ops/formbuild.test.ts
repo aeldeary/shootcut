@@ -3,7 +3,7 @@ import { execFileSync } from 'node:child_process';
 import { mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { PDFDocument } from 'pdf-lib';
+import { PDFDocument, PDFTextField, TextAlignment } from 'pdf-lib';
 import { describe, expect, it, vi } from 'vitest';
 import { addFormFields } from './formbuild';
 import { fillPdf, listFormFields } from './fill';
@@ -81,5 +81,18 @@ describe('addFormFields', () => {
     await expect(addFormFields(base, [{ kind: 'dropdown', name: 'd', page: 0, rect: { x: 1, y: 1, width: 50, height: 20 }, options: [] }])).rejects.toThrow(/option/);
     const withField = await addFormFields(base, [{ kind: 'text', name: 'dup', page: 0, rect: { x: 1, y: 1, width: 50, height: 20 } }]);
     await expect(addFormFields(withField, [{ kind: 'text', name: 'dup', page: 0, rect: { x: 1, y: 1, width: 50, height: 20 } }])).rejects.toThrow(/already exists/);
+  });
+
+  it('sets where typing starts in a text field: right for Arabic, or centred', async () => {
+    const out = await addFormFields(await blank(), [
+      { kind: 'text', name: 'a', page: 0, rect: { x: 50, y: 240, width: 200, height: 24 }, align: 'right' },
+      { kind: 'multiline', name: 'b', page: 0, rect: { x: 50, y: 200, width: 200, height: 24 }, align: 'center' },
+      { kind: 'text', name: 'c', page: 0, rect: { x: 50, y: 160, width: 200, height: 24 } },
+    ]);
+    const form = (await PDFDocument.load(out)).getForm();
+    expect(form.getTextField('a').getAlignment()).toBe(TextAlignment.Right);
+    expect(form.getTextField('b').getAlignment()).toBe(TextAlignment.Center);
+    expect(form.getField('c') instanceof PDFTextField).toBe(true);
+    expect(form.getTextField('c').getAlignment()).toBe(TextAlignment.Left);
   });
 });
