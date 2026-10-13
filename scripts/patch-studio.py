@@ -131,7 +131,7 @@ EDITS = {
     'soundcraft': [
         # Familiar editor key layout: split, marker, delete, import, loop get the keys people expect
         # (the keys are listed in one table inside command_specs, applied after every command is registered)
-        ('cmd/mod.rs', r'(v\.extend\(video::specs\(\)\);\n)(\s*)v\n',
+        ('cmd/mod.rs', r'(\n)(\s*)v\n(\s*\}\)\n\}\n\s*pub fn find_command)',
          r'''\1\2const KEYS: [(&str, &str); 9] = [("edit.separate", "Cmd+K"), ("options.pre_post_roll", "Cmd+Alt+K"), ("edit.clear", "Delete"), ("markers.add", "M"), ("file.import_audio", "Cmd+I"), ("event.identify_beat", "Cmd+Alt+Shift+I"), ("options.loop_playback", "Cmd+L"), ("clip.edit_lock", "Cmd+Alt+Shift+L"), ("edit.duplicate", "Cmd+D")];
 \2for s in v.iter_mut() {
 \2    if let Some((_, k)) = KEYS.iter().find(|(i, _)| *i == s.id) {
@@ -139,7 +139,7 @@ EDITS = {
 \2    }
 \2}
 \2v
-'''),
+\3'''),
     ],
     'filmcraft': [
         # The classic editing key layout is the default one, under a Shootcut name
