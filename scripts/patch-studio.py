@@ -102,6 +102,9 @@ EDITS = {
         ('src/community.rs', r'(pub fn links\(app: &mut VectorcraftApp, ui: &mut Ui\) \{\n).*?(\n\}\n)', r'\1    let _ = (app, ui);\2'),
     ],
     'designcraft': [
+        # Glyph fallback on by default: a character the font lacks (Arabic, say) is set in a font that has it instead of a box
+        ('doc/src/lib.rs', r'(track_changes: false,\n\s*)glyph_fallback: false,', r'\1glyph_fallback: true,'),
+        ('doc/src/build.rs', r'glyph_fallback: false,', 'glyph_fallback: true,'),
         ('format/src/lib.rs', r'pub const MIME: &str = "application/vnd\.designcraft\+zip";', 'pub const MIME: &str = "application/octet-stream";'),
         # Arabic controls of the Character panel (Character Direction, Kashidas, Diacritic Positioning)
         ('panels/properties.rs', r'(\n    // Underline / Strikethrough Options\.\n)', '\n    shootcut_arabic_block(app, ui, &c, &a);\\1'),
