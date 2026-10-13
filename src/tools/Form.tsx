@@ -20,6 +20,7 @@ import { useHistory } from '../hooks/useHistory';
 import { FillBox } from '../components/FillBox';
 import { FillStyle, type AddedFont } from '../components/FillStyle';
 import { DEFAULT_BOX_STYLE, readingOrder, writeBoxes, type BoxStyle } from '../lib/ops/fillboxes';
+import { isWinAnsiText } from '../lib/ops/fill';
 
 type Item = NewField & { id: string; text?: string; style?: BoxStyle };
 
@@ -43,6 +44,7 @@ export function FormTool() {
   const [drag, setDrag] = useState<{ a: [number, number]; b: [number, number] } | null>(null);
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
+  const [interDone, setInterDone] = useState(false);
   const [failed, setFailed] = useState<string | null>(null);
   useHistory({ items }, (s) => { setItems(s.items); setSelected(null); setDone(false); }, pdf);
   const [analysis, setAnalysis] = useState<DocumentAnalysis | null>(null);
@@ -146,14 +148,15 @@ export function FormTool() {
   };
 
   /** turns suggestions into fields, each with a fresh name; the nearby text becomes its hint */
-  const accept = (list: (Suggestion & { id: string; page: number })[]) => {
-    if (list.length === 0) return;
-    const taken = new Set([...existing, ...items.map((i) => i.name)]);
-    const made: Item[] = list.map((sg) => {
+  const itemsFrom = (list: (Suggestion & { id: string; page: number })[], taken: Set<string>): Item[] =>
+    list.map((sg) => {
       const name = uniqueName(sg.kind, taken);
       taken.add(name);
       return { id: nextId(), kind: sg.kind, name, page: sg.page, rect: sg.rect, tooltip: sg.label };
     });
+  const accept = (list: (Suggestion & { id: string; page: number })[]) => {
+    if (list.length === 0) return;
+    const made = itemsFrom(list, new Set([...existing, ...items.map((i) => i.name)]));
     setItems((prev) => [...prev, ...made]);
     const ids = new Set(list.map((x) => x.id));
     setSugg((prev) => prev.filter((x) => !ids.has(x.id)));
@@ -161,6 +164,7 @@ export function FormTool() {
     setDone(false);
   };
 
+  useEffect(() => setInterDone(false), [items]);
   const textItems = useMemo(() => items.filter((i) => i.kind === 'text' || i.kind === 'multiline'), [items]);
   const order = useMemo(() => readingOrder(textItems, gs.mode === 'rtl'), [textItems, gs.mode]);
   const styleOf = (i: Item): BoxStyle => i.style ?? gs;
@@ -211,6 +215,38 @@ export function FormTool() {
       setFontErr(t('fillFontFail'));
     }
   };
+
+  /** one click: every box (the detected ones too, if none were added yet) becomes a fillable field; what was typed is kept */
+  const makeInteractive = async () => {
+    if (!pdf) return;
+    setBusy(true);
+    setFailed(null);
+    try {
+      const all = items.length > 0 ? items : itemsFrom(dismissed ? [] : sugg, new Set(existing));
+      const fields: NewField[] = [];
+      const flat: { page: number; rect: NewField['rect']; text: string; multiline: boolean; style: BoxStyle }[] = [];
+      for (const i of all) {
+        const typed = (i.text ?? '').trim();
+        const isText = i.kind === 'text' || i.kind === 'multiline';
+        if (isText && typed && !isWinAnsiText(typed)) {
+          // the form's own font cannot show Arabic: that text goes onto the page, and the box has no field
+          flat.push({ page: i.page, rect: i.rect, text: i.text ?? '', multiline: i.kind === 'multiline', style: styleOf(i) });
+          continue;
+        }
+        const { id: _id, text: _t, style: _s, ...f } = i;
+        fields.push({ ...f, options: f.options?.filter((o) => o.trim()), defaultValue: isText && typed ? typed : f.defaultValue });
+      }
+      let out = await addFormFields(pdf.bytes, fields);
+      if (flat.length) out = await writeBoxes(out, flat, fontFiles.current);
+      downloadBytes(out, `${baseName(pdf.file.name)}${t('formInteractiveSuffix')}.pdf`);
+      setInterDone(true);
+    } catch (err) {
+      setFailed((err as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  };
+  const canInteractive = items.length > 0 || (!dismissed && sugg.length > 0);
 
   const saveFilled = async () => {
     if (!pdf) return;
@@ -333,6 +369,13 @@ export function FormTool() {
                   <button type="button" className="mode-btn" aria-pressed={mode === 'prepare'} onClick={() => setMode('prepare')}>{t('formModePrepare')}</button>
                   <button type="button" className="mode-btn" aria-pressed={mode === 'fill'} onClick={() => { setMode('fill'); setDone(false); }}>{t('formModeFill')}</button>
                 </div>
+              </div>
+              <div className="panel">
+                <button type="button" className="btn btn-primary" disabled={busy || !canInteractive || nameClash} onClick={makeInteractive}>
+                  {busy ? t('processing') : t('formInteractive')}
+                </button>
+                <p className="hint">{t('formInteractiveHint')}</p>
+                {interDone && <Notice kind="success">{t('formInteractiveDone')}</Notice>}
               </div>
               {mode === 'fill' && (
                 <>

@@ -47,14 +47,14 @@
   font-weight: 400;
   font-style: normal;
   font-display: swap;
-  src: local('The Year of Handicrafts'), local('TheYearofHandicrafts-Regular'), url('./fonts/TheYearOfHandicrafts-Regular.woff2') format('woff2'), url('./fonts/TheYearOfHandicrafts-Regular.ttf') format('truetype'), url('./fonts/TheYearOfHandicrafts-Regular.otf') format('opentype');
+  src: local('The Year of Handicrafts'), local('TheYearofHandicrafts-Regular'), url('/fonts/TheYearOfHandicrafts-Regular.otf') format('opentype');
 }
 @font-face {
   font-family: 'The Year of Handicrafts';
   font-weight: 700;
   font-style: normal;
   font-display: swap;
-  src: local('The Year of Handicrafts Bold'), local('TheYearofHandicrafts-Bold'), url('./fonts/TheYearOfHandicrafts-Bold.woff2') format('woff2'), url('./fonts/TheYearOfHandicrafts-Bold.ttf') format('truetype'), url('./fonts/TheYearOfHandicrafts-Bold.otf') format('opentype');
+  src: local('The Year of Handicrafts Bold'), local('TheYearofHandicrafts-Bold'), url('/fonts/TheYearOfHandicrafts-Bold.otf') format('opentype');
 }
 
 html {
