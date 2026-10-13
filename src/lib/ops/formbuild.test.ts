@@ -59,14 +59,16 @@ describe('addFormFields', () => {
     expect(after.find((x) => x.name === 'city')?.value).toBe('Cairo');
   });
 
-  it('draws the field boxes (visible in a render)', async () => {
+  it('leaves the page looking as it did: no frame and no fill around a text field', async () => {
     const out = await addFormFields(await blank(), [{ kind: 'text', name: 'a', page: 0, rect: { x: 50, y: 100, width: 200, height: 40 } }]);
     const f = join(dir, 'box.pdf');
     writeFileSync(f, out);
     execFileSync('pdftoppm', ['-r', '72', '-png', '-f', '1', '-l', '1', f, join(dir, 'box')]);
-    // page y 100..140 -> image y 160..200; the light-blue fill is not white
-    const px = execFileSync('convert', [join(dir, 'box-1.png'), '-format', '%[pixel:p{150,180}]', 'info:']).toString();
-    expect(px).not.toMatch(/white|srgb\(255,255,255\)/);
+    // page y 100..140 -> image y 160..200: the inside and the edge of the field stay white
+    for (const at of ['p{150,180}', 'p{50,180}', 'p{150,160}']) {
+      const px = execFileSync('convert', [join(dir, 'box-1.png'), '-format', `%[pixel:${at}]`, 'info:']).toString();
+      expect(px).toMatch(/white|srgb\(255,255,255\)/);
+    }
   });
 
   it('rejects duplicate names, empty names and option lists without options', async () => {

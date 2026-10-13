@@ -26,7 +26,8 @@ export async function addFormFields(bytes: Uint8Array, fields: NewField[]): Prom
   const form = doc.getForm();
   const existing = new Set(form.getFields().map((f) => f.getName()));
   const radios = new Map<string, ReturnType<typeof form.createRadioGroup>>();
-  const style = { borderColor: rgb(0.2, 0.2, 0.2), backgroundColor: rgb(0.93, 0.96, 1), borderWidth: 1 };
+  // no frame and no fill: the page looks exactly as it did; readers still highlight the fields when asked
+  const style = { borderWidth: 0 };
 
   for (const f of fields) {
     const name = f.name.trim();
@@ -41,7 +42,7 @@ export async function addFormFields(bytes: Uint8Array, fields: NewField[]): Prom
         group = form.createRadioGroup(name);
         radios.set(name, group);
       }
-      group.addOptionToPage(f.options?.[0]?.trim() || String(group.getOptions().length + 1), page, { ...box, borderWidth: 1 });
+      group.addOptionToPage(f.options?.[0]?.trim() || String(group.getOptions().length + 1), page, { ...box, borderWidth: 1, borderColor: rgb(0.2, 0.2, 0.2) });
       if (f.required) group.enableRequired();
       continue;
     }

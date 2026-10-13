@@ -11,7 +11,7 @@ import { viewBox } from '../components/marks';
 import { usePdfFile } from '../hooks/usePdfFile';
 import { baseName, downloadBytes, nextId } from '../lib/pdf';
 import { listFormFields } from '../lib/ops/fill';
-import { analyzeDocument, type DocumentAnalysis, type Suggestion } from '../lib/ops/formsuggest';
+import { analyzeDocument, type DocumentAnalysis, type Suggestion, type SuggestionSource } from '../lib/ops/formsuggest';
 import { viewRect } from '../components/marks';
 import { addFormFields, type NewField, type NewFieldKind } from '../lib/ops/formbuild';
 import { rectFromPoints } from '../lib/ops/textselect';
@@ -21,6 +21,8 @@ import { FillBox } from '../components/FillBox';
 import { FillStyle, type AddedFont } from '../components/FillStyle';
 import { DEFAULT_BOX_STYLE, readingOrder, writeBoxes, type BoxStyle } from '../lib/ops/fillboxes';
 import { isWinAnsiText } from '../lib/ops/fill';
+
+const SRC_LABEL: Record<SuggestionSource, Key> = { cell: 'formSrcCell', blank: 'formSrcBlank', line: 'formSrcLine', label: 'formSrcLabel' };
 
 type Item = NewField & { id: string; text?: string; style?: BoxStyle };
 
@@ -50,7 +52,10 @@ export function FormTool() {
   useHistory({ items }, (s) => { setItems(s.items); setSelected(null); setDone(false); }, pdf);
   const [analysis, setAnalysis] = useState<DocumentAnalysis | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
-  const [sugg, setSugg] = useState<(Suggestion & { id: string; page: number })[]>([]);
+  const [allSugg, setSugg] = useState<(Suggestion & { id: string; page: number })[]>([]);
+  // only the cells of a table are proposed at first: blank lines, ruled lines and labels often catch empty space, so they are opt-in
+  const [kinds, setKinds] = useState<Record<SuggestionSource, boolean>>({ cell: true, blank: false, line: false, label: false });
+  const sugg = useMemo(() => allSugg.filter((g) => kinds[g.source]), [allSugg, kinds]);
   const [dismissed, setDismissed] = useState(false);
   const [mode, setMode] = useState<'prepare' | 'fill'>('prepare');
   const [gs, setGs] = useState<BoxStyle>(DEFAULT_BOX_STYLE);
@@ -423,6 +428,12 @@ export function FormTool() {
                         {t('formSuggestDismiss')}
                       </button>
                     </div>
+                    <p className="panel-title">{t('formSrcTitle')}</p>
+                    {(['cell', 'blank', 'line', 'label'] as SuggestionSource[]).map((k) => (
+                      <Checkbox key={k} checked={kinds[k]} onChange={(v) => setKinds((prev) => ({ ...prev, [k]: v }))}>
+                        {t(SRC_LABEL[k])} ({allSugg.filter((g) => g.source === k).length})
+                      </Checkbox>
+                    ))}
                     <p className="hint">{t('formSuggestClick')}</p>
                   </>
                 )}
