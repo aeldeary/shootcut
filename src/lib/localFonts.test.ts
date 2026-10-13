@@ -33,3 +33,15 @@ describe('device fonts for the studios', () => {
     expect(families([face('Cairo'), face('Amiri'), face('Cairo')])).toEqual(['Amiri', 'Cairo']);
   });
 });
+
+describe('auto import choice', () => {
+  it('is off by default and remembers the choice', async () => {
+    const { autoImportOn, setAutoImport } = await import('./localFonts');
+    setAutoImport(false);
+    expect(autoImportOn()).toBe(false);
+    setAutoImport(true);
+    expect(autoImportOn()).toBe(true);
+    setAutoImport(false);
+    expect(autoImportOn()).toBe(false);
+  });
+});

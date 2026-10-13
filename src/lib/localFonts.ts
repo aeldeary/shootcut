@@ -124,3 +124,69 @@ export async function sendSaved(win: Window | null | undefined): Promise<number>
 export function families(faces: InstalledFace[]): string[] {
   return [...new Set(faces.map((f) => f.family))].sort((a, b) => a.localeCompare(b));
 }
+
+const AUTO_KEY = 'shootcut-fonts-auto';
+
+/** Whether the person chose to bring in every installed font each time an app opens. */
+export function autoImportOn(): boolean {
+  try {
+    return localStorage.getItem(AUTO_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+
+export function setAutoImport(on: boolean): void {
+  try {
+    if (on) localStorage.setItem(AUTO_KEY, '1');
+    else localStorage.removeItem(AUTO_KEY);
+  } catch {
+    /* storage unavailable: the choice only lasts for this visit */
+  }
+}
+
+/** True when the browser already let this site read the installed fonts (so no question is asked). */
+export async function installedFontsGranted(): Promise<boolean> {
+  try {
+    const st = await navigator.permissions.query({ name: 'local-fonts' as PermissionName });
+    return st.state === 'granted';
+  } catch {
+    return false;
+  }
+}
+
+/** Faces above this size (huge CJK files) are skipped so the app does not run out of memory. */
+export const MAX_FACE_BYTES = 12 * 1024 * 1024;
+
+/**
+ * Hands every installed font to the app in the frame, one batch at a time. Nothing is stored or uploaded:
+ * the bytes go from the device straight to the app, and the next visit reads them again.
+ * Returns how many faces were handed over.
+ */
+export async function importAllInstalled(
+  win: Window | null | undefined,
+  onProgress?: (done: number, total: number) => void,
+): Promise<number> {
+  const faces = await listInstalled();
+  let done = 0;
+  let sent = 0;
+  const BATCH = 8;
+  for (let i = 0; i < faces.length; i += BATCH) {
+    const chunk = await Promise.all(
+      faces.slice(i, i + BATCH).map(async (f) => {
+        try {
+          const b = await f.load();
+          return b.byteLength <= MAX_FACE_BYTES ? b : null;
+        } catch {
+          return null;
+        }
+      }),
+    );
+    const ok = chunk.filter((b): b is ArrayBuffer => !!b);
+    if (sendFonts(win, ok)) sent += ok.length;
+    done = Math.min(faces.length, i + BATCH);
+    onProgress?.(done, faces.length);
+    await new Promise((r) => setTimeout(r, 0));
+  }
+  return sent;
+}

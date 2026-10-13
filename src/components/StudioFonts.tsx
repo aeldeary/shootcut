@@ -5,6 +5,9 @@ import {
   FONT_ACCEPT,
   canListInstalled,
   families,
+  autoImportOn,
+  importAllInstalled,
+  setAutoImport,
   isFontFile,
   listInstalled,
   removeFont,
@@ -33,6 +36,7 @@ export function StudioFonts({ frame, onClose }: { frame: React.RefObject<HTMLIFr
   const [query, setQuery] = useState('');
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState('');
+  const [auto, setAuto] = useState(autoImportOn());
   const [lib, setLib] = useState<LibFamily[] | null>(null);
 
   useEffect(() => {
@@ -79,6 +83,21 @@ export function StudioFonts({ frame, onClose }: { frame: React.RefObject<HTMLIFr
         return;
       }
       await give(await Promise.all(ok.map(async (f) => ({ name: f.name, bytes: await f.arrayBuffer() }))));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const importAll = async () => {
+    setBusy(true);
+    setMessage('');
+    try {
+      const n = await importAllInstalled(frame.current?.contentWindow, (d, m) =>
+        setMessage(t('fontsAllProgress').replace('{n}', String(d)).replace('{m}', String(m))),
+      );
+      setMessage(t('fontsAllDone').replace('{n}', String(n)));
+    } catch {
+      setMessage(t('fontsDenied'));
     } finally {
       setBusy(false);
     }
@@ -135,9 +154,14 @@ export function StudioFonts({ frame, onClose }: { frame: React.RefObject<HTMLIFr
           <input type="file" multiple accept={FONT_ACCEPT} hidden disabled={busy} onChange={(e) => { void onFiles(e.target.files); e.target.value = ''; }} />
         </label>
         {canListInstalled() ? (
-          <button type="button" className="btn" disabled={busy} onClick={() => void loadInstalled()}>
-            {t('fontsInstalled')}
-          </button>
+          <>
+            <button type="button" className="btn btn-primary" disabled={busy} onClick={() => void importAll()}>
+              {t('fontsAll')}
+            </button>
+            <button type="button" className="btn" disabled={busy} onClick={() => void loadInstalled()}>
+              {t('fontsInstalled')}
+            </button>
+          </>
         ) : (
           <span className="muted small">{t('fontsNoQuery')}</span>
         )}
@@ -157,6 +181,23 @@ export function StudioFonts({ frame, onClose }: { frame: React.RefObject<HTMLIFr
             </li>
           ))}
         </ul>
+      )}
+      {canListInstalled() && (
+        <>
+          <label className="check">
+            <input
+              type="checkbox"
+              checked={auto}
+              onChange={(e) => {
+                setAuto(e.target.checked);
+                setAutoImport(e.target.checked);
+                if (e.target.checked) void importAll();
+              }}
+            />{' '}
+            {t('fontsAllAuto')}
+          </label>
+          <p className="muted small">{t('fontsAllNote')}</p>
+        </>
       )}
       {installed && (
         <div className="fonts-installed">

@@ -3,7 +3,7 @@ import { ArrowLeft, ExternalLink, Gauge, Maximize, RefreshCw, Smartphone, Monito
 import { useI18n } from '../i18n';
 import { TOOLS } from '../lib/tools';
 import { StudioFonts } from './StudioFonts';
-import { sendSaved } from '../lib/localFonts';
+import { autoImportOn, canListInstalled, importAllInstalled, installedFontsGranted, sendSaved } from '../lib/localFonts';
 import {
   STUDIOS,
   looksLikePhone,
@@ -225,7 +225,14 @@ export function StudioLauncher({ studio, app }: { studio: Studio; app: StudioApp
           allow="fullscreen; clipboard-read; clipboard-write; autoplay"
           onLoad={() => {
             setLoaded(true);
-            void sendSaved(frame.current?.contentWindow);
+            const win = frame.current?.contentWindow;
+            void sendSaved(win);
+            // Chosen once by the person: bring in every installed font, only if the browser already allows it (no question on open).
+            if (autoImportOn() && canListInstalled()) {
+              void installedFontsGranted().then((ok) => {
+                if (ok) void importAllInstalled(win).catch(() => 0);
+              });
+            }
           }}
         />
       </div>
