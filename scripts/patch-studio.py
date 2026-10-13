@@ -138,6 +138,7 @@ EDITS = {
         ('panels/import_mode.rs', r'crate::links::ALL\.iter\(\)\.take\(4\)', 'crate::links::ALL.iter().take(0)'),
     ],
     'effectcraft': [
+        ('engine/src/demo.rs', r'"EFFECTCRAFT"', '"SHOOTCUT"', 'all'),
         ('src/links.rs', r'(pub const SIBLINGS: &\[[^\n]*\] = &\[)\n.*?\n\];', r'\1];'),
         ('panels/dialogs.rs', r'let links: \[\(Icon, &str, &str, &\'static str\); 4\] = \[.*?\];', "let links: [(Icon, &str, &str, &'static str); 0] = [];"),
         ('panels/home.rs', r'let links = \[\n\s*\(Icon::Chat, "Join the ArtCraft Discord".*?\];', 'let links: [(Icon, &str, &str); 0] = [];'),
@@ -274,6 +275,13 @@ def recolor_file(path):
 
 
 # ------------------------------------------------------------------ logos: pictures of the old marks become Shootcut's mark, same size
+ICON_NAME = re.compile(r'^(?:favicon|apple-touch-icon|icon[-_]?\d*|logo|app-icon|ai\.storyteller\.[a-z]+)(?:[-_.]\d+)?(?:-[0-9a-f]{8,})?\.(?:png|svg|ico)$')
+
+
+def _is_icon_name(low):
+    return bool(ICON_NAME.match(low))
+
+
 def replace_pictures(src):
     try:
         from PIL import Image
@@ -290,7 +298,8 @@ def replace_pictures(src):
             full = os.path.join(d, f)
             rel = full.replace('\\', '/')
             low = f.lower()
-            if '/assets/icons/' in rel or not ('/docs/brand/' in rel or '/app-icon' in rel or 'artcraft' in low):
+            if '/assets/icons/' in rel or not ('/docs/brand/' in rel or '/app-icon' in rel or 'artcraft' in low
+                                               or 'storyteller' in low or _is_icon_name(low)):
                 continue
             if low.endswith('.png'):
                 try:
@@ -339,6 +348,31 @@ def replace_drawn_logos(src):
             open(path, 'w', encoding='utf-8').write(t2)
             n += 1
     return n
+
+
+TEXT_ASSET_EXT = ('.md', '.js', '.jsx', '.txt')
+KEEP_NAMES = re.compile(r'(^|/)(LICEN[CS]E|NOTICE|ATTRIBUTION|THIRD[-_]PARTY|CONTRIBUT|CODE_OF_CONDUCT|AGENTS|CLAUDE)', re.I)
+
+
+def patch_text_asset(path):
+    """Docs, changelogs and scripts that the apps embed (include_str!): same renaming, community lines dropped."""
+    if KEEP_NAMES.search(path.replace('\\', '/')) or '/node_modules/' in path:
+        return False
+    try:
+        txt = open(path, encoding='utf-8').read()
+    except UnicodeDecodeError:
+        return False
+    out = []
+    for l in txt.split('\n'):
+        if DROP_LINE_TSV.search(l) or re.search(r'discord\.gg|getartcraft|github\.com/storytold', l):
+            continue
+        out.append(clean_text(DEAD_URL_RE.sub('', l)))
+    new = '\n'.join(out)
+    new = re.sub(r'\bDiscord\b', 'Shootcut', new)
+    if new != txt:
+        open(path, 'w', encoding='utf-8').write(new)
+        return True
+    return False
 
 
 def patch_json(path):
@@ -412,6 +446,8 @@ def cmd_source(src, repo):
                 m += 1
             elif f.endswith('.json') and '/locales' in d.replace('\\', '/') and patch_json(os.path.join(d, f)):
                 m += 1
+            elif f.endswith(TEXT_ASSET_EXT) and patch_text_asset(os.path.join(d, f)):
+                m += 1
     c = 0
     for p in rs_files(src):
         b = os.path.basename(p)
@@ -433,6 +469,35 @@ def cmd_source(src, repo):
 LOADING_RE = re.compile(r'(<div id="[a-z]+_loading">)[^<]*(</div>)')
 
 
+def dist_pictures(dist, here):
+    """Icon pictures the build copied from the app (Trunk assets, favicons) are redrawn with Shootcut's mark."""
+    try:
+        from PIL import Image
+    except ImportError:
+        return 0
+    mark = Image.open(os.path.join(here, 'brand', 'icon-512.png')).convert('RGBA')
+    svg = open(os.path.join(here, 'brand', 'favicon.svg')).read()
+    n = 0
+    for f in os.listdir(dist):
+        low = f.lower()
+        if low == 'shootcut-icon.svg' or not re.search(r'(icon|favicon|storyteller|logo)', low):
+            continue
+        full = os.path.join(dist, f)
+        if low.endswith('.png'):
+            im = Image.open(full)
+            w, h = im.size
+            side = max(1, int(min(w, h) * 0.9))
+            m = mark.resize((side, side), Image.LANCZOS)
+            out = Image.new('RGBA', (w, h), (0, 0, 0, 0))
+            out.paste(m, ((w - side) // 2, (h - side) // 2), m)
+            out.save(full)
+            n += 1
+        elif low.endswith('.svg'):
+            open(full, 'w').write(svg)
+            n += 1
+    return n
+
+
 def cmd_dist(dist, repo, lang=None):
     idx = os.path.join(dist, 'index.html')
     h = open(idx, encoding='utf-8').read()
@@ -449,6 +514,7 @@ def cmd_dist(dist, repo, lang=None):
     svg = os.path.join(here, 'brand', 'favicon.svg')
     if os.path.exists(svg):
         open(os.path.join(dist, 'shootcut-icon.svg'), 'w').write(open(svg).read())
+    dist_pictures(dist, here)
     for f in os.listdir(dist):
         if f.endswith('.ico'):
             os.remove(os.path.join(dist, f))
