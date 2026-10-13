@@ -82,6 +82,7 @@ function paint(ctx: CanvasRenderingContext2D, w: number, h: number, v: View, lis
       ctx.font = `${Math.max(6, e.h * v.k)}px "The Year of Handicrafts", system-ui, sans-serif`;
       ctx.textBaseline = 'alphabetic';
       ctx.direction = 'inherit';
+      ctx.textAlign = 'left'; // anchored at the clicked point whatever the page direction
       ctx.fillText(e.s, s.x, s.y);
       if (colour === SEL) ctx.strokeRect(s.x - 2, s.y - e.h * v.k - 2, textWidth(e) * v.k + 4, e.h * v.k + 6);
       return;
@@ -142,6 +143,8 @@ export default function CadLight() {
   const [size, setSize] = useState({ w: 800, h: 520 });
   const [textValue, setTextValue] = useState('');
   const [textH, setTextH] = useState(8);
+  // A click with the text tool and nothing typed yet opens a box right there; Enter places the text.
+  const [typing, setTyping] = useState<{ p: Pt; x: number; y: number; v: string } | null>(null);
   const [typed, setTyped] = useState('');
   const [note, setNote] = useState<string | null>(null);
   const [error, setError] = useState(false);
@@ -278,6 +281,7 @@ export default function CadLight() {
     }
     if (tool === 'text') {
       if (textValue.trim()) commit({ id: newId(), type: 'text', p, h: textH, s: textValue.trim() });
+      else setTyping({ p, x: s.x, y: s.y, v: '' });
       return;
     }
     if (tool === 'measure') {
@@ -570,6 +574,26 @@ export default function CadLight() {
             onWheel={onWheel}
             onDoubleClick={() => tool === 'poly' && finishPoly(false)}
           />
+          {typing && tool === 'text' && (
+            <input
+              className="input cad-typing"
+              dir="auto"
+              ref={(el) => { if (el) window.setTimeout(() => el.focus(), 0); }}
+              aria-label={t('cadTextValue')}
+              placeholder={t('cadTextValue')}
+              style={{ position: 'absolute', insetInlineStart: 'auto', left: Math.min(typing.x, Math.max(0, size.w - 180)), top: Math.max(0, typing.y - 36), inlineSize: 180 }}
+              value={typing.v}
+              onChange={(e) => setTyping({ ...typing, v: e.target.value })}
+              onKeyDown={(e) => {
+                if (e.key === 'Escape') setTyping(null);
+                if (e.key === 'Enter' && typing.v.trim()) {
+                  commit({ id: newId(), type: 'text', p: typing.p, h: textH, s: typing.v.trim() });
+                  setTyping(null);
+                }
+              }}
+              onBlur={() => setTyping(null)}
+            />
+          )}
         </div>
         <aside className="cad-side" aria-label={t('cadProps')}>
           <p className="cad-status" role="status">{status}</p>

@@ -12,7 +12,7 @@ in the build (MIT / Apache-2.0 require it) and are listed on Shootcut's "open-so
 import json, os, re, sys
 
 PRODUCT = {
-    'Word': 'Docs', 'Grid': 'Sheets', 'Deck': 'Slides', 'Photo': 'Photo', 'Light': 'Light', 'Vector': 'Vector',
+    'Word': 'Docs', 'Grid': 'Sheets', 'Deck': 'Slides', 'Photo': 'Photo', 'Light': 'Photo Editor', 'Vector': 'Vector',
     'Design': 'Design', 'Film': 'Film', 'Effect': 'Effects', 'Sound': 'Sound', 'CAD': 'CAD', 'Cad': 'CAD', 'PDF': 'PDF',
 }
 NAME_RE = re.compile(r'(?:(?<=\\n)|\b)(Word|Grid|Deck|Photo|Light|Vector|Design|Film|Effect|Sound|CAD|Cad|PDF)[Cc]raft(?![A-Za-z_])')

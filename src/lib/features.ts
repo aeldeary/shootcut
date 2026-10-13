@@ -107,7 +107,7 @@ export const TOOL_FEATURES: Record<string, Text[]> = {
     { en: 'Saved in this browser as you type; the PDF and the pictures are images of the slides', ar: 'يُحفظ في هذا المتصفح أثناء الكتابة؛ وملف PDF والصور هي صور للشرائح' },
   ],
   cad: [
-    { en: 'Draw lines, rectangles, circles, polylines and text (Arabic or English) on a millimetre board, with a dotted grid', ar: 'ارسم الخطوط والمستطيلات والدوائر والخطوط المتعددة والنصوص (عربية أو إنجليزية) على لوحة بالمليمتر مع شبكة منقّطة' },
+    { en: 'Draw lines, rectangles, circles, polylines and text (Arabic or English) on a millimetre board, with a dotted grid; with the text tool, click the board and type right there, then press Enter', ar: 'ارسم الخطوط والمستطيلات والدوائر والخطوط المتعددة والنصوص (عربية أو إنجليزية) على لوحة بالمليمتر مع شبكة منقّطة؛ وفي أداة النص انقر على اللوحة واكتب مكانك مباشرة ثم اضغط Enter' },
     { en: 'Snap to the grid and to corners, ends and centres; hold Shift (or tick the box) for straight lines only; type a number while drawing to set an exact length or radius', ar: 'التقاط بالشبكة وبالزوايا والأطراف والمراكز؛ أمسك Shift (أو فعّل الخيار) لخطوط مستقيمة فقط؛ واكتب رقماً أثناء الرسم لتحديد طول أو نصف قطر دقيق' },
     { en: 'Measure a distance, and see the length, size, perimeter and area of any shape; select, move (mouse or arrow keys), resize and delete with undo and redo', ar: 'قِس المسافات، وشاهد الطول والحجم والمحيط والمساحة لأي شكل؛ وحدّد وحرّك (بالفأرة أو الأسهم) وغيّر المقاس واحذف مع التراجع والإعادة' },
     { en: 'Open and save DXF (works with the common CAD programs; Arabic text kept), and save SVG or a picture', ar: 'افتح واحفظ DXF (يعمل مع برامج CAD الشائعة مع بقاء النص العربي)، واحفظ SVG أو صورة' },
