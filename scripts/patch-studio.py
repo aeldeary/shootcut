@@ -172,6 +172,44 @@ def apply_edits(path, txt, repo):
     return txt
 
 
+def clean_rust_strings(src):
+    """Renames inside every Rust string literal, also those that continue on the next line with a trailing backslash.
+    A small scanner skips comments, char literals and lifetimes, so quotes in them are not mistaken for strings."""
+    out = []
+    i, n = 0, len(src)
+    while i < n:
+        c = src[i]
+        if src.startswith('//', i):
+            j = src.find('\n', i)
+            j = n if j < 0 else j
+            out.append(src[i:j]); i = j
+        elif src.startswith('/*', i):
+            j = src.find('*/', i + 2)
+            j = n if j < 0 else j + 2
+            out.append(src[i:j]); i = j
+        elif c == 'r' and re.match(r'r#*"', src[i:i + 10]) and (i == 0 or not (src[i - 1].isalnum() or src[i - 1] == '_')):
+            hashes = re.match(r'r(#*)"', src[i:]).group(1)
+            end = '"' + hashes
+            j = src.find(end, i + 2 + len(hashes))
+            j = n if j < 0 else j + len(end)
+            out.append(src[i:j]); i = j
+        elif c == '"':
+            j = i + 1
+            while j < n and src[j] != '"':
+                j += 2 if src[j] == '\\' else 1
+            j = min(n, j + 1)
+            out.append(clean_text(DEAD_URL_RE.sub('', src[i:j]))); i = j
+        elif c == "'":
+            m = re.match(r"'(?:\\.[^']*|[^\\'])'", src[i:i + 12])
+            if m:
+                out.append(m.group(0)); i += len(m.group(0))
+            else:
+                out.append(c); i += 1
+        else:
+            out.append(c); i += 1
+    return ''.join(out)
+
+
 def patch_rs(path, repo):
     try:
         txt = open(path, encoding='utf-8').read()
@@ -198,6 +236,8 @@ def patch_rs(path, repo):
             continue
         out.append(line)
     txt = '\n'.join(out)
+    if not skip_literals:
+        txt = clean_rust_strings(txt)
     txt = re.sub(r'show_discord:\s*true', 'show_discord: false', txt)
     if txt != orig:
         open(path, 'w', encoding='utf-8').write(txt)
@@ -396,36 +436,42 @@ def patch_json(path):
 
 
 # Fonts the person adds on the site reach these apps through scripts/studio-fonts/bridge.rs
+# repo: (Rust expression that registers `bytes` and returns how many faces came in, crate that holds it,
+#        file that declares the modules, file whose WebLogger line starts the app)
 FONT_BRIDGE = {
-    'designcraft': ('designcraft_fonts::FontDb::global().add_font(bytes)', 'designcraft-fonts'),
-    'wordcraft': ('wordcraft_fonts::FontDb::global().add_font(bytes)', 'wordcraft-fonts'),
-    'deckcraft': ('deckcraft_fonts::FontDb::global().add_font(bytes)', 'deckcraft-fonts'),
-    'vectorcraft': ('vectorcraft_text::FontDb::global().add_font(bytes)', 'vectorcraft-text'),
+    'designcraft': ('designcraft_fonts::FontDb::global().add_font(bytes)', 'designcraft-fonts', 'main.rs', 'web.rs'),
+    'wordcraft': ('wordcraft_fonts::FontDb::global().add_font(bytes)', 'wordcraft-fonts', 'main.rs', 'web.rs'),
+    'deckcraft': ('deckcraft_fonts::FontDb::global().add_font(bytes)', 'deckcraft-fonts', 'main.rs', 'web.rs'),
+    'vectorcraft': ('vectorcraft_text::FontDb::global().add_font(bytes)', 'vectorcraft-text', 'main.rs', 'web.rs'),
+    'photocraft': ('photocraft_text::shared().lock().unwrap_or_else(|e| e.into_inner()).fonts.register_font_data(bytes).len()',
+                   'photocraft-text', 'main.rs', 'web.rs'),
+    'filmcraft': ('filmcraft_text::fonts::add_font_data(bytes).len()', 'filmcraft-text', 'lib.rs', 'lib.rs'),
+    'effectcraft': ('effectcraft_text::fonts::add_font_data(bytes).len()', 'effectcraft-text', 'lib.rs', 'app.rs'),
 }
 
 
 def add_font_bridge(src, repo):
     if repo not in FONT_BRIDGE:
         return False
-    expr, crate = FONT_BRIDGE[repo]
+    expr, crate, mods, start = FONT_BRIDGE[repo]
     web = os.path.join(src, 'apps', f'{repo}-web')
     tpl = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'studio-fonts', 'bridge.rs'), encoding='utf-8').read()
     open(os.path.join(web, 'src', 'shootcut_fonts.rs'), 'w', encoding='utf-8').write(tpl.replace('__ADD__', expr))
-    main = os.path.join(web, 'src', 'main.rs')
+    main = os.path.join(web, 'src', mods)
     m = open(main, encoding='utf-8').read()
-    m2, n = re.subn(r'(#\[cfg\(target_arch = "wasm32"\)\]\nmod web;)', '#[cfg(target_arch = "wasm32")]\nmod shootcut_fonts;\n\\1', m, count=1)
+    decl = '#[cfg(target_arch = "wasm32")]\nmod shootcut_fonts;\n'
+    m2, n = re.subn(r'((?:#\[cfg\(target_arch = "wasm32"\)\]\n)?(?:pub )?mod \w+;)', lambda mm: decl + mm.group(1), m, count=1)
     if not n:
-        sys.exit(f'patch-studio: no `mod web;` in {main}')
+        sys.exit(f'patch-studio: no module declaration in {main}')
     open(main, 'w', encoding='utf-8').write(m2)
-    w = os.path.join(web, 'src', 'web.rs')
+    w = os.path.join(web, 'src', start)
     t = open(w, encoding='utf-8').read()
-    start = 'eframe::WebLogger::init(log::LevelFilter::Info).ok();'
-    if start not in t:
+    line = 'eframe::WebLogger::init(log::LevelFilter::Info).ok();'
+    if line not in t:
         sys.exit(f'patch-studio: no WebLogger line in {w}')
-    open(w, 'w', encoding='utf-8').write(t.replace(start, start + '\n    crate::shootcut_fonts::watch();', 1))
+    open(w, 'w', encoding='utf-8').write(t.replace(line, line + '\n    crate::shootcut_fonts::watch();', 1))
     cargo = os.path.join(web, 'Cargo.toml')
     c = open(cargo, encoding='utf-8').read()
-    dep = crate + ' = '
     if not re.search(r'^' + re.escape(crate) + r'\s*=', c, re.M):
         c = c.replace('[dependencies]\n', f'[dependencies]\n{crate} = {{ workspace = true }}\n', 1)
         open(cargo, 'w', encoding='utf-8').write(c)
@@ -502,6 +548,7 @@ def cmd_dist(dist, repo, lang=None):
     idx = os.path.join(dist, 'index.html')
     h = open(idx, encoding='utf-8').read()
     h = LOADING_RE.sub(r'\1Loading Shootcut Program&hellip;\2', h)
+    h = re.sub(r'Loading [A-Za-z]*Craft(?:…|&hellip;|\.\.\.)', 'Loading Shootcut Program\u2026', h)
     h = re.sub(r'<title>[^<]*</title>', '<title>Shootcut</title>', h)
     h = re.sub(r'<link rel="icon"[^>]*>\s*', '', h)
     h = h.replace('<head>', '<head>\n  <link rel="icon" type="image/svg+xml" href="./shootcut-icon.svg">\n'
