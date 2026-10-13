@@ -552,6 +552,7 @@ def cmd_dist(dist, repo, lang=None):
     h = open(idx, encoding='utf-8').read()
     h = LOADING_RE.sub(r'\1Loading Shootcut Program&hellip;\2', h)
     h = re.sub(r'Loading [A-Za-z]*Craft(?:…|&hellip;|\.\.\.)', 'Loading Shootcut Program\u2026', h)
+    h = re.sub(r'If (?:Photo|Film|Effect|Light|Design|Word|Deck|Vector|Grid|Sound|CAD)Craft doesn', 'If Shootcut Program doesn', h)
     h = re.sub(r'<title>[^<]*</title>', '<title>Shootcut</title>', h)
     h = re.sub(r'<link rel="icon"[^>]*>\s*', '', h)
     h = h.replace('<head>', '<head>\n  <link rel="icon" type="image/svg+xml" href="./shootcut-icon.svg">\n'
