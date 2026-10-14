@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { ArrowLeft, ExternalLink, Gauge, Maximize, RefreshCw, Smartphone, Monitor, Type } from 'lucide-react';
-import { useI18n } from '../i18n';
+import { useI18n, type Key } from '../i18n';
 import { TOOLS } from '../lib/tools';
 import { StudioFonts } from './StudioFonts';
 import { autoImportOn, canListInstalled, importAllInstalled, installedFontsGranted, sendSaved } from '../lib/localFonts';
@@ -216,6 +216,21 @@ async function goFullscreen(el: HTMLElement | null): Promise<void> {
   document.addEventListener('fullscreenchange', release);
 }
 
+/** The browser-reserved shortcuts each program really uses (from its own key table), named in the full-screen advice. */
+const KEYS_BY_APP: Record<string, Key> = {
+  word: 'studioKeys_word',
+  grid: 'studioKeys_grid',
+  deck: 'studioKeys_deck',
+  photo: 'studioKeys_photo',
+  light: 'studioKeys_light',
+  vector: 'studioKeys_vector',
+  design: 'studioKeys_design',
+  film: 'studioKeys_film',
+  effect: 'studioKeys_effect',
+  sound: 'studioKeys_sound',
+  cad: 'studioKeys_cad',
+};
+
 /** Runs one built app in a frame, with Shootcut's own toolbar and credit line around it. */
 export function StudioLauncher({ studio, app }: { studio: Studio; app: StudioApp }) {
   const { t } = useI18n();
@@ -224,6 +239,8 @@ export function StudioLauncher({ studio, app }: { studio: Studio; app: StudioApp
   const [loaded, setLoaded] = useState(false);
   const [fontsOpen, setFontsOpen] = useState(false);
   const frame = useRef<HTMLIFrameElement>(null);
+  const keys = t(KEYS_BY_APP[app.id] ?? 'studioKeysDefault');
+  const lockHint = t('studioLockHint').replace('{keys}', keys);
   const src = `${studioBase(app.id)}index.html${webgl ? '?webgl' : ''}`;
 
   return (
@@ -263,7 +280,7 @@ export function StudioLauncher({ studio, app }: { studio: Studio; app: StudioApp
         <div className="fs-callout" role="note">
           <Maximize size={22} aria-hidden />
           <p>
-            <strong>{t('studioLockTitle')}</strong> {t('studioLockHint')}
+            <strong>{t('studioLockTitle')}</strong> {lockHint}
           </p>
           <button type="button" className="btn btn-primary" onClick={() => void goFullscreen(frame.current)}>
             {t('studioFullscreen')}

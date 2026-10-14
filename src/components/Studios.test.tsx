@@ -72,6 +72,18 @@ describe('Studios', () => {
     expect(screen.getAllByRole('button', { name: /light version|النسخة الخفيفة/i }).length).toBeGreaterThan(1);
   });
 
+  it('the full-screen advice names the shortcuts of the program that is open', () => {
+    stubFetchPublished();
+    const photo = findStudio('design')!;
+    wrap(<StudioLauncher studio={photo} app={photo.apps.find((a) => a.id === 'photo')!} />);
+    expect(document.querySelector('.fs-callout')!.textContent).toContain('Free Transform');
+    cleanup();
+    const cad = findStudio('cad')!;
+    wrap(<StudioLauncher studio={cad} app={cad.apps[0]} />);
+    expect(document.querySelector('.fs-callout')!.textContent).not.toContain('Free Transform');
+    expect(document.querySelector('.fs-callout')!.textContent).toContain('new drawing');
+  });
+
   it('the launcher frames the built app with the right sandbox and credit', async () => {
     stubFetchPublished();
     const studio = findStudio('docs')!;
