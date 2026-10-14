@@ -131,6 +131,17 @@ EDITS = {
         ('src/about.rs', r'\n\s*ui\.add_space\(14\.0\);\n\s*ui\.horizontal\(\|ui\| \{\n\s*// Centre the row of links\..*?\n\s*\}\);\n(?=\s*ui\.add_space\(16\.0\);)', '\n'),
     ],
     'pdfcraft': [
+        # One click: open Prepare a form and detect the fields, whether or not the file already has some
+        ('engine/src/commands.rs', r'(c\("form\.detect", "Detect form fields", None, None, Modification, "scan"\),)', r'\1\n    c("form.convert", "Convert to fillable PDF (detect the fields automatically)", None, None, Modification, "text-cursor-input"),'),
+        ('ui-egui/src/commands.rs', r'"form\.detect" => self\.detect_fields\(\),', '"form.detect" => self.detect_fields(),\n            "form.convert" => {\n                self.left = crate::LeftPanel::Tool("form");\n                self.reveal_tools();\n                self.choose_right_panel(Some(RightPanel::Fields));\n                self.detect_fields();\n            }'),
+        # Shootcut's picture-based field detection (empty table cells, dotted blanks, colon labels; Arabic labels; no frame or fill)
+        ('forms/src/lib.rs', r'pub mod detect;', 'pub mod detect;\npub mod shootcut_detect;'),
+        ('engine/src/lib.rs', r'pub mod js;\n', 'pub mod js;\nmod shootcut_detect;\n'),
+        ('engine/src/js.rs', r'for c in pdfcraft_forms::detect::detect\(&words, &shapes, &existing, &taken\) \{\s*taken\.push\(c\.name\.clone\(\)\);\s*out\.push\(\(page, c\)\);\s*\}',
+         'let mut found = pdfcraft_forms::detect::detect(&words, &shapes, &existing, &taken);\n            crate::shootcut_detect::extend(&mut r, page, &doc.info.pages[page], &words, &existing, &taken, &mut found);\n            for c in found {\n                taken.push(c.name.clone());\n                out.push((page, c));\n            }'),
+        ('engine/src/js.rs', r'let names = found\.iter\(\)\.map\(\|\(_, c\)\| c\.name\.clone\(\)\)\.collect\(\);', 'let names: Vec<String> = found.iter().map(|(_, c)| c.name.clone()).collect();'),
+        ('engine/src/js.rs', r'self\.apply\(id, Edit::Batch \{ label: "Detect form fields"\.into\(\), edits \}\)\?;',
+         'let mut edits: Vec<Edit> = edits;\n        edits.extend(crate::shootcut_detect::style_edits(&names));\n        self.apply(id, Edit::Batch { label: "Detect form fields".into(), edits })?;'),
         # Top bar: the Discord button and the width reserved for it
         ('ui-egui/src/chrome.rs', r'layout_no_wrap\("Discord"\.into\(\)', 'layout_no_wrap("".into()'),
         ('ui-egui/src/chrome.rs', r'\n\s*// One click to the community, from anywhere in the app\.\n\s*if widgets::ghost_button_sized\(ui, "messages-square", "Discord".*?\n\s*\}\n', '\n'),
@@ -469,6 +480,21 @@ def patch_json(path):
 # Fonts the person adds on the site reach these apps through scripts/studio-fonts/bridge.rs
 # repo: (Rust expression that registers `bytes` and returns how many faces came in, crate that holds it,
 #        file that declares the modules, file whose WebLogger line starts the app)
+# Whole files copied into an app's sources (after the Rust files are cleaned): (path in the app, file in scripts/studio-patches)
+COPIES = {
+    'pdfcraft': [
+        ('crates/forms/src/shootcut_detect.rs', 'pdfcraft/forms_shootcut_detect.rs'),
+        ('crates/engine/src/shootcut_detect.rs', 'pdfcraft/engine_shootcut_detect.rs'),
+    ],
+}
+
+
+def copy_files(src, repo):
+    here = os.path.dirname(os.path.abspath(__file__))
+    for dest, name in COPIES.get(repo, []):
+        shutil.copyfile(os.path.join(here, 'studio-patches', name), os.path.join(src, dest))
+
+
 FONT_BRIDGE = {
     'designcraft': ('designcraft_fonts::FontDb::global().add_font(bytes)', 'designcraft-fonts', 'main.rs', 'web.rs'),
     'wordcraft': ('wordcraft_fonts::FontDb::global().add_font(bytes)', 'wordcraft-fonts', 'main.rs', 'web.rs'),
@@ -572,6 +598,7 @@ def cmd_source(src, repo):
                 c += 1
     add_font_bridge(src, repo)
     add_arabic_ui(src)
+    copy_files(src, repo)
     pics = replace_pictures(src)
     logos = replace_drawn_logos(src)
     missing = [(repo, i) for i in range(len(EDITS.get(repo, []))) if (repo, i) not in HIT]
@@ -678,7 +705,8 @@ def cmd_dist(dist, repo, lang=None):
                   '  <script>try{var q=new URLSearchParams(location.search).get("lang");if(q){var l=[q];'
                   'Object.defineProperty(navigator,"language",{get:function(){return q}});'
                   'Object.defineProperty(navigator,"languages",{get:function(){return l}});'
-                  'document.documentElement.lang=q;if(q==="ar")document.documentElement.dir="rtl"}}catch(e){}</script>', 1)
+                  'document.documentElement.lang=q;if(q==="ar")document.documentElement.dir="rtl"}}catch(e){}</script>\n'
+                  '  <script>try{if(new URLSearchParams(location.search).has("webgl"))Object.defineProperty(navigator,"gpu",{get:function(){return undefined}})}catch(e){}</script>', 1)
     if repo == 'pdfcraft':
         # always light, like the rest of Shootcut, and a Shootcut loading screen instead of a blank canvas
         h = re.sub(r'@media \(prefers-color-scheme: dark\) \{[^}]*\{[^}]*\}\s*\}', '', h)

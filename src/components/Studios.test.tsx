@@ -104,10 +104,11 @@ describe('Studios', () => {
     const studio = findStudio('docs')!;
     wrap(<StudioLauncher studio={studio} app={studio.apps[0]} />);
     const frame = document.querySelector('iframe')!;
-    expect(frame.getAttribute('src')).toBe('./studio/word/index.html');
+    // compatibility mode (WebGL) is on by default; the box turns it off
+    expect(frame.getAttribute('src')).toBe('./studio/word/index.html?webgl');
     expect(frame.getAttribute('sandbox')).toContain('allow-same-origin');
     fireEvent.click(screen.getByRole('checkbox'));
-    expect(document.querySelector('iframe')!.getAttribute('src')).toBe('./studio/word/index.html?webgl');
+    expect(document.querySelector('iframe')!.getAttribute('src')).toBe('./studio/word/index.html');
     // no source names anywhere on the launcher
     expect(document.body.textContent).not.toMatch(/storytold|craft/i);
   });
