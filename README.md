@@ -128,7 +128,7 @@ Five studios (Docs, Design, Film, Audio, CAD) embed full open-source web apps (M
 
 ### PDF: Full and Light
 
-The PDF card on the home page opens on the same choice. **Full** is the pdfcraft web app (MIT OR Apache-2.0, built in the same `studios.yml` matrix as id `pdf`, served under `/studio/pdf/`, with Shootcut's name, colours and loading screen, and no community links or upstream logos); **Light** is the PDF tools of this site. It is a hidden entry of `STUDIOS` (`hidden: true`), so it is not a sixth studio and has no card in the Studios block.
+The PDF card on the home page opens on the same choice. **Full** is the pdfcraft web app (MIT OR Apache-2.0, built in the same `studios.yml` matrix as id `pdf`, served under `/studio/pdf/`, with Shootcut's name, colours and loading screen, and no community links or upstream logos); **Light** is the PDF tools of this site. Full finds the fields of a form by itself (`scripts/studio-patches/pdfcraft/*shootcut_detect.rs`, ported from the Light tool: table cells, dotted blanks, ruled lines with the caption on, over or under them, colon labels, tick boxes; Arabic labels named whole; no frame or fill), uses Acrobat DC's shortcuts, and `patch-studio.py` stops the browser's own handling of those keys. It is a hidden entry of `STUDIOS` (`hidden: true`), so it is not a sixth studio and has no card in the Studios block.
 
 ## Deploy to GitHub Pages
 

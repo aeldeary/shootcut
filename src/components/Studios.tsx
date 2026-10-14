@@ -306,6 +306,8 @@ export function StudioLauncher({ studio, app }: { studio: Studio; app: StudioApp
           onLoad={() => {
             setLoaded(true);
             const win = frame.current?.contentWindow;
+            // keyboard shortcuts go to the program at once, not to the page around it
+            try { win?.focus(); } catch { /* not allowed: the person clicks into it */ }
             void sendSaved(win);
             // Chosen once by the person: bring in every installed font, only if the browser already allows it (no question on open).
             if (autoImportOn() && canListInstalled()) {

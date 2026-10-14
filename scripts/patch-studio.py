@@ -137,11 +137,16 @@ EDITS = {
         # One click: open Prepare a form and detect the fields, whether or not the file already has some
         ('engine/src/commands.rs', r'(c\("form\.detect", "Detect form fields", None, None, Modification, "scan"\),)', r'\1\n    c("form.convert", "Convert to fillable PDF (detect the fields automatically)", None, None, Modification, "text-cursor-input"),'),
         ('ui-egui/src/commands.rs', r'"form\.detect" => self\.detect_fields\(\),', '"form.detect" => self.detect_fields(),\n            "form.convert" => {\n                self.left = crate::LeftPanel::Tool("form");\n                self.reveal_tools();\n                self.choose_right_panel(Some(RightPanel::Fields));\n                self.detect_fields();\n            }'),
+        # Acrobat DC: Ctrl+Y also redoes, and Alt+Left / Alt+Right are Previous / Next view
+        ('ui-egui/src/canvas.rs', r'(if pressed\(cmd\(Key::CloseBracket\)\) \{\s*view\.view_history\(true\);\s*\})',
+         r'\1\n    if pressed(KeyboardShortcut::new(Modifiers::ALT, Key::ArrowLeft)) {\n        view.view_history(false);\n    }\n    if pressed(KeyboardShortcut::new(Modifiers::ALT, Key::ArrowRight)) {\n        view.view_history(true);\n    }'),
+        ('ui-egui/src/commands.rs', r'(\n\s*self\.execute\(spec\.id\);\n\s*\}\n\s*\}\n\s*\})(\n    \}\n\}\n\n/// The tab after)',
+         r'\1\n        if !typing && ctx.input_mut(|i| i.consume_shortcut(&KeyboardShortcut::new(Modifiers::COMMAND, Key::Y))) {\n            self.execute("edit.redo");\n        }\2'),
         # Shootcut's picture-based field detection (empty table cells, dotted blanks, colon labels; Arabic labels; no frame or fill)
         ('forms/src/lib.rs', r'pub mod detect;', 'pub mod detect;\npub mod shootcut_detect;'),
         ('engine/src/lib.rs', r'pub mod js;\n', 'pub mod js;\nmod shootcut_detect;\n'),
         ('engine/src/js.rs', r'for c in pdfcraft_forms::detect::detect\(&words, &shapes, &existing, &taken\) \{\s*taken\.push\(c\.name\.clone\(\)\);\s*out\.push\(\(page, c\)\);\s*\}',
-         'let mut found = pdfcraft_forms::detect::detect(&words, &shapes, &existing, &taken);\n            crate::shootcut_detect::extend(&mut r, page, &doc.info.pages[page], &words, &existing, &taken, &mut found);\n            for c in found {\n                taken.push(c.name.clone());\n                out.push((page, c));\n            }'),
+         'let native = pdfcraft_forms::detect::detect(&words, &shapes, &existing, &taken);\n            let mut found = Vec::new();\n            if !crate::shootcut_detect::extend(&mut r, page, &doc.info.pages[page], &words, &existing, &taken, &mut found) {\n                crate::shootcut_detect::merge_native(&mut found, native);\n            }\n            for c in found {\n                taken.push(c.name.clone());\n                out.push((page, c));\n            }'),
         ('engine/src/js.rs', r'let names = found\.iter\(\)\.map\(\|\(_, c\)\| c\.name\.clone\(\)\)\.collect\(\);', 'let names: Vec<String> = found.iter().map(|(_, c)| c.name.clone()).collect();'),
         ('engine/src/js.rs', r'self\.apply\(id, Edit::Batch \{ label: "Detect form fields"\.into\(\), edits \}\)\?;',
          'let mut edits: Vec<Edit> = edits;\n        edits.extend(crate::shootcut_detect::style_edits(&names));\n        self.apply(id, Edit::Batch { label: "Detect form fields".into(), edits })?;'),
@@ -711,6 +716,8 @@ def cmd_dist(dist, repo, lang=None):
                   'document.documentElement.lang=q;if(q==="ar")document.documentElement.dir="rtl"}}catch(e){}</script>\n'
                   '  <script>try{if(new URLSearchParams(location.search).has("webgl"))Object.defineProperty(navigator,"gpu",{get:function(){return undefined}})}catch(e){}</script>', 1)
     if repo == 'pdfcraft':
+        # The browser must not take Acrobat's shortcuts (find, bookmark, address bar, page zoom, ...): stop its default, the app still sees the key
+        h = h.replace('</head>', '  <script>addEventListener("keydown",function(e){try{if((e.ctrlKey||e.metaKey)&&!e.altKey&&/^(Key[BDFGHJKLOPSYZ]|Digit[0-9]|Equal|Minus|NumpadAdd|NumpadSubtract|BracketLeft|BracketRight|Comma)$/.test(e.code))e.preventDefault();else if(e.altKey&&!e.ctrlKey&&/^Arrow(Left|Right)$/.test(e.code))e.preventDefault()}catch(x){}},true)</script>\n</head>', 1)
         # always light, like the rest of Shootcut, and a Shootcut loading screen instead of a blank canvas
         h = re.sub(r'@media \(prefers-color-scheme: dark\) \{[^}]*\{[^}]*\}\s*\}', '', h)
         h = re.sub(r'(<body[^>]*>)', lambda m: m.group(1) + '\n  ' + PDF_LOADING, h, count=1)

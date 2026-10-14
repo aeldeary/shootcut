@@ -18,11 +18,11 @@ fn overlaps(a: [f64; 4], b: [f64; 4]) -> bool {
 }
 
 /// Adds what the picture shows to `out` (the built-in detection's candidates for `page`).
-pub(crate) fn extend(r: &mut PageRenderer, page: usize, info: &PageInfo, words: &[Word], existing: &[[f64; 4]], taken: &[String], out: &mut Vec<Candidate>) {
+pub(crate) fn extend(r: &mut PageRenderer, page: usize, info: &PageInfo, words: &[Word], existing: &[[f64; 4]], taken: &[String], out: &mut Vec<Candidate>) -> bool {
     let shot = r.render(RenderRequest { page, kind: RequestKind::Pixels, scale: SCALE, ..Default::default() });
     let (w, h) = (shot.width as usize, shot.height as usize);
     if shot.error.is_some() || w == 0 || h == 0 || shot.rgba.len() < w * h * 4 {
-        return;
+        return false;
     }
     // Premultiplied RGBA over white paper, to grey.
     let mut grey = Vec::with_capacity(w * h);
@@ -50,6 +50,22 @@ pub(crate) fn extend(r: &mut PageRenderer, page: usize, info: &PageInfo, words: 
         }
         let name = sd::unique_name(&f.label, f.checkbox, &mut used);
         out.push(Candidate { kind: if f.checkbox { Kind::CheckBox } else { Kind::Text }, rect, name });
+    }
+    true
+}
+
+/// The built-in detector's finds, used only when the page could not be drawn for ours.
+pub(crate) fn merge_native(out: &mut Vec<Candidate>, native: Vec<Candidate>) {
+    for mut c in native {
+        if !out.iter().any(|o| overlaps(o.rect, c.rect)) {
+            let base = c.name.clone();
+            let mut n = 1;
+            while out.iter().any(|o| o.name == c.name) {
+                n += 1;
+                c.name = format!("{base}{n}");
+            }
+            out.push(c);
+        }
     }
 }
 

@@ -135,21 +135,74 @@ fn white_areas(g: &Gray) -> Vec<Area> {
     out
 }
 
-fn tidy(s: &str) -> String {
-    let s = s.trim_end_matches(|c: char| matches!(c, ':' | '\u{FF1A}' | '_' | '.' | '\u{2026}') || c.is_whitespace());
-    let s = s.trim_start_matches(|c: char| matches!(c, '_' | '.' | '\u{2026}') || c.is_whitespace());
-    s.trim().chars().take(40).collect()
+const PRES: [&str; 125] = ["ء", "آ", "آ", "أ", "أ", "ؤ", "ؤ", "إ", "إ", "ئ", "ئ", "ئ", "ئ", "ا", "ا", "ب", "ب", "ب", "ب", "ة", "ة", "ت", "ت", "ت", "ت", "ث", "ث", "ث", "ث", "ج", "ج", "ج", "ج", "ح", "ح", "ح", "ح", "خ", "خ", "خ", "خ", "د", "د", "ذ", "ذ", "ر", "ر", "ز", "ز", "س", "س", "س", "س", "ش", "ش", "ش", "ش", "ص", "ص", "ص", "ص", "ض", "ض", "ض", "ض", "ط", "ط", "ط", "ط", "ظ", "ظ", "ظ", "ظ", "ع", "ع", "ع", "ع", "غ", "غ", "غ", "غ", "ف", "ف", "ف", "ف", "ق", "ق", "ق", "ق", "ك", "ك", "ك", "ك", "ل", "ل", "ل", "ل", "م", "م", "م", "م", "ن", "ن", "ن", "ن", "ه", "ه", "ه", "ه", "و", "و", "ى", "ى", "ي", "ي", "ي", "ي", "لآ", "لآ", "لأ", "لأ", "لإ", "لإ", "لا", "لا"];
+
+/// Arabic text with presentation-form letters (shaped glyphs some PDFs store) turned back into
+/// base letters; the extractor already gives words in reading order.
+pub fn readable(s: &str) -> String {
+    let mut out = String::new();
+    for c in s.chars() {
+        match c as u32 {
+            0xFE70..=0xFE7F => {}
+            0xFE80..=0xFEFC => out.push_str(PRES[c as usize - 0xFE80]),
+            _ => out.push(c),
+        }
+    }
+    out
 }
 
-/// Text that says what a field is for: the neighbour on the same row, else the nearest text above.
-fn label_for(field: Bx, texts: &[Text], pt: f32) -> String {
-    let row_h = field.b - field.t;
-    let mut same: Vec<(f32, &Text)> = texts
+fn tidy(s: &str) -> String {
+    let s = readable(s);
+    let colon = |c: char| matches!(c, ':' | '\u{FF1A}' | '_' | '.' | '\u{2026}') || c.is_whitespace();
+    let s = s.trim_matches(colon);
+    s.chars().take(40).collect()
+}
+
+fn has_word(t: &Text) -> bool {
+    t.text.chars().any(|c| c.is_alphanumeric())
+}
+
+/// A label is often several words, and some PDFs give them overlapping boxes: gather the words
+/// that touch the first one, within a space or so of the growing box.
+fn cluster<'a>(first: &'a Text, pool: &[&'a Text], reach: f32) -> Vec<&'a Text> {
+    let mut chain = vec![first];
+    let mut bb = tb(first);
+    while chain.len() < 6 {
+        let next = pool.iter().copied().find(|t| {
+            let b = tb(t);
+            !chain.iter().any(|c| std::ptr::eq(*c, *t)) && (b.l - bb.r).max(bb.l - b.r).max(0.0) < reach
+        });
+        let Some(t) = next else { break };
+        let b = tb(t);
+        bb = Bx { l: bb.l.min(b.l), t: bb.t.min(b.t), r: bb.r.max(b.r), b: bb.b.max(b.b) };
+        chain.push(t);
+    }
+    chain
+}
+
+/// The words of a cluster in reading order, as one name.
+fn cluster_name(mut chain: Vec<&Text>) -> String {
+    let rtl = is_rtl_text(&chain[0].text);
+    chain.sort_by(|a, b| (a.l + a.r).total_cmp(&(b.l + b.r)));
+    if rtl {
+        chain.reverse();
+    }
+    let words: Vec<String> = chain.iter().map(|t| tidy(&t.text)).filter(|w| !w.is_empty()).collect();
+    words.join(" ").chars().take(40).collect()
+}
+
+fn on_row(a: Bx, b: Bx) -> bool {
+    a.b.min(b.b) - a.t.max(b.t) > (a.b - a.t).min(b.b - b.t) * 0.5
+}
+
+/// Text that says what a field is for: the neighbour on the same row; for a ruled line the caption
+/// under it; else the nearest text above.
+fn label_for(field: Bx, texts: &[Text], pt: f32, caption_below: bool) -> String {
+    let words: Vec<&Text> = texts.iter().filter(|t| has_word(t)).collect();
+    let mut same: Vec<(f32, &Text)> = words
         .iter()
-        .filter(|t| {
-            let bx = tb(t);
-            bx.b.min(field.b) - bx.t.max(field.t) > row_h.min(bx.b - bx.t) * 0.5
-        })
+        .copied()
+        .filter(|t| on_row(tb(t), field))
         .map(|t| {
             let bx = tb(t);
             let gap = if bx.r < field.l {
@@ -164,19 +217,27 @@ fn label_for(field: Bx, texts: &[Text], pt: f32) -> String {
         .filter(|(g, _)| *g < 300.0 * pt)
         .collect();
     same.sort_by(|a, b| a.0.total_cmp(&b.0));
-    let mut pick = same.first().map(|(_, t)| *t);
+    if let Some((_, first)) = same.first() {
+        let row: Vec<&Text> = same.iter().map(|(_, t)| *t).collect();
+        let reach = ((tb(first).b - tb(first).t) * 1.2).max(8.0 * pt);
+        return cluster_name(cluster(first, &row, reach));
+    }
+    let overlaps_x = |bx: Bx| bx.r.min(field.r) - bx.l.max(field.l) > 0.0;
+    let mut pick: Option<&Text> = None;
+    if caption_below {
+        let mut below: Vec<&Text> = words.iter().copied().filter(|t| tb(t).t >= field.b - 2.0 && tb(t).t - field.b < 14.0 * pt && overlaps_x(tb(t))).collect();
+        below.sort_by(|a, b| a.t.total_cmp(&b.t));
+        pick = below.first().copied();
+    }
     if pick.is_none() {
-        let mut above: Vec<&Text> = texts
-            .iter()
-            .filter(|t| {
-                let bx = tb(t);
-                bx.b <= field.t + 2.0 && bx.r.min(field.r) - bx.l.max(field.l) > 0.0 && field.t - bx.b < 40.0 * pt
-            })
-            .collect();
+        let mut above: Vec<&Text> = words.iter().copied().filter(|t| tb(t).b <= field.t + 2.0 && overlaps_x(tb(t)) && field.t - tb(t).b < 40.0 * pt).collect();
         above.sort_by(|a, b| b.b.total_cmp(&a.b));
         pick = above.first().copied();
     }
-    pick.map(|t| tidy(&t.text)).unwrap_or_default()
+    let Some(first) = pick else { return String::new() };
+    let row: Vec<&Text> = words.iter().copied().filter(|t| on_row(tb(t), tb(first))).collect();
+    let reach = ((tb(first).b - tb(first).t) * 1.2).max(8.0 * pt);
+    cluster_name(cluster(first, &row, reach))
 }
 
 struct Acc<'a> {
@@ -194,7 +255,7 @@ impl Acc<'_> {
         }) {
             return;
         }
-        let label = label_for(bx, self.texts, self.pt);
+        let label = label_for(bx, self.texts, self.pt, matches!(source, Source::Line));
         self.found.push((Found { l: bx.l, t: bx.t, r: bx.r, b: bx.b, checkbox, source, label }, rank));
     }
 }
@@ -322,26 +383,56 @@ pub fn analyze(g: &Gray, texts: &[Text], pt: f32) -> Vec<Found> {
                 continue;
             }
             let area_above = Bx { l: x0 as f32, t: y as f32 - hgt, r: x as f32, b: y as f32 };
-            let text_on_top = texts.iter().any(|t| inter(tb(t), area_above) > area(tb(t)) * 0.35);
+            let over: Vec<&Text> = texts.iter().filter(|t| inter(tb(t), area_above) > area(tb(t)) * 0.35).collect();
+            // a short label on a long line ("Signature" over its line): the field takes the free part
+            let len = (x - x0) as f32;
+            let mid = x0 as f32 + len / 2.0;
+            let (mut fl, mut fr) = (x0 as f32 + 2.0, x as f32 - 2.0);
+            let mut text_on_top = false;
+            if !over.is_empty() {
+                if over.iter().all(|t| t.r - t.l < len * 0.5 && t.r <= mid) {
+                    fl = over.iter().map(|t| t.r).fold(fl, f32::max) + 4.0;
+                } else if over.iter().all(|t| t.r - t.l < len * 0.5 && t.l >= mid) {
+                    fr = over.iter().map(|t| t.l).fold(fr, f32::min) - 4.0;
+                } else {
+                    text_on_top = true;
+                }
+                if fr - fl < 30.0 * pt {
+                    text_on_top = true;
+                }
+            }
             let near_cell = used.iter().any(|u| ((u.b - y as f32).abs() < 4.0 * pt || (u.t - y as f32).abs() < 4.0 * pt) && u.r > x0 as f32 && u.l < x as f32);
             let ink_above = {
                 let y0 = y.saturating_sub(rows_above);
-                let dark = dark_in(g, x0, x, y0, y.saturating_sub(1), 2);
-                dark as f32 > (x - x0) as f32 * rows_above as f32 * 0.01
+                let (a, b) = (fl.max(0.0) as usize, (fr.max(0.0) as usize).min(gw));
+                let dark = if b > a { dark_in(g, a, b, y0, y.saturating_sub(1), 2) } else { 0 };
+                dark as f32 > (b.saturating_sub(a)) as f32 * rows_above as f32 * 0.01
             };
             if !text_on_top && !near_cell && !ink_above {
-                acc.add(Bx { l: x0 as f32 + 2.0, t: y as f32 - hgt, r: x as f32 - 2.0, b: y as f32 - 1.0 }, false, false, Source::Line, 3);
+                acc.add(Bx { l: fl, t: y as f32 - hgt, r: fr, b: y as f32 - 1.0 }, false, false, Source::Line, 3);
             }
         }
     }
 
     // 4. "Name:" with free room next to it (on the left of a right-to-left label)
     for t in &texts {
-        let trimmed = t.text.trim_end();
-        if !(trimmed.ends_with(':') || trimmed.ends_with('\u{FF1A}')) || trimmed.chars().count() < 3 {
+        let trimmed = t.text.trim();
+        let rtl = is_rtl_text(&t.text);
+        let colon = |c: char| c == ':' || c == '\u{FF1A}';
+        let at_end = trimmed.ends_with(colon);
+        // an Arabic label stored in visual order has its colon first
+        let at_start = rtl && trimmed.starts_with(colon);
+        if !(at_end || at_start) || trimmed.chars().count() < 3 {
             continue;
         }
-        let bx = tb(t);
+        // the label is every word of the row that touches this one (some PDFs box the colon wide)
+        let row: Vec<&Text> = texts.iter().filter(|o| has_word(o) && on_row(tb(o), tb(t))).collect();
+        let reach = ((t.b - t.t) * 1.2).max(8.0 * pt);
+        let mut bx = tb(t);
+        for o in cluster(t, &row, reach) {
+            let b = tb(o);
+            bx = Bx { l: bx.l.min(b.l), t: bx.t.min(b.t), r: bx.r.max(b.r), b: bx.b.max(b.b) };
+        }
         let line_h = (bx.b - bx.t).max(11.0 * pt);
         let width = 150.0 * pt;
         let mut field = if is_rtl_text(&t.text) {
@@ -354,7 +445,7 @@ pub fn analyze(g: &Gray, texts: &[Text], pt: f32) -> Vec<Found> {
         if field.r - field.l < 40.0 * pt {
             continue;
         }
-        let crowded = texts.iter().any(|o| !std::ptr::eq(o, t) && inter(tb(o), field) > 0.0);
+        let crowded = texts.iter().any(|o| inter(tb(o), field) > 0.0 && !(row.iter().any(|r| std::ptr::eq(*r, o))));
         if crowded {
             continue;
         }
@@ -506,5 +597,47 @@ mod tests {
         let px = blank(w, h);
         let f = analyze(&Gray { px: &px, w, h }, &[text("A paragraph of plain words.", 20.0, 20.0, 250.0, 32.0)], 1.0);
         assert!(f.is_empty(), "{f:?}");
+    }
+
+    #[test]
+    fn a_short_label_on_a_long_line_leaves_the_free_part_for_the_field() {
+        let (w, h) = (400, 120);
+        let mut px = blank(w, h);
+        hline(&mut px, w, 80, 20, 300);
+        let f = analyze(&Gray { px: &px, w, h }, &[text("Signature", 20.0, 64.0, 90.0, 77.0)], 1.0);
+        let l: Vec<&Found> = f.iter().filter(|x| x.source == Source::Line).collect();
+        assert_eq!(l.len(), 1, "{f:?}");
+        assert!(l[0].l >= 90.0, "{:?}", l[0].l);
+        assert_eq!(l[0].label, "Signature");
+    }
+
+    #[test]
+    fn a_caption_under_a_line_names_it() {
+        let (w, h) = (400, 140);
+        let mut px = blank(w, h);
+        hline(&mut px, w, 60, 100, 300);
+        let f = analyze(&Gray { px: &px, w, h }, &[text("Date", 180.0, 66.0, 220.0, 78.0), text("Approved by", 150.0, 10.0, 250.0, 22.0)], 1.0);
+        let l: Vec<&Found> = f.iter().filter(|x| x.source == Source::Line).collect();
+        assert_eq!(l.len(), 1, "{f:?}");
+        assert_eq!(l[0].label, "Date");
+    }
+
+    #[test]
+    fn an_arabic_label_with_overlapping_word_boxes_and_a_leading_colon_is_one_name() {
+        let (w, h) = (500, 100);
+        let px = blank(w, h);
+        // the colon sits first in the word and its box spans the whole label, as some PDFs give it
+        let t = [text(":\u{62C}\u{647}\u{629}", 380.0, 40.0, 480.0, 54.0), text("\u{627}\u{644}\u{639}\u{645}\u{644}", 384.0, 40.0, 420.0, 54.0)];
+        let f = analyze(&Gray { px: &px, w, h }, &t, 1.0);
+        let l: Vec<&Found> = f.iter().filter(|x| x.source == Source::Label).collect();
+        assert_eq!(l.len(), 1, "{f:?}");
+        assert!(l[0].r <= 380.0, "the field is on the left of the label: {:?}", l[0].r);
+        assert_eq!(l[0].label, "\u{62C}\u{647}\u{629} \u{627}\u{644}\u{639}\u{645}\u{644}");
+    }
+
+    #[test]
+    fn shaped_presentation_letters_become_base_letters() {
+        assert_eq!(readable("\u{FE8D}\u{FEDF}\u{FEE3}"), "\u{627}\u{644}\u{645}");
+        assert_eq!(readable("Name"), "Name");
     }
 }
