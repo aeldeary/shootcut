@@ -30,6 +30,21 @@ describe('Studios', () => {
     expect(screen.getByText('Design')).toBeTruthy();
   });
 
+  it('keeps the PDF editions out of the Studios block and offers Full or Light first, with the PDF tools as the light edition', () => {
+    wrap(<StudiosBlock />);
+    expect(document.querySelector('[data-studio=pdf]')).toBeNull();
+    cleanup();
+    stubFetchPublished();
+    wrap(<StudioPage studio={findStudio('pdf')!} lightContent={<p data-testid="pdf-tools">tools</p>} />);
+    expect(document.querySelector('[data-version=full]')).toBeTruthy();
+    expect(screen.queryByTestId('pdf-tools')).toBeNull();
+    fireEvent.click(document.querySelector('[data-version=light]')!);
+    expect(screen.getByTestId('pdf-tools')).toBeTruthy();
+    fireEvent.click(screen.getByText(/change version|تغيير النسخة/i));
+    fireEvent.click(document.querySelector('[data-version=full]')!);
+    expect(document.querySelectorAll('[data-app]').length).toBe(1);
+  });
+
   it('asks for full or light before showing anything to open', async () => {
     stubFetchPublished();
     wrap(<StudioPage studio={findStudio('docs')!} />);

@@ -13,9 +13,9 @@ import json, os, re, shutil, sys
 
 PRODUCT = {
     'Word': 'Docs', 'Grid': 'Sheets', 'Deck': 'Slides', 'Photo': 'Photo', 'Light': 'Photo Editor', 'Vector': 'Vector',
-    'Design': 'Design', 'Film': 'Film', 'Effect': 'Effects', 'Sound': 'Sound', 'CAD': 'CAD', 'Cad': 'CAD', 'PDF': 'PDF',
+    'Design': 'Design', 'Film': 'Film', 'Effect': 'Effects', 'Sound': 'Sound', 'CAD': 'CAD', 'Cad': 'CAD', 'PDF': 'PDF', 'Pdf': 'PDF',
 }
-NAME_RE = re.compile(r'(?:(?<=\\n)|\b)(Word|Grid|Deck|Photo|Light|Vector|Design|Film|Effect|Sound|CAD|Cad|PDF)[Cc]raft(?![A-Za-z_])')
+NAME_RE = re.compile(r'(?:(?<=\\n)|\b)(Word|Grid|Deck|Photo|Light|Vector|Design|Film|Effect|Sound|CAD|Cad|PDF|Pdf)[Cc]raft(?![A-Za-z_])')
 ART_RE = re.compile(r'(?:(?<=\\n)|\b)Art[Cc]raft(?![A-Za-z_])')
 LITERAL = re.compile(r'"(?:[^"\\\n]|\\.)*"')
 
@@ -71,6 +71,8 @@ LINE_DROP = [
     re.compile(r'^\s*"app\.(?:discord|website|github|artcraft)",\s*$'),
     re.compile(r'^.*\| help\.(?:discord|website|appPage|github|issues|app)\s*$'),
     re.compile(r'^\s*ui\.label\(egui::RichText::new\(tl!\("Community"\)\).*$'),
+    re.compile(r'^\s*c\("help\.(?:discord|app_page|github|website|check_updates)",.*$'),
+    re.compile(r'^\s*Link \{ command: "help\.(?:discord|app_page|github|website)",.*$'),
     re.compile(r'^\s*crate::links::(?:discord_button\(app, ui, [\d.]+\)|link_row\(app, ui\));\s*$'),
 ]
 ENTRY_DROP = [
@@ -127,6 +129,19 @@ EDITS = {
         ('src/about.rs', r'(pub fn discord_button\(ui: &mut egui::Ui, label: &str, size: egui::Vec2\) -> bool \{\n).*?(\n\}\n)', r'\1    let _ = (ui, label, size);\n    false\2'),
         ('src/chrome.rs', r'(fn community_card\(app: &mut DesignApp, ui: &mut egui::Ui\) \{\n).*?(\n\}\n)', r'\1    let _ = (app, ui);\2'),
         ('src/about.rs', r'\n\s*ui\.add_space\(14\.0\);\n\s*ui\.horizontal\(\|ui\| \{\n\s*// Centre the row of links\..*?\n\s*\}\);\n(?=\s*ui\.add_space\(16\.0\);)', '\n'),
+    ],
+    'pdfcraft': [
+        # Top bar: the Discord button and the width reserved for it
+        ('ui-egui/src/chrome.rs', r'layout_no_wrap\("Discord"\.into\(\)', 'layout_no_wrap("".into()'),
+        ('ui-egui/src/chrome.rs', r'\n\s*// One click to the community, from anywhere in the app\.\n\s*if widgets::ghost_button_sized\(ui, "messages-square", "Discord".*?\n\s*\}\n', '\n'),
+        # Home: the community card with ArtCraft's mark
+        ('ui-egui/src/home.rs', r'\n\s*egui::Frame::NONE\n(?:(?!\n\s*egui::Frame::NONE).)*?widgets::artcraft_mark\(ui, 28\.0\);.*?\n\s*\}\);\n(?=\s*ui\.add_space\(22\.0\);)', '\n'),
+        # About: "Part of <ArtCraft logo>"
+        ('ui-egui/src/dialogs.rs', r'\n\s*ui\.add_space\(12\.0\);\n\s*ui\.horizontal\(\|ui\| \{\n\s*ui\.label\(egui::RichText::new\(tl!\("Part of"\)\)[^\n]*\n\s*widgets::artcraft_logo\(ui, 16\.0\);\n\s*\}\);', ''),
+        # The upstream's pictures and community buttons are no longer drawn or embedded
+        ('ui-egui/src/widgets.rs', r'pub fn artcraft_logo\(ui: &mut egui::Ui, height: f32\) -> Response \{.*?\n\}\n', 'pub fn artcraft_logo(ui: &mut egui::Ui, height: f32) -> Response {\n    let _ = height;\n    ui.allocate_response(vec2(0.0, 0.0), Sense::hover())\n}\n'),
+        ('ui-egui/src/widgets.rs', r'pub fn artcraft_mark\(ui: &mut egui::Ui, size: f32\) -> Response \{.*?\n\}\n', 'pub fn artcraft_mark(ui: &mut egui::Ui, size: f32) -> Response {\n    let _ = size;\n    ui.allocate_response(vec2(0.0, 0.0), Sense::hover())\n}\n'),
+        ('ui-egui/src/widgets.rs', r'pub fn community_links\(ui: &mut egui::Ui\) -> Option<&\'static str> \{.*?\n\}\n', 'pub fn community_links(ui: &mut egui::Ui) -> Option<&\'static str> {\n    let _ = ui;\n    None\n}\n'),
     ],
     'soundcraft': [
         # Familiar editor key layout: split, marker, delete, import, loop get the keys people expect
@@ -639,6 +654,18 @@ def speed_up(dist, h):
     return h.replace('<head>', '<head>\n  ' + FAST_LOADER, 1)
 
 
+
+# pdfcraft's page has no loading screen of its own (a bare canvas): this one carries Shootcut's mark and text, and goes
+# away once the app has started. The id ends in _loading so the download percentage is written into its <p>.
+PDF_LOADING = (
+    '<style>#pdfcraft_loading{position:fixed;inset:0;z-index:9;display:flex;flex-direction:column;align-items:center;'
+    'justify-content:center;gap:14px;background:#f1f1f3;color:#333;font:500 16px system-ui,sans-serif}'
+    '#pdfcraft_loading img{width:88px;height:88px}#pdfcraft_loading p{margin:0}</style>'
+    '<div id="pdfcraft_loading"><img src="./shootcut-icon.svg" alt=""><p>Loading Shootcut Program&hellip;</p></div>'
+    '<script>addEventListener("TrunkApplicationStarted",function(){setTimeout(function(){var e=document.getElementById("pdfcraft_loading");'
+    'if(e)e.remove()},700)})</script>'
+)
+
 def cmd_dist(dist, repo, lang=None):
     idx = os.path.join(dist, 'index.html')
     h = open(idx, encoding='utf-8').read()
@@ -652,6 +679,10 @@ def cmd_dist(dist, repo, lang=None):
                   'Object.defineProperty(navigator,"language",{get:function(){return q}});'
                   'Object.defineProperty(navigator,"languages",{get:function(){return l}});'
                   'document.documentElement.lang=q;if(q==="ar")document.documentElement.dir="rtl"}}catch(e){}</script>', 1)
+    if repo == 'pdfcraft':
+        # always light, like the rest of Shootcut, and a Shootcut loading screen instead of a blank canvas
+        h = re.sub(r'@media \(prefers-color-scheme: dark\) \{[^}]*\{[^}]*\}\s*\}', '', h)
+        h = re.sub(r'(<body[^>]*>)', lambda m: m.group(1) + '\n  ' + PDF_LOADING, h, count=1)
     h = speed_up(dist, h)
     open(idx, 'w', encoding='utf-8').write(h)
     here = os.path.dirname(os.path.abspath(__file__))

@@ -251,8 +251,9 @@ export default function App() {
   const tool = findTool(route);
   const page = route === 'features' || route === 'shortcuts';
   const section = sectionOfRoute(route);
-  const studioRoute = parseStudioRoute(route);
-  const sectionPage = route === 'pdf' || route === 'image' || route === 'video' || route === 'office' ? route : null;
+  // The PDF section opens on the Full / Light choice; its light edition is the PDF tools.
+  const studioRoute = parseStudioRoute(route === 'pdf' ? 'studio/pdf' : route);
+  const sectionPage = route === 'image' || route === 'video' || route === 'office' ? route : null;
   const active = tool && tool.status === 'ready' ? tool.id : null;
   const Active = active ? COMPONENTS[active] : undefined;
 
@@ -265,7 +266,11 @@ export default function App() {
             studioRoute.app ? (
               <StudioLauncher key={studioRoute.app.id} studio={studioRoute.studio} app={studioRoute.app} />
             ) : (
-              <StudioPage key={studioRoute.studio.id} studio={studioRoute.studio} />
+              <StudioPage
+                key={studioRoute.studio.id}
+                studio={studioRoute.studio}
+                lightContent={studioRoute.studio.id === 'pdf' ? <ToolGrid section="pdf" /> : undefined}
+              />
             )
           ) : route === 'noticesssssshotcuts' ? (
             <NoticesPage />

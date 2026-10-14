@@ -126,6 +126,10 @@ Five studios (Docs, Design, Film, Audio, CAD) embed full open-source web apps (M
 | Audio | Audio workstation | Trim, convert, join and improve sound |
 | CAD | CAD drafting | Light drafting board (lines, shapes, text, measure, DXF/SVG/PNG) |
 
+### PDF: Full and Light
+
+The PDF card on the home page opens on the same choice. **Full** is the pdfcraft web app (MIT OR Apache-2.0, built in the same `studios.yml` matrix as id `pdf`, served under `/studio/pdf/`, with Shootcut's name, colours and loading screen, and no community links or upstream logos); **Light** is the PDF tools of this site. It is a hidden entry of `STUDIOS` (`hidden: true`), so it is not a sixth studio and has no card in the Studios block.
+
 ## Deploy to GitHub Pages
 
 1. Push this repository to GitHub (default branch `main`).

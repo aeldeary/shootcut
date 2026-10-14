@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { ArrowLeft, ExternalLink, Gauge, Maximize, RefreshCw, Smartphone, Monitor, Type } from 'lucide-react';
 import { useI18n, type Key } from '../i18n';
 import { TOOLS } from '../lib/tools';
@@ -22,7 +22,7 @@ export function StudiosBlock() {
       <h2 id="studios-title">{t('studiosTitle')}</h2>
       <p className="muted">{t('studiosDesc')}</p>
       <div className="studio-grid">
-        {STUDIOS.map((s) => {
+        {STUDIOS.filter((s) => !s.hidden).map((s) => {
           const Icon = s.icon;
           return (
             <a key={s.id} className="section-card studio-card" href={`#/studio/${s.id}`} data-studio={s.id}>
@@ -48,14 +48,19 @@ type Version = 'full' | 'light';
 function hasGraphics(): boolean {
   try {
     const c = document.createElement('canvas');
-    return !!(c.getContext('webgl2') || c.getContext('webgl'));
+    const gl = (c.getContext('webgl2') || c.getContext('webgl')) as WebGLRenderingContext | null;
+    if (!gl) return false;
+    // A software renderer (SwiftShader, llvmpipe) draws on the processor: the full apps then freeze the whole browser.
+    const info = gl.getExtension('WEBGL_debug_renderer_info');
+    const name = info ? String(gl.getParameter(info.UNMASKED_RENDERER_WEBGL)) : '';
+    return !/swiftshader|llvmpipe|software|basic render/i.test(name);
   } catch {
     return false;
   }
 }
 
 /** A studio's page. The person picks the full or the light version first; nothing opens before that. */
-export function StudioPage({ studio }: { studio: Studio }) {
+export function StudioPage({ studio, lightContent }: { studio: Studio; lightContent?: ReactNode }) {
   const { t } = useI18n();
   const [version, setVersion] = useState<Version | null>(null);
   const phone = looksLikePhone();
@@ -101,7 +106,7 @@ export function StudioPage({ studio }: { studio: Studio }) {
             </button>{' '}
             <strong>{t(version === 'full' ? 'studioFull' : 'studioLight')}</strong>
           </p>
-          {version === 'full' ? <FullList studio={studio} phone={phone} /> : <LightList studio={studio} />}
+          {version === 'full' ? <FullList studio={studio} phone={phone} /> : (lightContent ?? <LightList studio={studio} />)}
         </>
       )}
     </div>

@@ -35,6 +35,7 @@ jobs:
           - { id: effect, repo: effectcraft }
           - { id: sound, repo: soundcraft }
           - { id: cad, repo: cadcraft }
+          - { id: pdf, repo: pdfcraft }
     steps:
       - name: Skip when not selected
         id: pick

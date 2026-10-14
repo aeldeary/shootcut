@@ -1,7 +1,7 @@
-import { FileText, Palette, Clapperboard, AudioLines, DraftingCompass, type LucideIcon } from 'lucide-react';
+import { FileText, FileType2, Palette, Clapperboard, AudioLines, DraftingCompass, type LucideIcon } from 'lucide-react';
 import type { Key } from '../i18n';
 
-export type StudioId = 'docs' | 'design' | 'film' | 'audio' | 'cad';
+export type StudioId = 'docs' | 'design' | 'film' | 'audio' | 'cad' | 'pdf';
 
 /** One embedded web app. `id` is the folder under public/studio and the id in .github/workflows/studios.yml. */
 export interface StudioApp {
@@ -20,6 +20,8 @@ export interface Studio {
   apps: StudioApp[];
   /** Light version: ids of Shootcut tools (see lib/tools.ts) that cover the same job on any device. */
   light: string[];
+  /** Not a card in the Studios block: it is reached from another section (PDF) that offers its Full and Light editions. */
+  hidden?: boolean;
 }
 
 export const STUDIOS: Studio[] = [
@@ -74,6 +76,16 @@ export const STUDIOS: Studio[] = [
     icon: DraftingCompass,
     apps: [{ id: 'cad', repo: 'cadcraft', name: 'appCad', desc: 'appCadDesc' }],
     light: ['cad'],
+  },
+  {
+    // Not a sixth studio: the PDF section offers the full app (this) or the light tools (the section's own tools).
+    id: 'pdf',
+    name: 'sectionPdf',
+    desc: 'sectionPdfDesc',
+    icon: FileType2,
+    apps: [{ id: 'pdf', repo: 'pdfcraft', name: 'appPdf', desc: 'appPdfDesc' }],
+    light: [],
+    hidden: true,
   },
 ];
 
