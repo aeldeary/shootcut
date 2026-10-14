@@ -131,6 +131,9 @@ EDITS = {
         ('src/about.rs', r'\n\s*ui\.add_space\(14\.0\);\n\s*ui\.horizontal\(\|ui\| \{\n\s*// Centre the row of links\..*?\n\s*\}\);\n(?=\s*ui\.add_space\(16\.0\);)', '\n'),
     ],
     'pdfcraft': [
+        # Choosing Prepare a form from All tools detects the fields at once (a file without fields), as the command does
+        ('ui-egui/src/panels.rs', r'(if tool_row\(ui, t, g\)\.clicked\(\) \{\s*app\.select_tool\(g\.id\);)', r'\1\n                if g.id == "form" {\n                    app.execute("form.prepare");\n                }'),
+        ('engine/src/catalog.rs', r'(item\("Detect form fields", "scan", "form\.detect", Ready\),)', r'\1\n                    item("Convert to fillable PDF", "text-cursor-input", "form.convert", Ready),'),
         # One click: open Prepare a form and detect the fields, whether or not the file already has some
         ('engine/src/commands.rs', r'(c\("form\.detect", "Detect form fields", None, None, Modification, "scan"\),)', r'\1\n    c("form.convert", "Convert to fillable PDF (detect the fields automatically)", None, None, Modification, "text-cursor-input"),'),
         ('ui-egui/src/commands.rs', r'"form\.detect" => self\.detect_fields\(\),', '"form.detect" => self.detect_fields(),\n            "form.convert" => {\n                self.left = crate::LeftPanel::Tool("form");\n                self.reveal_tools();\n                self.choose_right_panel(Some(RightPanel::Fields));\n                self.detect_fields();\n            }'),
