@@ -121,7 +121,6 @@ function FullList({ studio, phone }: { studio: Studio; phone: boolean }) {
       {phone && <p className="notice" role="note">{t('studioPhoneWarn')}</p>}
       <ul className="notes">
         <li>{t('studioEnglishNote')}</li>
-        <li>{t('studioAlphaNote')}</li>
         <li>{t('studioLocalNote')}</li>
       </ul>
       <div className="grid">
