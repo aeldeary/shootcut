@@ -599,6 +599,46 @@ def dist_pictures(dist, here):
     return n
 
 
+# Reads the program's WebAssembly from a gzip copy (3-4x smaller than the raw file) and shows the download percentage in
+# the page's loading text. Falls back to the raw file when the browser cannot decompress or the copy is missing.
+FAST_LOADER = (
+    '<script>window.__sw=function(u){var g=u.replace(/\\.wasm(\\?|$)/,".wasm.gz$1"),el=document.querySelector(\'[id$="_loading"] p\'),'
+    'base=el&&el.textContent;function plain(){return fetch(u)}if(typeof DecompressionStream==="undefined")return plain();'
+    'return fetch(g).then(function(r){if(!r.ok||!r.body)return plain();var t=+r.headers.get("content-length")||0,n=0,rd=r.body.getReader();'
+    'var s=new ReadableStream({pull:function(c){return rd.read().then(function(x){if(x.done){c.close();return}n+=x.value.length;'
+    'if(el&&t)el.textContent=base+" "+Math.min(99,Math.round(n*100/t))+"%";c.enqueue(x.value)})},cancel:function(e){return rd.cancel(e)}});'
+    'return new Response(s.pipeThrough(new DecompressionStream("gzip")),{headers:{"content-type":"application/wasm"}})}).catch(plain)};</script>'
+)
+
+
+def speed_up(dist, h):
+    """Writes <app>_bg.wasm.gz next to each raw wasm and points the page at it. The raw file stays (workers use it)."""
+    import gzip
+    wasms = [f for f in os.listdir(dist) if f.endswith('_bg.wasm')]
+    if not wasms:
+        return h
+    for f in wasms:
+        raw = open(os.path.join(dist, f), 'rb').read()
+        with open(os.path.join(dist, f + '.gz'), 'wb') as o:
+            o.write(gzip.compress(raw, 9, mtime=0))
+    n0 = h
+    h = re.sub(r'fetch\((["\'])(\./[\w.-]+_bg\.wasm)\1\)', r'__sw(\1\2\1)', h)
+    h = re.sub(r'(module_or_path\s*:\s*)(["\'])(\./[\w.-]+_bg\.wasm)\2', r'\1__sw(\2\3\2)', h)
+    h = re.sub(r'(module_or_path\s*:\s*)(new URL\((?:"|\')[\w./-]+_bg\.wasm(?:"|\')[^)]*\))', r'\1__sw(\2.href)', h)
+    if re.search(r'const wasmUrl = new URL\((?:"|\')[\w./-]+_bg\.wasm', h):
+        h = h.replace('fetch(wasmUrl)', '__sw(wasmUrl.href)')
+    sw = os.path.join(dist, 'sw.js')
+    if os.path.exists(sw):
+        # the offline cache holds the small copy instead of downloading the raw file a second time
+        t = open(sw, encoding='utf-8').read()
+        open(sw, 'w', encoding='utf-8').write(re.sub(r'"(\./[\w.-]+_bg\.wasm)"', r'"\1.gz"', t))
+    h = re.sub(r'<link[^>]*href="(\./[\w.-]+_bg\.wasm)"[^>]*>', r'<link rel="preload" href="\1.gz" as="fetch" crossorigin="anonymous">', h)
+    if '__sw(' not in h:
+        print('warning: the page does not load its wasm in a form this script knows; the raw file is used')
+        return n0
+    return h.replace('<head>', '<head>\n  ' + FAST_LOADER, 1)
+
+
 def cmd_dist(dist, repo, lang=None):
     idx = os.path.join(dist, 'index.html')
     h = open(idx, encoding='utf-8').read()
@@ -612,6 +652,7 @@ def cmd_dist(dist, repo, lang=None):
                   'Object.defineProperty(navigator,"language",{get:function(){return q}});'
                   'Object.defineProperty(navigator,"languages",{get:function(){return l}});'
                   'document.documentElement.lang=q;if(q==="ar")document.documentElement.dir="rtl"}}catch(e){}</script>', 1)
+    h = speed_up(dist, h)
     open(idx, 'w', encoding='utf-8').write(h)
     here = os.path.dirname(os.path.abspath(__file__))
     svg = os.path.join(here, 'brand', 'favicon.svg')
