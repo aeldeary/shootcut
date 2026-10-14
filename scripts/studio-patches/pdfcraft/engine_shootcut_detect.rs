@@ -102,7 +102,7 @@ mod tests {
             BT /F1 12 Tf 72 560 Td (Address ................................) Tj ET\n\
             72 500 12 12 re S\nBT /F1 12 Tf 90 502 Td (I agree) Tj ET\n";
         let mut s = Session::new().with_clock(|| 1_700_000_000);
-        let id = s.open("table.pdf", None, pdf(content), None).unwrap();
+        let id = s.open("table.pdf", None, std::sync::Arc::new(pdf(content)), None).unwrap();
         let found = s.detect_fields(id, &[]);
         let names: Vec<&str> = found.iter().map(|(_, c)| c.name.as_str()).collect();
         for want in ["Name", "City", "Phone", "I agree"] {
