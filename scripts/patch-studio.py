@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# (rebuild trigger)
 """Gives an upstream app Shootcut's identity before it is compiled.
 
   usage: scripts/patch-studio.py source <source-dir> <repo>     (before the build: Rust sources + catalogs)

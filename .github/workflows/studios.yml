@@ -48,6 +48,8 @@ jobs:
         if: steps.pick.outputs.run == 'yes'
         with:
           repository: storytold/${{ matrix.repo }}
+          # pinned: the patches in scripts/patch-studio.py are written against these commits (the upstream moves, and an unmatched edit stops the build on purpose). To follow upstream, update the pin and the patches together.
+          ref: ${{ fromJSON('{"cad":"e707ab4d7cc10102e550ad4c5bcecef1084a9baa","deck":"457406a7a5b62425e915926c8ccb0984e61a198c","design":"43a46c04bf8cd8c8a48a347f6deaa9613223aa54","effect":"549e9d825132986d6167c1432cd3328efcbb0278","film":"cee1feb185e675a108f78067f71ad86a640ace3d","grid":"84acf6293b1dc1fc09837524e035d674eb4d6741","light":"a4b53b28cc52b68d9f5bdca09fa5666cdad5ad5f","pdf":"c1a41cc5c7c2460fb60af880af69ee28a0c71bd5","photo":"ed7df56a2455375240959bae6e5273a71d858d84","sound":"c0cb99340891d306e216582db465f3594b89dc1d","vector":"a06717777828867557d759c674283304f63c04ae","word":"04f6f53b8a4d8140c7bb62f949b0a6099a473da1"}')[matrix.id] }}
           path: src
           lfs: false
       - name: Rust
