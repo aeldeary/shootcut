@@ -237,7 +237,7 @@ const KEYS_BY_APP: Record<string, Key> = {
 
 /** Runs one built app in a frame, with Shootcut's own toolbar and credit line around it. */
 export function StudioLauncher({ studio, app }: { studio: Studio; app: StudioApp }) {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   // WebGL is the default: WebGPU can hang the whole browser on some machines. The box switches it off.
   const [webgl, setWebgl] = useState(true);
   const [nonce, setNonce] = useState(0);
@@ -246,7 +246,8 @@ export function StudioLauncher({ studio, app }: { studio: Studio; app: StudioApp
   const frame = useRef<HTMLIFrameElement>(null);
   const keys = t(KEYS_BY_APP[app.id] ?? 'studioKeysDefault');
   const lockHint = t('studioLockHint').replace('{keys}', keys);
-  const src = `${studioBase(app.id)}index.html${webgl ? '?webgl' : ''}`;
+  // the program opens in Shootcut's language (?lang=), with WebGL compatibility unless switched off
+  const src = `${studioBase(app.id)}index.html?lang=${lang}${webgl ? '&webgl' : ''}`;
 
   return (
     <div className="studio-launcher">

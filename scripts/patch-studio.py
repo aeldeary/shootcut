@@ -137,6 +137,9 @@ EDITS = {
         # One click: open Prepare a form and detect the fields, whether or not the file already has some
         ('engine/src/commands.rs', r'(c\("form\.detect", "Detect form fields", None, None, Modification, "scan"\),)', r'\1\n    c("form.convert", "Convert to fillable PDF (detect the fields automatically)", None, None, Modification, "text-cursor-input"),'),
         ('ui-egui/src/commands.rs', r'"form\.detect" => self\.detect_fields\(\),', '"form.detect" => self.detect_fields(),\n            "form.convert" => {\n                self.left = crate::LeftPanel::Tool("form");\n                self.reveal_tools();\n                self.choose_right_panel(Some(RightPanel::Fields));\n                self.detect_fields();\n            }'),
+        # The web build opens in the browser's language (Shootcut hands its own over as ?lang=, which the page turns into navigator.language)
+        ('ui-egui/src/i18n/mod.rs', r'(#\[cfg\(target_arch = "wasm32"\)\]\nfn detect_system_lang\(\) -> Lang \{\n)    Lang::EN\n\}',
+         r'\1    let nav = web_sys::window().map(wasm_bindgen::JsValue::from).and_then(|w| js_sys::Reflect::get(&w, &"navigator".into()).ok());\n    let tag = nav.and_then(|n| js_sys::Reflect::get(&n, &"language".into()).ok()).and_then(|v| v.as_string());\n    tag.as_deref().and_then(lang_from_tag).unwrap_or(Lang::EN)\n}'),
         # Acrobat DC: Ctrl+Y also redoes, and Alt+Left / Alt+Right are Previous / Next view
         ('ui-egui/src/canvas.rs', r'(if pressed\(cmd\(Key::CloseBracket\)\) \{\s*view\.view_history\(true\);\s*\})',
          r'\1\n    if pressed(KeyboardShortcut::new(Modifiers::ALT, Key::ArrowLeft)) {\n        view.view_history(false);\n    }\n    if pressed(KeyboardShortcut::new(Modifiers::ALT, Key::ArrowRight)) {\n        view.view_history(true);\n    }'),
@@ -581,6 +584,31 @@ def add_arabic_ui(src):
     return count
 
 
+# Arabic for what Shootcut added to pdfcraft (appended to its own catalog)
+AR_ADDITIONS = {
+    'pdfcraft': [
+        ('Convert to fillable PDF', 'تحويل إلى PDF قابل للتعبئة'),
+        ('Convert to fillable PDF (detect the fields automatically)', 'تحويل إلى PDF قابل للتعبئة (اكتشاف الحقول تلقائيًا)'),
+    ],
+}
+
+
+def add_arabic_strings(src, repo):
+    rows = AR_ADDITIONS.get(repo)
+    if not rows:
+        return
+    p = os.path.join(src, 'crates', 'ui-egui', 'src', 'i18n', 'ar.tsv')
+    if not os.path.isfile(p):
+        sys.exit(f'patch-studio: no Arabic catalog at {p}')
+    t = open(p, encoding='utf-8').read()
+    if not t.endswith('\n'):
+        t += '\n'
+    for en, ar in rows:
+        t += f'\t{en}\t{ar}\n'
+    open(p, 'w', encoding='utf-8').write(t)
+
+
+
 def cmd_source(src, repo):
     FAILED.clear()
     HIT.clear()
@@ -607,6 +635,7 @@ def cmd_source(src, repo):
     add_font_bridge(src, repo)
     add_arabic_ui(src)
     copy_files(src, repo)
+    add_arabic_strings(src, repo)
     pics = replace_pictures(src)
     logos = replace_drawn_logos(src)
     missing = [(repo, i) for i in range(len(EDITS.get(repo, []))) if (repo, i) not in HIT]
