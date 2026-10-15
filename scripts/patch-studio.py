@@ -589,6 +589,9 @@ AR_ADDITIONS = {
     'pdfcraft': [
         ('Convert to fillable PDF', 'تحويل إلى PDF قابل للتعبئة'),
         ('Convert to fillable PDF (detect the fields automatically)', 'تحويل إلى PDF قابل للتعبئة (اكتشاف الحقول تلقائيًا)'),
+        # panel tabs that the upstream catalog leaves in English
+        ('Tools', 'الأدوات'),
+        ('Inspector', 'الخصائص'),
     ],
 }
 
