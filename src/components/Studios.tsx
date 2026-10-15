@@ -270,7 +270,10 @@ export function StudioLauncher({ studio, app }: { studio: Studio; app: StudioApp
   const keys = t(KEYS_BY_APP[app.id] ?? 'studioKeysDefault');
   const lockHint = t('studioLockHint').replace('{keys}', keys);
   // the program opens in the chosen language (?lang=), else Shootcut's, with WebGL compatibility unless switched off
-  const src = `${studioBase(app.id)}index.html?lang=${choice === 'site' ? lang : choice}${webgl ? '&webgl' : ''}`;
+  // only Documents (and the PDF editor) are translated; the Design, Video editing, Audio and Engineering programs stay in English
+  const translated = studio.id === 'docs' || studio.id === 'pdf';
+  const programLang = !translated ? 'en' : choice === 'site' ? lang : choice;
+  const src = `${studioBase(app.id)}index.html?lang=${programLang}${webgl ? '&webgl' : ''}`;
 
   return (
     <div className="studio-launcher">
@@ -280,7 +283,7 @@ export function StudioLauncher({ studio, app }: { studio: Studio; app: StudioApp
         </a>
         <strong dir="auto">{t(app.name)}</strong>
         <span className="launcher-actions">
-          <label className="check">
+          {translated && <label className="check">
             {t('studioLang')}
             <select
               value={choice}
@@ -295,7 +298,7 @@ export function StudioLauncher({ studio, app }: { studio: Studio; app: StudioApp
               <option value="ar">العربية</option>
               <option value="en">English</option>
             </select>
-          </label>
+          </label>}
           <label className="check">
             <input
               type="checkbox"

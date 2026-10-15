@@ -99,6 +99,14 @@ describe('Studios', () => {
     expect(document.querySelector('.fs-callout')!.textContent).toContain('new drawing');
   });
 
+  it('the untranslated studios open in English and have no language menu', async () => {
+    stubFetchPublished();
+    const studio = findStudio('film')!;
+    wrap(<StudioLauncher studio={studio} app={studio.apps[0]} />);
+    expect(document.querySelector('iframe')!.getAttribute('src')).toContain('lang=en');
+    expect(screen.queryByRole('combobox')).toBeNull();
+  });
+
   it('the launcher frames the built app with the right sandbox and credit', async () => {
     stubFetchPublished();
     const studio = findStudio('docs')!;
