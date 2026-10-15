@@ -107,6 +107,12 @@ describe('Studios', () => {
     // compatibility mode (WebGL) is on by default; the box turns it off
     expect(frame.getAttribute('src')).toBe('./studio/word/index.html?lang=en&webgl');
     expect(frame.getAttribute('sandbox')).toContain('allow-same-origin');
+    // the person picks the program's language: it follows, and is remembered
+    fireEvent.change(screen.getByRole('combobox'), { target: { value: 'ar' } });
+    expect(document.querySelector('iframe')!.getAttribute('src')).toBe('./studio/word/index.html?lang=ar&webgl');
+    expect(localStorage.getItem('shootcut-program-lang')).toBe('ar');
+    fireEvent.change(screen.getByRole('combobox'), { target: { value: 'site' } });
+    expect(localStorage.getItem('shootcut-program-lang')).toBeNull();
     fireEvent.click(screen.getByRole('checkbox'));
     expect(document.querySelector('iframe')!.getAttribute('src')).toBe('./studio/word/index.html?lang=en');
     // no source names anywhere on the launcher

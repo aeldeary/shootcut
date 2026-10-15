@@ -235,19 +235,42 @@ const KEYS_BY_APP: Record<string, Key> = {
   cad: 'studioKeys_cad',
 };
 
+type ProgramLang = 'site' | 'ar' | 'en';
+const PROGRAM_LANG_KEY = 'shootcut-program-lang';
+
+function readProgramLang(): ProgramLang {
+  try {
+    const v = localStorage.getItem(PROGRAM_LANG_KEY);
+    return v === 'ar' || v === 'en' ? v : 'site';
+  } catch {
+    return 'site';
+  }
+}
+
+function saveProgramLang(v: ProgramLang): void {
+  try {
+    if (v === 'site') localStorage.removeItem(PROGRAM_LANG_KEY);
+    else localStorage.setItem(PROGRAM_LANG_KEY, v);
+  } catch {
+    /* storage blocked: the choice lasts until the page closes */
+  }
+}
+
 /** Runs one built app in a frame, with Shootcut's own toolbar and credit line around it. */
 export function StudioLauncher({ studio, app }: { studio: Studio; app: StudioApp }) {
   const { t, lang } = useI18n();
   // WebGL is the default: WebGPU can hang the whole browser on some machines. The box switches it off.
   const [webgl, setWebgl] = useState(true);
+  // the person's own choice of the program's language, kept in this browser; "site" follows the site's language
+  const [choice, setChoice] = useState<ProgramLang>(readProgramLang);
   const [nonce, setNonce] = useState(0);
   const [loaded, setLoaded] = useState(false);
   const [fontsOpen, setFontsOpen] = useState(false);
   const frame = useRef<HTMLIFrameElement>(null);
   const keys = t(KEYS_BY_APP[app.id] ?? 'studioKeysDefault');
   const lockHint = t('studioLockHint').replace('{keys}', keys);
-  // the program opens in Shootcut's language (?lang=), with WebGL compatibility unless switched off
-  const src = `${studioBase(app.id)}index.html?lang=${lang}${webgl ? '&webgl' : ''}`;
+  // the program opens in the chosen language (?lang=), else Shootcut's, with WebGL compatibility unless switched off
+  const src = `${studioBase(app.id)}index.html?lang=${choice === 'site' ? lang : choice}${webgl ? '&webgl' : ''}`;
 
   return (
     <div className="studio-launcher">
@@ -257,6 +280,22 @@ export function StudioLauncher({ studio, app }: { studio: Studio; app: StudioApp
         </a>
         <strong dir="auto">{t(app.name)}</strong>
         <span className="launcher-actions">
+          <label className="check">
+            {t('studioLang')}
+            <select
+              value={choice}
+              onChange={(e) => {
+                const v = e.target.value as ProgramLang;
+                setChoice(v);
+                saveProgramLang(v);
+                setLoaded(false);
+              }}
+            >
+              <option value="site">{t('studioLangSite')}</option>
+              <option value="ar">العربية</option>
+              <option value="en">English</option>
+            </select>
+          </label>
           <label className="check">
             <input
               type="checkbox"

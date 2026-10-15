@@ -2720,3 +2720,8 @@ button.version-card .tag {
   50% { box-shadow: 0 0 0 8px rgb(215 25 32 / 0%); }
 }
 @media (prefers-reduced-motion: reduce) { .fs-attn { animation: none; } }
+.launcher-actions .check select {
+  margin-inline-start: 6px;
+  padding-block: 4px;
+  width: auto;
+}
