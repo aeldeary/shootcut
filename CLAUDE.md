@@ -28,3 +28,5 @@ Whenever a feature is added, changed or removed, update the Features page in the
 - Arabic (RTL) and English (LTR) must both work; add every string to `src/i18n.tsx` in both blocks.
 - No third-party network requests. Everything runs in the browser.
 - Shortcuts match `KeyboardEvent.code` (layout independent); Ctrl on Windows, Command on Mac.
+
+- Documents studio in Arabic: Docs (wordcraft) gets `ar.tsv` + `bidi.rs` (`scripts/studio-patches/wordcraft/`, registered by EDITS in `i18n/mod.rs`), Sheets (gridcraft) gets `i18n/ar.rs` + `bidi.rs`, Slides (deckcraft) has no i18n so `patch-studio.py` `deck_wrap` routes labels through `ui-egui/src/ar.rs` (table + `t`/`tb`). Catalog sources must equal the patched English text (names are cleaned first). When a pinned sha moves, re-extract the English strings and translate the new ones. The language comes from `?lang=` (page script sets `navigator.language`). Design, Video editing, Audio and Engineering stay English.

@@ -84,12 +84,45 @@ ENTRY_DROP = [
 EDITS = {
     'deckcraft': [
         ('fonts/build.rs', r'if wasm && !matches!\(', 'if wasm && !scripts.split(\',\').any(|s| s.trim() == "Arab") && !matches!('),
+        # Arabic interface: labels go through crate::ar (table, COPIES), widgets translate their own labels
+        ('src/lib.rs', r'pub mod backstage;', 'pub mod backstage;\nmod ar;\nmod bidi;'),
+        ('src/widgets.rs', r'(pub fn big_button_ex\([^)]*\) -> [^{]*\{\n)', r'\1    let label = crate::ar::tb(label);\n'),
+        ('src/widgets.rs', r'(pub fn small_button_ex\([^)]*\) -> [^{]*\{\n)', r'\1    let label = crate::ar::t(label);\n'),
+        ('src/ribbon.rs', r'(fn tip\(id: &str, label: &str\) -> String \{\n)', r'\1    let label = crate::ar::t(label);\n'),
+        ('src/ribbon.rs', r'layout_no_wrap\("File"\.to_string\(\)', 'layout_no_wrap(crate::ar::t("File").to_string()'),
+        ('src/ribbon.rs', r'Align2::CENTER_CENTER, "File", theme::font', 'Align2::CENTER_CENTER, crate::ar::t("File"), theme::font'),
+        ('src/ribbon.rs', r'layout_no_wrap\(name\.to_string\(\), font\.clone\(\), t\.text\)', 'layout_no_wrap(crate::ar::t(name).to_string(), font.clone(), t.text)'),
+        ('src/ribbon.rs', r'Align2::CENTER_CENTER, name, f, col\)', 'Align2::CENTER_CENTER, crate::ar::t(name), f, col)'),
+        ('src/dialogs.rs', r'egui::Window::new\(title\(&d\.id\)\)', 'egui::Window::new(crate::ar::t(title(&d.id)))'),
+        ('src/status.rs', r'format!\("Slide \{\} of \{\}", ([^;]*?), n\)', r'crate::ar::slide_of(\1, n)'),
+        ('src/status.rs', r'"Slide Master"\.to_string\(\)', 'crate::ar::t("Slide Master").to_string()'),
+        ('src/status.rs', r'Align2::LEFT_CENTER, "English \(United States\)"', 'Align2::LEFT_CENTER, crate::ar::t("English (United States)")'),
     ],
     'wordcraft': [
         # Arabic: the craft-fonts Arabic face is a document font too (it was only the interface's), so Arabic text has glyphs
         ('fonts/src/fontdb.rs', r'\.chain\(crate::chinese_fonts\(\)\)\.map\(\|f\| f\.bytes\);', '.chain(crate::chinese_fonts()).chain(crate::CRAFT_FONTS.iter().filter(|f| f.scripts.contains(&"Arab"))).map(|f| f.bytes);'),
         ('fonts/build.rs', r'if wasm && !\(\*family == "BIZ UDPGothic" && \*style == "Regular"\) \{', 'if wasm && !(*family == "BIZ UDPGothic" && *style == "Regular") && !scripts.split(\',\').any(|s| s.trim() == "Arab") {'),
         ('src/backstage.rs', r',\s*\("Discord community", "discord"\)', ''),
+        # Arabic interface: the catalog (COPIES), the registry row, and display order for right-to-left text
+        ('src/lib.rs', r'pub mod a11y;', 'pub mod a11y;\npub mod bidi;'),
+        ('src/i18n/mod.rs', r'LANGUAGES: \[LangInfo; 19\]', 'LANGUAGES: [LangInfo; 20]'),
+        ('src/i18n/mod.rs', r'(code: "bg",.*?catalog: OnceLock::new\(\),?\s*\},\s*)\];',
+         r'\1LangInfo { code: "ar", name: "العربية", source: include_str!("ar.tsv"), prefer_hans: false, editing_lang: None, catalog: OnceLock::new() },\n];'),
+        ('src/i18n/mod.rs', r'let \(catalog, errors\) = Catalog::parse\(self\.source\);',
+         'let (mut catalog, errors) = Catalog::parse(self.source);\n            if self.code == "ar" {\n                catalog.map_translations(crate::bidi::display_rtl);\n            }'),
+        ('src/i18n/catalog.rs', r'    pub fn plain\(&self, s: &str\)',
+         '    /// Rewrite every translation, e.g. into display order for a right-to-left language.\n    pub fn map_translations(&mut self, f: impl Fn(&str) -> String) {\n        for translation in self.plain.values_mut().chain(self.contextual.values_mut()) {\n            *translation = f(translation);\n        }\n    }\n\n    pub fn plain(&self, s: &str)'),
+    ],
+    'gridcraft': [
+        # Arabic interface: the table (COPIES), the language, and display order for right-to-left text
+        ('src/lib.rs', r'pub mod backstage;', 'pub mod backstage;\npub mod bidi;'),
+        ('src/i18n.rs', r'\nmod cs;', '\nmod ar;\nmod cs;'),
+        ('src/i18n.rs', r'    Sr,\n\}', '    Sr,\n    Ar,\n}'),
+        ('src/i18n.rs', r'ALL: \[Self; 11\] = (\[.*?)Self::Sr\];', r'ALL: [Self; 12] = \1Self::Sr, Self::Ar];'),
+        ('src/i18n.rs', r'(Self::Sr => "Srpski",)', r'\1\n            Self::Ar => "العربية",'),
+        ('src/i18n.rs', r'(Self::Sr => "sr",)', r'\1\n            Self::Ar => "ar",'),
+        ('src/i18n.rs', r'("sr" => Some\(Self::Sr\),)', r'\1\n            "ar" => Some(Self::Ar),'),
+        ('src/i18n.rs', r'(Self::Sr => sr::translate\(text\),)', r'\1\n            Self::Ar => ar::translate(text),'),
     ],
     'photocraft': [
         ('src/panels.rs', r'const DISCORD_ROOM: f32 = [\d.]+;', 'const DISCORD_ROOM: f32 = 1.0e9;'),
@@ -493,11 +526,83 @@ def patch_json(path):
 #        file that declares the modules, file whose WebLogger line starts the app)
 # Whole files copied into an app's sources (after the Rust files are cleaned): (path in the app, file in scripts/studio-patches)
 COPIES = {
+    'deckcraft': [
+        ('crates/ui-egui/src/ar.rs', 'deckcraft/ar.rs'),
+        ('crates/ui-egui/src/bidi.rs', 'deckcraft/bidi.rs'),
+    ],
+    'gridcraft': [
+        ('crates/ui-egui/src/i18n/ar.rs', 'gridcraft/ar.rs'),
+        ('crates/ui-egui/src/bidi.rs', 'gridcraft/bidi.rs'),
+    ],
+    'wordcraft': [
+        ('crates/ui-egui/src/i18n/ar.tsv', 'wordcraft/ar.tsv'),
+        ('crates/ui-egui/src/bidi.rs', 'wordcraft/bidi.rs'),
+    ],
     'pdfcraft': [
         ('crates/forms/src/shootcut_detect.rs', 'pdfcraft/forms_shootcut_detect.rs'),
         ('crates/engine/src/shootcut_detect.rs', 'pdfcraft/engine_shootcut_detect.rs'),
     ],
 }
+
+
+# ---- DeckCraft has no translation system: labels are wrapped to go through crate::ar (Arabic table) ----
+_L = r'"(?:[^"\\\n]|\\.)*"'
+_NOWRAP = r'(?!(?:big|small|toggle|big_button|big_button_ex|small_button|small_button_ex|icon_toggle)\b)'
+DECK_WRAP = [
+    re.compile(r'(\.(?:label|button|heading|small_button|menu_button|on_hover_text|on_disabled_hover_text|collapsing|strong|weak|hint_text)\(\s*)(' + _L + r')(?=\s*[,)])'),
+    re.compile(r'((?:RichText|Label|Button|Checkbox)::new\(\s*)(' + _L + r')(?=\s*[,)])'),
+    re.compile(r'(\.(?:checkbox|selectable_label|radio|toggle_value)\([^;"]*?,\s*)(' + _L + r')(?=\s*\))'),
+    re.compile(r'(\.(?:selectable_value|radio_value)\([^;"]*?,[^;",]+,\s*)(' + _L + r')(?=\s*\))'),
+    re.compile(r'(\b(?:field|check)\(\s*ui,\s*d,\s*)(' + _L + r')(?=\s*,)'),
+    re.compile(r'(\b' + _NOWRAP + r'\w+\([^;"]*?Icon::\w+,\s*)(' + _L + r')(?=\s*[,)])'),
+]
+# labels that the widgets translate themselves (big_button_ex, small_button_ex, tip)
+DECK_OWN = re.compile(r'\b(?:big|small|toggle|big_button|big_button_ex|small_button|small_button_ex|icon_toggle)\(\s*[^;"]*?Icon::\w+,\s*(' + _L + r')')
+
+
+def deck_wrap(txt, found=None):
+    for rx in DECK_WRAP:
+        def sub(m):
+            if found is not None:
+                found.append(m.group(2))
+            return m.group(1) + 'crate::ar::t(' + m.group(2) + ')'
+        txt = rx.sub(sub, txt)
+    if found is not None:
+        found.extend(m.group(1) for m in DECK_OWN.finditer(txt))
+    return txt
+
+
+def add_deck_arabic(src, repo):
+    if repo != 'deckcraft':
+        return
+    ui = os.path.join(src, 'crates', 'ui-egui', 'src')
+    for f in sorted(os.listdir(ui)):
+        if not f.endswith('.rs') or 'tests' in f or f.startswith('shootcut') or f in ('ar.rs', 'bidi.rs'):
+            continue
+        p = os.path.join(ui, f)
+        a = open(p, encoding='utf-8').read()
+        b = deck_wrap(a)
+        if b != a:
+            open(p, 'w', encoding='utf-8').write(b)
+
+
+# crates that the added Arabic code needs (the version is already in the app's workspace)
+UI_DEPS = {'wordcraft': 'unicode-bidi = { workspace = true }', 'gridcraft': 'unicode-bidi = "0.3"', 'deckcraft': 'unicode-bidi = { workspace = true }'}
+
+
+def add_ui_deps(src, repo):
+    dep = UI_DEPS.get(repo)
+    if not dep:
+        return
+    p = os.path.join(src, 'crates', 'ui-egui', 'Cargo.toml')
+    c = open(p, encoding='utf-8').read()
+    name = dep.split('=')[0].strip()
+    if re.search(r'^' + re.escape(name) + r'\s*=', c, re.M):
+        return
+    c, k = re.subn(r'^(\[dependencies\]\n)', lambda m: m.group(1) + dep + '\n', c, count=1, flags=re.M)
+    if not k:
+        sys.exit(f'patch-studio: no [dependencies] table in {p}')
+    open(p, 'w', encoding='utf-8').write(c)
 
 
 def copy_files(src, repo):
@@ -638,6 +743,8 @@ def cmd_source(src, repo):
     add_font_bridge(src, repo)
     add_arabic_ui(src)
     copy_files(src, repo)
+    add_ui_deps(src, repo)
+    add_deck_arabic(src, repo)
     add_arabic_strings(src, repo)
     pics = replace_pictures(src)
     logos = replace_drawn_logos(src)

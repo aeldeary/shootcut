@@ -120,7 +120,7 @@ function FullList({ studio, phone }: { studio: Studio; phone: boolean }) {
       <h2 id="studio-apps">{t('studioApps')}</h2>
       {phone && <p className="notice" role="note">{t('studioPhoneWarn')}</p>}
       <ul className="notes">
-        <li>{t('studioEnglishNote')}</li>
+        <li>{t(studio.id === 'docs' ? 'studioDocsLangNote' : 'studioEnglishNote')}</li>
         <li>{t('studioLocalNote')}</li>
       </ul>
       <div className="grid">
