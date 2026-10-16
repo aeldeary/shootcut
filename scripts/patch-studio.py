@@ -104,6 +104,9 @@ EDITS = {
         ('fonts/build.rs', r'if wasm && !\(\*family == "BIZ UDPGothic" && \*style == "Regular"\) \{', 'if wasm && !(*family == "BIZ UDPGothic" && *style == "Regular") && !scripts.split(\',\').any(|s| s.trim() == "Arab") {'),
         ('src/backstage.rs', r',\s*\("Discord community", "discord"\)', ''),
         # Arabic interface: the catalog (COPIES), the registry row, and display order for right-to-left text
+        ('src/backstage.rs', r'"Good morning"', 'tl!("Good morning")'),
+        ('src/backstage.rs', r'"Good afternoon"', 'tl!("Good afternoon")'),
+        ('src/backstage.rs', r'"Good evening"', 'tl!("Good evening")'),
         ('src/lib.rs', r'pub mod a11y;', 'pub mod a11y;\npub mod bidi;'),
         ('src/i18n/mod.rs', r'LANGUAGES: \[LangInfo; 19\]', 'LANGUAGES: [LangInfo; 20]'),
         ('src/i18n/mod.rs', r'(code: "bg",.*?catalog: OnceLock::new\(\),?\s*\},\s*)\];',
@@ -115,6 +118,8 @@ EDITS = {
     ],
     'gridcraft': [
         # Arabic interface: the table (COPIES), the language, and display order for right-to-left text
+        ('src/ribbon.rs', r'RichText::new\("AutoSave"\)', 'RichText::new(app.ui.language.tr("AutoSave"))'),
+        ('src/ribbon.rs', r'on_hover_text\("AutoSave: save after every change \(workbooks saved to a file\)"\)', 'on_hover_text(app.ui.language.tr("AutoSave: save after every change (workbooks saved to a file)"))'),
         ('src/lib.rs', r'pub mod backstage;', 'pub mod backstage;\npub mod bidi;'),
         ('src/i18n.rs', r'\nmod cs;', '\nmod ar;\nmod cs;'),
         ('src/i18n.rs', r'    Sr,\n\}', '    Sr,\n    Ar,\n}'),

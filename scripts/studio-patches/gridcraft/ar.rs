@@ -7,6 +7,8 @@ use std::collections::HashMap;
 use std::sync::OnceLock;
 
 const TABLE: &[(&str, &str)] = &[
+    ("AutoSave", "حفظ تلقائي"),
+    ("AutoSave: save after every change (workbooks saved to a file)", "حفظ تلقائي: حفظ بعد كل تغيير (للمصنفات المحفوظة في ملف)"),
     ("Different First Page", "صفحة أولى مختلفة"),
     ("Different Odd & Even Pages", "صفحات فردية وزوجية مختلفة"),
     ("Paste", "لصق"),
