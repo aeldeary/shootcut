@@ -3855,3 +3855,5 @@ button,
     order: -1;
   }
 }
+
+.hero-headline .hero-line { display: block; }

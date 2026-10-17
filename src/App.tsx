@@ -151,7 +151,15 @@ function Home() {
         <div className="container hero-inner">
           <div className="hero-copy">
             <PrivacyBadge />
-            <h1 className="hero-headline">{t('tagline')}</h1>
+            <h1 className="hero-headline">
+              {t('tagline')
+                .split(/(?<=[,،.])\s+/)
+                .map((line, i) => (
+                  <span key={i} className="hero-line">
+                    {line}
+                  </span>
+                ))}
+            </h1>
             <h2 dir="ltr" className="sr-only">
               {t('appName')}
             </h2>
