@@ -83,15 +83,20 @@ describe('tool bar', () => {
   it('shows the groups as headings and opens a menu with that group\'s tools', () => {
     wrap(<Header showBack activeId="organize" section="pdf" />);
     const nav = screen.getByRole('navigation', { name: 'All tools' });
-    expect(nav.querySelectorAll('button')).toHaveLength(5);
+    expect(nav.querySelectorAll('button')).toHaveLength(6);
     expect(nav.querySelectorAll('a')).toHaveLength(4); // the four sections
-    const heading = screen.getByRole('button', { name: /Create/ });
+    // the open tool's own group is marked, and its menu marks the tool
+    const heading = screen.getByRole('button', { name: /Organize pages/ });
     expect(heading.className).toContain('is-here');
     fireEvent.click(heading);
     const menu = screen.getByRole('menu');
-    expect(menu.querySelector('a[href="#/merge"]')?.textContent).toContain('Merge');
     expect(menu.querySelector('[aria-current="page"]')?.textContent).toContain('Organize');
     expect(heading.getAttribute('aria-expanded')).toBe('true');
+    // another group opens its own tools
+    const create = screen.getByRole('button', { name: /Create/ });
+    expect(create.className).not.toContain('is-here');
+    fireEvent.click(create);
+    expect(screen.getByRole('menu').querySelector('a[href="#/merge"]')?.textContent).toContain('Merge');
   });
   it('closes with Escape, with a second click and after picking a tool', () => {
     wrap(<Header showBack activeId="organize" section="pdf" />);

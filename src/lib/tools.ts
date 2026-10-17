@@ -60,7 +60,7 @@ import {
 import type { Key } from '../i18n';
 
 export type SectionId = 'pdf' | 'image' | 'video' | 'office';
-export type GroupId = 'view' | 'create' | 'forms' | 'review' | 'protect' | 'imgOptimize' | 'imgEdit' | 'imgConvert' | 'imgCreate' | 'imgPrivacy' | 'vidFormat' | 'vidEdit' | 'vidExtract' | 'audio' | 'sheets' | 'slides' | 'cad';
+export type GroupId = 'view' | 'create' | 'pages' | 'forms' | 'review' | 'protect' | 'imgOptimize' | 'imgEdit' | 'imgConvert' | 'imgCreate' | 'imgPrivacy' | 'vidFormat' | 'vidEdit' | 'vidExtract' | 'audio' | 'sheets' | 'slides' | 'cad';
 
 /** The three parts of the site, chosen first on the home page. */
 export const SECTIONS: { id: SectionId; title: Key; desc: Key; icon: LucideIcon }[] = [
@@ -84,19 +84,12 @@ export const WHATS_NEW: { id: string; kind: 'new' | 'updated'; note: Key }[] = [
   { id: 'cad', kind: 'new', note: 'newCad' },
   { id: 'sheet', kind: 'new', note: 'newSheet' },
   { id: 'slides', kind: 'new', note: 'newSlides' },
-  { id: 'aud-polish', kind: 'new', note: 'newAudio' },
-  { id: 'aud-trim', kind: 'new', note: 'newAudio' },
-  { id: 'pdf-layout', kind: 'new', note: 'newPdfLayout' },
-  { id: 'pdf-clean', kind: 'new', note: 'newPdfClean' },
-  { id: 'pdf-a11y', kind: 'new', note: 'newPdfA11y' },
-  { id: 'redact', kind: 'updated', note: 'newRedact' },
-  { id: 'organize', kind: 'updated', note: 'newOrganize' },
-  { id: 'stamp', kind: 'updated', note: 'newStamp' },
 ];
 
 export const GROUPS: { id: GroupId; title: Key; section: SectionId }[] = [
   { id: 'view', title: 'groupView', section: 'pdf' },
   { id: 'create', title: 'groupCreate', section: 'pdf' },
+  { id: 'pages', title: 'groupPages', section: 'pdf' },
   { id: 'forms', title: 'groupForms', section: 'pdf' },
   { id: 'review', title: 'groupReview', section: 'pdf' },
   { id: 'protect', title: 'groupProtect', section: 'pdf' },
@@ -132,14 +125,14 @@ export const TOOLS: ToolDef[] = [
   { id: 'share', group: 'view', icon: Share2, name: 'toolShare', desc: 'toolShareDesc', status: 'ready' },
   { id: 'create', group: 'create', icon: FilePlus2, name: 'toolCreate', desc: 'toolCreateDesc', status: 'ready' },
   { id: 'merge', group: 'create', icon: Combine, name: 'toolMerge', desc: 'toolMergeDesc', status: 'ready' },
-  { id: 'organize', group: 'create', icon: LayoutGrid, name: 'toolOrganize', desc: 'toolOrganizeDesc', status: 'ready' },
+  { id: 'organize', group: 'pages', icon: LayoutGrid, name: 'toolOrganize', desc: 'toolOrganizeDesc', status: 'ready' },
   { id: 'export', group: 'create', icon: FileImage, name: 'toolExport', desc: 'toolExportDesc', status: 'ready' },
   { id: 'convert', group: 'create', icon: FileOutput, name: 'toolConvert', desc: 'toolConvertDesc', status: 'ready' },
   { id: 'ocr', group: 'create', icon: ScanText, name: 'toolOcr', desc: 'toolOcrDesc', status: 'ready' },
-  { id: 'pdf-split', group: 'create', icon: Split, name: 'toolPdfSplit', desc: 'toolPdfSplitDesc', status: 'ready' },
-  { id: 'pdf-extract', group: 'create', icon: ListChecks, name: 'toolPdfExtract', desc: 'toolPdfExtractDesc', status: 'ready' },
-  { id: 'pdf-crop', group: 'create', icon: Crop, name: 'toolPdfCrop', desc: 'toolPdfCropDesc', status: 'ready' },
-  { id: 'pdf-layout', group: 'create', icon: BookCopy, name: 'toolPdfLayout', desc: 'toolPdfLayoutDesc', status: 'ready' },
+  { id: 'pdf-split', group: 'pages', icon: Split, name: 'toolPdfSplit', desc: 'toolPdfSplitDesc', status: 'ready' },
+  { id: 'pdf-extract', group: 'pages', icon: ListChecks, name: 'toolPdfExtract', desc: 'toolPdfExtractDesc', status: 'ready' },
+  { id: 'pdf-crop', group: 'pages', icon: Crop, name: 'toolPdfCrop', desc: 'toolPdfCropDesc', status: 'ready' },
+  { id: 'pdf-layout', group: 'pages', icon: BookCopy, name: 'toolPdfLayout', desc: 'toolPdfLayoutDesc', status: 'ready' },
   { id: 'pdf-clean', group: 'protect', icon: BrushCleaning, name: 'toolPdfClean', desc: 'toolPdfCleanDesc', status: 'ready' },
   { id: 'pdf-a11y', group: 'review', icon: Accessibility, name: 'toolPdfA11y', desc: 'toolPdfA11yDesc', status: 'ready' },
   { id: 'pdf-repair', group: 'protect', icon: Wrench, name: 'toolPdfRepair', desc: 'toolPdfRepairDesc', status: 'ready' },

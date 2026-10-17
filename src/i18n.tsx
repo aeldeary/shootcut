@@ -17,7 +17,7 @@ const en = {
   soon: 'Soon',
   ready: 'Ready',
 
-  groupCreate: 'Create & organize',
+  groupCreate: 'Create & convert',
   groupForms: 'Forms',
   groupReview: 'Review & sign',
   groupProtect: 'Protect & optimize',
@@ -28,6 +28,16 @@ const en = {
   sectionVideo: 'Video & audio',
   sectionVideoDesc: 'Compress, trim, convert and join video and sound.',
   sectionsNav: 'Sections',
+  searchLabel: 'Search the tools',
+  searchPlaceholder: 'Search a tool: compress, merge, trim…',
+  searchClear: 'Clear the search',
+  searchCount: '{n} results',
+  searchNone: 'Nothing matches “{q}”. Try another word, or open a section below.',
+  searchRefine: 'Showing the first {n}. Add a word to narrow it down.',
+  sectionStudiosTitle: 'Full professional programs',
+  sectionStudiosDesc: 'Bigger programs for the same kind of work. They suit computers best.',
+  studioEdition: 'Version',
+  groupPages: 'Organize pages',
   groupImgOptimize: 'Optimize',
   groupImgEdit: 'Edit',
   groupImgConvert: 'Convert',
@@ -291,8 +301,6 @@ const en = {
   removeSuffix: '-removed',
   cropUnit: 'Margins to cut, in millimetres, as you see the page.',
   cropFrameLabel: 'Area to keep',
-  studiosTitle: 'Studios',
-  studiosDesc: 'Full professional apps for documents, design, film, sound and engineering. They run in your browser and nothing is uploaded.',
   studioDocs: 'Documents',
   studioDocsDesc: 'Word processor, spreadsheets and presentations.',
   studioDesign: 'Design',
@@ -327,7 +335,6 @@ const en = {
   appCadDesc: 'Precise technical drawings.',
   appPdf: 'PDF editor',
   appPdfDesc: 'Read, edit, annotate, fill, sign, organise and protect PDF files in one full app.',
-  studioChoose: 'Which version do you want?',
   studioFull: 'Full version',
   studioFullDesc: 'The complete professional app. A large download the first time; best on a computer.',
   studioLight: 'Light version',
@@ -350,7 +357,6 @@ const en = {
   studioKeys_effect: 'Ctrl+N (new composition), Ctrl+Shift+N (new layer), Ctrl+T (type tool) and Ctrl+Shift+W (close all)',
   studioKeys_sound: 'Ctrl+N (new session), Ctrl+Shift+N (new tracks), Ctrl+T (trim to selection) and Ctrl+Shift+W (close session)',
   studioKeys_cad: 'Ctrl+N (new drawing) and Ctrl+W',
-  studioChange: 'Change version',
   studioPhoneWarn: 'This looks like a phone or tablet. The full version is heavy, drawn on a single canvas and hard to use by touch, so the light version suits this device better.',
   studioApps: 'Apps',
   studioLightTools: 'Light tools',
@@ -1046,8 +1052,6 @@ const en = {
   inspectPreview: 'All pages',
   navFeatures: 'Features',
   featuresNotice: 'Read the features first, so you know everything the site can do before you start.',
-  homeFeatures: 'Site features',
-  homeFeaturesDesc: 'Read what every tool can do, and the keyboard shortcuts, before you start.',
   featuresTitle: 'What you can do here',
   featuresLead: 'Everything the site offers, tool by tool, and the keyboard shortcuts.',
   featuresGeneral: 'Across the whole site',
@@ -1181,7 +1185,7 @@ const ar: Record<Key, string> = {
   soon: 'قريباً',
   ready: 'جاهز',
 
-  groupCreate: 'إنشاء وتنظيم',
+  groupCreate: 'إنشاء وتحويل',
   groupForms: 'النماذج',
   groupReview: 'المراجعة والتوقيع',
   groupProtect: 'الحماية والتحسين',
@@ -1192,6 +1196,16 @@ const ar: Record<Key, string> = {
   sectionVideo: 'الفيديو والصوت',
   sectionVideoDesc: 'اضغط الفيديو والصوت وقصّهما وحوّل صيغتهما وادمجهما.',
   sectionsNav: 'الأقسام',
+  searchLabel: 'ابحث في الأدوات',
+  searchPlaceholder: 'ابحث عن أداة: ضغط، دمج، قص…',
+  searchClear: 'مسح البحث',
+  searchCount: '{n} نتيجة',
+  searchNone: 'لا شيء يطابق «{q}». جرّب كلمة أخرى، أو افتح أحد الأقسام أدناه.',
+  searchRefine: 'تظهر أول {n} نتيجة. أضف كلمة لتضييق البحث.',
+  sectionStudiosTitle: 'برامج احترافية كاملة',
+  sectionStudiosDesc: 'برامج أكبر للنوع نفسه من العمل، والأنسب لها الحاسوب.',
+  studioEdition: 'النسخة',
+  groupPages: 'تنظيم الصفحات',
   groupImgOptimize: 'ضغط وتحسين',
   groupImgEdit: 'تعديل',
   groupImgConvert: 'تحويل',
@@ -1455,8 +1469,6 @@ const ar: Record<Key, string> = {
   removeSuffix: '-بعد-الحذف',
   cropUnit: 'الهوامش المراد قصّها بالمليمتر، كما ترى الصفحة.',
   cropFrameLabel: 'المنطقة المراد الإبقاء عليها',
-  studiosTitle: 'الاستوديوهات',
-  studiosDesc: 'تطبيقات احترافية كاملة للمستندات والتصميم والمونتاج والصوت والهندسة. تعمل داخل متصفحك ولا يُرفع أي شيء.',
   studioDocs: 'المستندات',
   studioDocsDesc: 'معالج نصوص وجداول بيانات وعروض تقديمية.',
   studioDesign: 'التصميم',
@@ -1491,7 +1503,6 @@ const ar: Record<Key, string> = {
   appCadDesc: 'رسومات فنية دقيقة.',
   appPdf: 'محرّر PDF',
   appPdfDesc: 'اقرأ ملفات PDF وعدّلها وعلّق عليها واملأها ووقّعها ونظّمها واحمها في تطبيق كامل واحد.',
-  studioChoose: 'أي نسخة تريد؟',
   studioFull: 'النسخة الكاملة',
   studioFullDesc: 'التطبيق الاحترافي كاملاً. تنزيل كبير في أول مرة، والأفضل استخدامه على الحاسوب.',
   studioLight: 'النسخة الخفيفة',
@@ -1514,7 +1525,6 @@ const ar: Record<Key, string> = {
   studioKeys_effect: 'Ctrl+N (تركيب جديد) وCtrl+Shift+N (طبقة جديدة) وCtrl+T (أداة النص) وCtrl+Shift+W (إغلاق الكل)',
   studioKeys_sound: 'Ctrl+N (جلسة جديدة) وCtrl+Shift+N (مسارات جديدة) وCtrl+T (قص إلى التحديد) وCtrl+Shift+W (إغلاق الجلسة)',
   studioKeys_cad: 'Ctrl+N (رسم جديد) وCtrl+W',
-  studioChange: 'تغيير النسخة',
   studioPhoneWarn: 'يبدو أن جهازك هاتف أو لوح. النسخة الكاملة ثقيلة وتُرسم على لوحة واحدة ويصعب استخدامها باللمس، لذا فالنسخة الخفيفة أنسب لهذا الجهاز.',
   studioApps: 'التطبيقات',
   studioLightTools: 'الأدوات الخفيفة',
@@ -2210,8 +2220,6 @@ const ar: Record<Key, string> = {
   inspectPreview: 'كل الصفحات',
   navFeatures: 'المميزات',
   featuresNotice: 'اقرأ المميزات أولًا لتكون على دراية بكل ما في الموقع قبل أن تبدأ.',
-  homeFeatures: 'مميزات الموقع',
-  homeFeaturesDesc: 'اطّلع على ما تقدمه كل أداة وعلى اختصارات لوحة المفاتيح قبل أن تبدأ.',
   featuresTitle: 'ما يمكنك فعله في الموقع',
   featuresLead: 'كل ما يقدمه الموقع أداةً بأداة، مع اختصارات لوحة المفاتيح.',
   featuresGeneral: 'في الموقع كله',
@@ -2329,6 +2337,11 @@ const ar: Record<Key, string> = {
 };
 
 const dicts: Record<Lang, Record<Key, string>> = { en, ar };
+
+/** A text in a chosen language, whatever the site is showing (used to search in both languages). */
+export function textIn(lang: Lang, key: Key): string {
+  return dicts[lang][key];
+}
 
 interface I18n {
   lang: Lang;

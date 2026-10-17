@@ -1,5 +1,6 @@
 import { FileText, FileType2, Palette, Clapperboard, AudioLines, DraftingCompass, type LucideIcon } from 'lucide-react';
 import type { Key } from '../i18n';
+import type { SectionId } from './tools';
 
 export type StudioId = 'docs' | 'design' | 'film' | 'audio' | 'cad' | 'pdf';
 
@@ -20,6 +21,8 @@ export interface Studio {
   apps: StudioApp[];
   /** Light version: ids of Shootcut tools (see lib/tools.ts) that cover the same job on any device. */
   light: string[];
+  /** The home-page section whose page offers this studio (the Studios block no longer sits on the home page). */
+  section: SectionId;
   /** Not a card in the Studios block: it is reached from another section (PDF) that offers its Full and Light editions. */
   hidden?: boolean;
 }
@@ -27,6 +30,7 @@ export interface Studio {
 export const STUDIOS: Studio[] = [
   {
     id: 'docs',
+    section: 'office',
     name: 'studioDocs',
     desc: 'studioDocsDesc',
     icon: FileText,
@@ -39,6 +43,7 @@ export const STUDIOS: Studio[] = [
   },
   {
     id: 'design',
+    section: 'image',
     name: 'studioDesign',
     desc: 'studioDesignDesc',
     icon: Palette,
@@ -52,6 +57,7 @@ export const STUDIOS: Studio[] = [
   },
   {
     id: 'film',
+    section: 'video',
     name: 'studioFilm',
     desc: 'studioFilmDesc',
     icon: Clapperboard,
@@ -63,6 +69,7 @@ export const STUDIOS: Studio[] = [
   },
   {
     id: 'audio',
+    section: 'video',
     name: 'studioAudio',
     desc: 'studioAudioDesc',
     icon: AudioLines,
@@ -71,6 +78,7 @@ export const STUDIOS: Studio[] = [
   },
   {
     id: 'cad',
+    section: 'office',
     name: 'studioCad',
     desc: 'studioCadDesc',
     icon: DraftingCompass,
@@ -80,6 +88,7 @@ export const STUDIOS: Studio[] = [
   {
     // Not a sixth studio: the PDF section offers the full app (this) or the light tools (the section's own tools).
     id: 'pdf',
+    section: 'pdf',
     name: 'sectionPdf',
     desc: 'sectionPdfDesc',
     icon: FileType2,
@@ -88,6 +97,11 @@ export const STUDIOS: Studio[] = [
     hidden: true,
   },
 ];
+
+/** The studios a section page offers: the visible ones whose job belongs to that section. */
+export function studiosOfSection(section: SectionId): Studio[] {
+  return STUDIOS.filter((s) => s.section === section && !s.hidden);
+}
 
 export function findStudio(id: string): Studio | undefined {
   return STUDIOS.find((s) => s.id === id);

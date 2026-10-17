@@ -1,4 +1,3 @@
-import { Sparkles } from 'lucide-react';
 import { lazy, Suspense, useEffect, useState } from 'react';
 import { useI18n } from './i18n';
 import { Header, PrivacyBadge } from './components/Shell';
@@ -9,7 +8,8 @@ import { useShortcuts } from './hooks/useShortcuts';
 import { holdFile } from './lib/handoff';
 import { saveFile } from './lib/persist';
 import { notify, useToast } from './lib/toast';
-import { StudiosBlock, StudioPage, StudioLauncher } from './components/Studios';
+import { SectionStudios, StudioPage, StudioLauncher } from './components/Studios';
+import { ToolSearch } from './components/ToolSearch';
 import { parseStudioRoute } from './lib/studios';
 
 const COMPONENTS: Record<string, ReturnType<typeof lazy>> = {
@@ -123,7 +123,7 @@ function ToolGrid({ section }: { section: SectionId }) {
   );
 }
 
-/** The home page: three choices, nothing else. */
+/** The home page: a search box, the four sections, and the few newest tools. */
 function Home() {
   const { t } = useI18n();
   return (
@@ -139,6 +139,7 @@ function Home() {
         </div>
       </section>
       <div className="container">
+        <ToolSearch />
         <nav className="sections" aria-label={t('sectionsNav')}>
           {SECTIONS.map((sec) => {
             const Icon = sec.icon;
@@ -153,7 +154,6 @@ function Home() {
             );
           })}
         </nav>
-        <StudiosBlock />
         <section className="whats-new" aria-labelledby="whats-new-title">
           <h2 id="whats-new-title">{t('whatsNew')}</h2>
           <ul>
@@ -171,13 +171,6 @@ function Home() {
             })}
           </ul>
         </section>
-        <a className="features-banner" href="#/features">
-          <Sparkles size={26} aria-hidden />
-          <span className="features-banner-text">
-            <span className="section-name">{t('homeFeatures')}</span>
-            <span className="muted">{t('homeFeaturesDesc')}</span>
-          </span>
-        </a>
       </div>
     </>
   );
@@ -191,6 +184,7 @@ function SectionPage({ section }: { section: SectionId }) {
       <h1 className="section-title">{t(sec.title)}</h1>
       <p className="muted lead">{t(sec.desc)}</p>
       <ToolGrid section={section} />
+      <SectionStudios section={section} />
     </div>
   );
 }
@@ -250,9 +244,10 @@ export default function App() {
   );
   const tool = findTool(route);
   const page = route === 'features' || route === 'shortcuts';
-  const section = sectionOfRoute(route);
-  // The PDF section opens on the Full / Light choice; its light edition is the PDF tools.
+  // The PDF section opens on a page with a Full / Light switch; its light edition is the PDF tools.
   const studioRoute = parseStudioRoute(route === 'pdf' ? 'studio/pdf' : route);
+  // a studio belongs to a section, so the bar under the header keeps showing where the person is
+  const section = studioRoute ? studioRoute.studio.section : sectionOfRoute(route);
   const sectionPage = route === 'image' || route === 'video' || route === 'office' ? route : null;
   const active = tool && tool.status === 'ready' ? tool.id : null;
   const Active = active ? COMPONENTS[active] : undefined;
