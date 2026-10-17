@@ -19,7 +19,7 @@ afterEach(() => {
 });
 
 describe('the home page', () => {
-  it('is a search box, four sections and a short list of what is new, and nothing else', () => {
+  it('is a search box and four sections, and nothing else', () => {
     render(
       <I18nProvider>
         <App />
@@ -29,7 +29,7 @@ describe('the home page', () => {
     expect(document.querySelectorAll('nav.sections a.section-card').length).toBe(4);
     expect(document.querySelector('[data-studio]')).toBeNull();
     expect(document.querySelector('.features-banner')).toBeNull();
-    expect(document.querySelectorAll('.whats-new li').length).toBe(3);
+    expect(document.querySelector('.whats-new')).toBeNull();
     // the Features page stays one click away in the header
     expect(document.querySelector('a.nav-features[href="#/features"]')).toBeTruthy();
   });

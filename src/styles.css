@@ -2180,12 +2180,6 @@ kbd {
 
 .tag-new { background: var(--primary); color: #fff; border-color: var(--primary); }
 .tag-new.is-updated { background: transparent; color: var(--primary); }
-.whats-new { margin-top: 24px; padding: 16px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface, #fff); }
-.whats-new h2 { margin: 0 0 8px; font-size: 1.05rem; }
-.whats-new ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
-.whats-new a { display: flex; flex-wrap: wrap; gap: 6px 8px; align-items: baseline; padding: 6px 4px; border-radius: 8px; text-decoration: none; color: inherit; }
-.whats-new a:hover { background: var(--bg); }
-.whats-new .tag { margin-inline-start: 0; align-self: center; }
 
 /* Studios */
 .studios {

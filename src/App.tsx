@@ -123,7 +123,7 @@ function ToolGrid({ section }: { section: SectionId }) {
   );
 }
 
-/** The home page: a search box, the four sections, and the few newest tools. */
+/** The home page: a search box and the four sections, nothing else. New tools are marked with a badge on their cards. */
 function Home() {
   const { t } = useI18n();
   return (
@@ -154,23 +154,6 @@ function Home() {
             );
           })}
         </nav>
-        <section className="whats-new" aria-labelledby="whats-new-title">
-          <h2 id="whats-new-title">{t('whatsNew')}</h2>
-          <ul>
-            {WHATS_NEW.map((w) => {
-              const tool = TOOLS.find((x) => x.id === w.id)!;
-              return (
-                <li key={w.id}>
-                  <a href={`#/${w.id}`}>
-                    <span className={`tag tag-new${w.kind === 'updated' ? ' is-updated' : ''}`}>{t(w.kind === 'new' ? 'badgeNew' : 'badgeUpdated')}</span>
-                    <strong>{t(tool.name)}</strong>
-                    <span className="muted"> — {t(w.note)}</span>
-                  </a>
-                </li>
-              );
-            })}
-          </ul>
-        </section>
       </div>
     </>
   );
