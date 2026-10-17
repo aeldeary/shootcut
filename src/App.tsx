@@ -1,4 +1,5 @@
 import { lazy, Suspense, useEffect, useState } from 'react';
+import { ArrowUpRight } from 'lucide-react';
 import { useI18n } from './i18n';
 import { Header, PrivacyBadge } from './components/Shell';
 import { GROUPS, SECTIONS, TOOLS, WHATS_NEW, findTool, sectionOfRoute, type SectionId } from './lib/tools';
@@ -129,27 +130,35 @@ function Home() {
   return (
     <>
       <section className="hero">
-        <div className="container">
+        <div className="container hero-inner">
+          <div className="hero-copy">
+            <PrivacyBadge />
+            <h1 className="hero-headline">{t('tagline')}</h1>
+            <h2 dir="ltr" className="sr-only">
+              {t('appName')}
+            </h2>
+          </div>
           <img className="hero-logo" src="./logo.svg" alt="" width={190} height={201} />
-          <h1 dir="ltr" className="hero-title sr-only">
-            {t('appName')}
-          </h1>
-          <p className="lead">{t('tagline')}</p>
-          <PrivacyBadge />
         </div>
       </section>
-      <div className="container">
+      <div className="container home-body">
         <ToolSearch />
         <nav className="sections" aria-label={t('sectionsNav')}>
-          {SECTIONS.map((sec) => {
+          {SECTIONS.map((sec, i) => {
             const Icon = sec.icon;
             return (
               <a key={sec.id} className="section-card" href={`#/${sec.id}`}>
-                <span className="section-icon">
-                  <Icon size={34} aria-hidden />
+                <span className="section-top">
+                  <span className="section-num" aria-hidden>
+                    0{i + 1}
+                  </span>
+                  <span className="section-icon">
+                    <Icon size={30} aria-hidden />
+                  </span>
                 </span>
                 <span className="section-name">{t(sec.title)}</span>
                 <span className="muted">{t(sec.desc)}</span>
+                <ArrowUpRight className="section-arrow dir-flip" size={22} aria-hidden />
               </a>
             );
           })}
@@ -163,12 +172,18 @@ function SectionPage({ section }: { section: SectionId }) {
   const { t } = useI18n();
   const sec = SECTIONS.find((x) => x.id === section)!;
   return (
-    <div className="container">
-      <h1 className="section-title">{t(sec.title)}</h1>
-      <p className="muted lead">{t(sec.desc)}</p>
-      <SectionStudios section={section} />
-      <ToolGrid section={section} />
-    </div>
+    <>
+      <header className="page-head">
+        <div className="container">
+          <h1 className="section-title">{t(sec.title)}</h1>
+          <p className="lead">{t(sec.desc)}</p>
+        </div>
+      </header>
+      <div className="container">
+        <SectionStudios section={section} />
+        <ToolGrid section={section} />
+      </div>
+    </>
   );
 }
 
