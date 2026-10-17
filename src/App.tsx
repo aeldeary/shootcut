@@ -1,5 +1,5 @@
-import { Sparkles } from 'lucide-react';
 import { lazy, Suspense, useEffect, useState } from 'react';
+import { ArrowUpRight } from 'lucide-react';
 import { useI18n } from './i18n';
 import { Header, PrivacyBadge } from './components/Shell';
 import { GROUPS, SECTIONS, TOOLS, WHATS_NEW, findTool, sectionOfRoute, type SectionId } from './lib/tools';
@@ -9,7 +9,8 @@ import { useShortcuts } from './hooks/useShortcuts';
 import { holdFile } from './lib/handoff';
 import { saveFile } from './lib/persist';
 import { notify, useToast } from './lib/toast';
-import { StudiosBlock, StudioPage, StudioLauncher } from './components/Studios';
+import { SectionStudios, StudioPage, StudioLauncher } from './components/Studios';
+import { ToolSearch } from './components/ToolSearch';
 import { parseStudioRoute } from './lib/studios';
 
 const COMPONENTS: Record<string, ReturnType<typeof lazy>> = {
@@ -123,61 +124,44 @@ function ToolGrid({ section }: { section: SectionId }) {
   );
 }
 
-/** The home page: three choices, nothing else. */
+/** The home page: a search box and the five sections, nothing else. New tools are marked with a badge on their cards. */
 function Home() {
   const { t } = useI18n();
   return (
     <>
       <section className="hero">
-        <div className="container">
-          <img className="hero-logo" src="./logo.svg" alt="" width={190} height={201} />
-          <h1 dir="ltr" className="hero-title sr-only">
-            {t('appName')}
-          </h1>
-          <p className="lead">{t('tagline')}</p>
-          <PrivacyBadge />
+        <div className="container hero-inner">
+          <div className="hero-copy">
+            <PrivacyBadge />
+            <h1 className="hero-headline">{t('tagline')}</h1>
+            <h2 dir="ltr" className="sr-only">
+              {t('appName')}
+            </h2>
+          </div>
         </div>
       </section>
-      <div className="container">
+      <div className="container home-body">
+        <ToolSearch />
         <nav className="sections" aria-label={t('sectionsNav')}>
-          {SECTIONS.map((sec) => {
+          {SECTIONS.map((sec, i) => {
             const Icon = sec.icon;
             return (
               <a key={sec.id} className="section-card" href={`#/${sec.id}`}>
-                <span className="section-icon">
-                  <Icon size={34} aria-hidden />
+                <span className="section-top">
+                  <span className="section-num" aria-hidden>
+                    0{i + 1}
+                  </span>
+                  <span className="section-icon">
+                    <Icon size={30} aria-hidden />
+                  </span>
                 </span>
                 <span className="section-name">{t(sec.title)}</span>
                 <span className="muted">{t(sec.desc)}</span>
+                <ArrowUpRight className="section-arrow dir-flip" size={22} aria-hidden />
               </a>
             );
           })}
         </nav>
-        <StudiosBlock />
-        <section className="whats-new" aria-labelledby="whats-new-title">
-          <h2 id="whats-new-title">{t('whatsNew')}</h2>
-          <ul>
-            {WHATS_NEW.map((w) => {
-              const tool = TOOLS.find((x) => x.id === w.id)!;
-              return (
-                <li key={w.id}>
-                  <a href={`#/${w.id}`}>
-                    <span className={`tag tag-new${w.kind === 'updated' ? ' is-updated' : ''}`}>{t(w.kind === 'new' ? 'badgeNew' : 'badgeUpdated')}</span>
-                    <strong>{t(tool.name)}</strong>
-                    <span className="muted"> — {t(w.note)}</span>
-                  </a>
-                </li>
-              );
-            })}
-          </ul>
-        </section>
-        <a className="features-banner" href="#/features">
-          <Sparkles size={26} aria-hidden />
-          <span className="features-banner-text">
-            <span className="section-name">{t('homeFeatures')}</span>
-            <span className="muted">{t('homeFeaturesDesc')}</span>
-          </span>
-        </a>
       </div>
     </>
   );
@@ -187,11 +171,18 @@ function SectionPage({ section }: { section: SectionId }) {
   const { t } = useI18n();
   const sec = SECTIONS.find((x) => x.id === section)!;
   return (
-    <div className="container">
-      <h1 className="section-title">{t(sec.title)}</h1>
-      <p className="muted lead">{t(sec.desc)}</p>
-      <ToolGrid section={section} />
-    </div>
+    <>
+      <header className="page-head">
+        <div className="container">
+          <h1 className="section-title">{t(sec.title)}</h1>
+          <p className="lead">{t(sec.desc)}</p>
+        </div>
+      </header>
+      <div className="container">
+        <SectionStudios section={section} />
+        <ToolGrid section={section} />
+      </div>
+    </>
   );
 }
 
@@ -250,10 +241,11 @@ export default function App() {
   );
   const tool = findTool(route);
   const page = route === 'features' || route === 'shortcuts';
-  const section = sectionOfRoute(route);
-  // The PDF section opens on the Full / Light choice; its light edition is the PDF tools.
+  // The PDF section opens on a page with a Full / Light switch; its light edition is the PDF tools.
   const studioRoute = parseStudioRoute(route === 'pdf' ? 'studio/pdf' : route);
-  const sectionPage = route === 'image' || route === 'video' || route === 'office' ? route : null;
+  // a studio belongs to a section, so the bar under the header keeps showing where the person is
+  const section = studioRoute ? studioRoute.studio.section : sectionOfRoute(route);
+  const sectionPage = route === 'image' || route === 'video' || route === 'office' || route === 'eng' ? route : null;
   const active = tool && tool.status === 'ready' ? tool.id : null;
   const Active = active ? COMPONENTS[active] : undefined;
 
@@ -286,10 +278,8 @@ export default function App() {
         </Suspense>
       </main>
       <footer className="site-footer">
-        <img src={`${import.meta.env.BASE_URL}favicon.svg`} alt="" width={22} height={22} />
         <p>
           <strong>{t('footerCredit')}</strong>
-          <span>{t('footerNote')}</span>
         </p>
       </footer>
       {toastText && <div className="toast" role="status">{toastText}</div>}

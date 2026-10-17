@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { I18nProvider } from '../i18n';
-import { StudioPage, StudiosBlock, StudioLauncher } from './Studios';
+import { StudioPage, SectionStudios, StudioLauncher } from './Studios';
 import { findStudio } from '../lib/studios';
 
 afterEach(() => {
@@ -23,35 +23,55 @@ function stubFetchPublished() {
   );
 }
 
+/** A browser that can draw WebGL and is not a phone: the full edition is the recommended one. */
+function stubDesktop() {
+  vi.stubGlobal('matchMedia', (q: string) => ({ matches: false, media: q, addEventListener() {}, removeEventListener() {} }));
+  vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue({ getExtension: () => null, getParameter: () => '' } as never);
+}
+
+const pressed = (v: 'full' | 'light') => document.querySelector(`[data-version=${v}]`)!.getAttribute('aria-pressed') === 'true';
+
 describe('Studios', () => {
-  it('shows the five studios on the home page', () => {
-    wrap(<StudiosBlock />);
-    expect(document.querySelectorAll('[data-studio]').length).toBe(5);
+  it('offers each studio inside the section it belongs to, and none on the PDF section', () => {
+    const count = (section: 'pdf' | 'image' | 'video' | 'office' | 'eng') => {
+      wrap(<SectionStudios section={section} />);
+      const n = document.querySelectorAll('[data-studio]').length;
+      cleanup();
+      return n;
+    };
+    expect(count('image')).toBe(1);
+    expect(count('video')).toBe(2);
+    expect(count('office')).toBe(1);
+    expect(count('eng')).toBe(1);
+    expect(count('pdf')).toBe(0);
+    wrap(<SectionStudios section="image" />);
     expect(screen.getByText('Design')).toBeTruthy();
   });
 
-  it('keeps the PDF editions out of the Studios block and offers Full or Light first, with the PDF tools as the light edition', () => {
-    wrap(<StudiosBlock />);
-    expect(document.querySelector('[data-studio=pdf]')).toBeNull();
-    cleanup();
-    stubFetchPublished();
+  it('opens the PDF page on the recommended edition at once, keeps a switch, and remembers the choice', () => {
+    stubDesktop();
     wrap(<StudioPage studio={findStudio('pdf')!} lightContent={<p data-testid="pdf-tools">tools</p>} />);
-    expect(document.querySelector('[data-version=full]')).toBeTruthy();
+    // no waiting screen: the full edition is already showing, and the switch is there
+    expect(pressed('full')).toBe(true);
+    expect(document.querySelectorAll('[data-app]').length).toBe(1);
     expect(screen.queryByTestId('pdf-tools')).toBeNull();
     fireEvent.click(document.querySelector('[data-version=light]')!);
+    expect(pressed('light')).toBe(true);
     expect(screen.getByTestId('pdf-tools')).toBeTruthy();
-    fireEvent.click(screen.getByText(/change version|تغيير النسخة/i));
+    expect(localStorage.getItem('shootcut-edition')).toBe('light');
+    // the next visit opens on the edition the person chose, not on the recommendation
+    cleanup();
+    wrap(<StudioPage studio={findStudio('pdf')!} lightContent={<p data-testid="pdf-tools">tools</p>} />);
+    expect(pressed('light')).toBe(true);
+    expect(screen.getByTestId('pdf-tools')).toBeTruthy();
     fireEvent.click(document.querySelector('[data-version=full]')!);
     expect(document.querySelectorAll('[data-app]').length).toBe(1);
   });
 
-  it('asks for full or light before showing anything to open', async () => {
+  it('shows the apps of a studio without asking anything first', async () => {
+    stubDesktop();
     stubFetchPublished();
     wrap(<StudioPage studio={findStudio('docs')!} />);
-    expect(document.querySelector('[data-version=full]')).toBeTruthy();
-    expect(document.querySelector('[data-version=light]')).toBeTruthy();
-    expect(document.querySelector('[data-app]')).toBeNull();
-    fireEvent.click(document.querySelector('[data-version=full]')!);
     expect(document.querySelectorAll('[data-app]').length).toBe(3);
     await waitFor(() => expect(document.querySelectorAll('a[href="#/studio/docs/word"]').length).toBe(1));
     // Deck is not published in this stub: its button stays disabled
@@ -70,20 +90,25 @@ describe('Studios', () => {
     expect(document.querySelectorAll('a.card[href^="#/img-"]').length).toBeGreaterThan(3);
   });
 
-  it('recommends light on a phone and warns', () => {
+  it('recommends light on a phone, and warns only if the full edition is picked', () => {
     vi.stubGlobal('matchMedia', (q: string) => ({ matches: q.includes('coarse'), media: q, addEventListener() {}, removeEventListener() {} }));
     wrap(<StudioPage studio={findStudio('docs')!} />);
+    expect(pressed('light')).toBe(true);
     expect(document.querySelector('[data-version=light] .tag-new')).toBeTruthy();
     expect(document.querySelector('[data-version=full] .tag-new')).toBeNull();
+    expect(screen.queryAllByRole('note').length).toBe(0);
+    fireEvent.click(document.querySelector('[data-version=full]')!);
     expect(screen.getAllByRole('note').length).toBeGreaterThan(0);
   });
 
-  it('without WebGL it recommends the light version and offers it', () => {
+  it('without WebGL it opens on the light version and offers it again if full is picked', () => {
     vi.stubGlobal('matchMedia', (q: string) => ({ matches: false, media: q, addEventListener() {}, removeEventListener() {} }));
     vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(null);
     wrap(<StudioPage studio={findStudio('docs')!} />);
+    expect(pressed('light')).toBe(true);
     expect(document.querySelector('[data-version=light] .tag-new')).toBeTruthy();
     expect(document.querySelector('[data-version=full] .tag-new')).toBeNull();
+    fireEvent.click(document.querySelector('[data-version=full]')!);
     expect(screen.getAllByRole('button', { name: /light version|النسخة الخفيفة/i }).length).toBeGreaterThan(1);
   });
 

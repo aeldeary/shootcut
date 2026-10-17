@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
-import { ArrowLeft, ChevronDown, Languages, Redo2, ShieldCheck, Sparkles, Undo2 } from 'lucide-react';
+import { ArrowLeft, ChevronDown, Languages, Redo2, ShieldCheck, Sparkles, Undo2, type LucideIcon } from 'lucide-react';
 import { historyStore } from '../lib/history';
 import { useI18n } from '../i18n';
-import { GROUPS, SECTIONS, TOOLS, type GroupId, type SectionId } from '../lib/tools';
+import { GROUPS, SECTIONS, TOOLS, type SectionId } from '../lib/tools';
+import { studiosOfSection } from '../lib/studios';
 
 export function Header({ showBack, activeId, section }: { showBack: boolean; activeId?: string | null; section?: SectionId | null }) {
   const { t, toggle } = useI18n();
@@ -35,18 +36,21 @@ export function Header({ showBack, activeId, section }: { showBack: boolean; act
   );
 }
 
+type MenuId = 'section' | 'tools' | 'studios';
+
 /**
- * The tool groups as short headings under the header; each opens a menu with its tools, so switching tools
- * never needs a trip back to the home page and the bar stays one slim row.
+ * One slim row under the header with at most three menus: the section (to move to another), the tools of this
+ * section (every group in one panel) and the full programs of this section. Switching tools or sections never
+ * needs a trip back to the home page.
  */
 function ToolNav({ activeId, section }: { activeId: string | null; section: SectionId | null }) {
   const { t } = useI18n();
   const wrap = useRef<HTMLDivElement>(null);
   const menu = useRef<HTMLDivElement>(null);
-  const [open, setOpen] = useState<{ id: GroupId; left: number } | null>(null);
+  const [open, setOpen] = useState<{ id: MenuId; left: number } | null>(null);
 
-  // a new route (a tool was picked) closes the menu
-  useEffect(() => setOpen(null), [activeId]);
+  // a new route (a tool or a section was picked) closes the menu
+  useEffect(() => setOpen(null), [activeId, section]);
 
   useEffect(() => {
     if (!open) return;
@@ -57,11 +61,11 @@ function ToolNav({ activeId, section }: { activeId: string | null; section: Sect
     return () => document.removeEventListener('pointerdown', away);
   }, [open]);
 
-  const toggle = (id: GroupId, btn: HTMLElement) => {
+  const toggle = (id: MenuId, btn: HTMLElement) => {
     if (open?.id === id) return setOpen(null);
     const w = wrap.current?.getBoundingClientRect();
     const b = btn.getBoundingClientRect();
-    // line the menu up with its heading, kept inside the screen
+    // a small menu lines up with its button, kept inside the screen (the tools panel spans the bar instead)
     const width = Math.min(280, (w?.width ?? 280) - 24);
     const left = w ? Math.min(Math.max(b.left - w.left, 12), Math.max(12, w.width - width - 12)) : 12;
     setOpen({ id, left });
@@ -74,52 +78,60 @@ function ToolNav({ activeId, section }: { activeId: string | null; section: Sect
     items[dir === 'first' ? 0 : (at + dir + items.length) % items.length]?.focus();
   };
 
-  const groups = GROUPS.filter((g) => g.section === section).map((g) => ({ ...g, tools: TOOLS.filter((x) => x.group === g.id && x.status === 'ready') })).filter((g) => g.tools.length > 0);
+  const current = SECTIONS.find((x) => x.id === section);
+  const groups = GROUPS.filter((g) => g.section === section)
+    .map((g) => ({ ...g, tools: TOOLS.filter((x) => x.group === g.id && x.status === 'ready') }))
+    .filter((g) => g.tools.length > 0);
+  const studios = section ? studiosOfSection(section) : [];
+
+  const trigger = (id: MenuId, label: string, extra = '') => {
+    const isOpen = open?.id === id;
+    return (
+      <button
+        type="button"
+        id={`toolnav-${id}`}
+        className={`toolnav-btn toolnav-${id}${extra}${isOpen ? ' is-open' : ''}`}
+        aria-haspopup="menu"
+        aria-expanded={isOpen}
+        aria-controls={isOpen ? 'toolnav-menu' : undefined}
+        onClick={(e) => toggle(id, e.currentTarget)}
+        onKeyDown={(e) => {
+          if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            if (!isOpen) toggle(id, e.currentTarget);
+            setTimeout(() => focusItem('first'), 0);
+          }
+        }}
+      >
+        {label}
+        <ChevronDown size={14} aria-hidden className="toolnav-chev" />
+      </button>
+    );
+  };
+
+  const close = () => setOpen(null);
+  const link = (key: string, href: string, Icon: LucideIcon, label: string, on = false) => (
+    <a key={key} role="menuitem" href={href} className={`toolnav-item${on ? ' is-active' : ''}`} aria-current={on ? 'page' : undefined} onClick={close}>
+      <Icon size={16} aria-hidden />
+      <span dir="auto">{label}</span>
+    </a>
+  );
 
   return (
     <div className="toolnav-wrap" ref={wrap}>
       <nav className="toolnav" aria-label={t('toolsNav')}>
-        {SECTIONS.map((sec) => (
-          <a key={sec.id} href={`#/${sec.id}`} className={`toolnav-sec${sec.id === section ? ' is-here' : ''}`} aria-current={sec.id === section ? 'true' : undefined}>
-            {t(sec.title)}
-          </a>
-        ))}
-        {groups.length > 0 && <span className="toolnav-sep" aria-hidden />}
-        {groups.map((g) => {
-          const here = g.tools.some((x) => x.id === activeId);
-          const isOpen = open?.id === g.id;
-          return (
-            <button
-              key={g.id}
-              type="button"
-              id={`toolnav-${g.id}`}
-              className={`toolnav-btn${here ? ' is-here' : ''}${isOpen ? ' is-open' : ''}`}
-              aria-haspopup="menu"
-              aria-expanded={isOpen}
-              aria-controls={isOpen ? 'toolnav-menu' : undefined}
-              onClick={(e) => toggle(g.id, e.currentTarget)}
-              onKeyDown={(e) => {
-                if (e.key === 'ArrowDown') {
-                  e.preventDefault();
-                  if (!isOpen) toggle(g.id, e.currentTarget);
-                  setTimeout(() => focusItem('first'), 0);
-                }
-              }}
-            >
-              {t(g.title)}
-              <ChevronDown size={14} aria-hidden className="toolnav-chev" />
-            </button>
-          );
-        })}
+        {trigger('section', current ? t(current.title) : t('sectionsNav'))}
+        {groups.length > 0 && trigger('tools', t('navTools'), activeId ? ' is-here' : '')}
+        {studios.length > 0 && trigger('studios', t('navStudios'))}
       </nav>
       {open && (
         <div
           id="toolnav-menu"
           ref={menu}
-          className="toolnav-menu"
+          className={`toolnav-menu${open.id === 'tools' ? ' toolnav-panel' : ''}`}
           role="menu"
           aria-labelledby={`toolnav-${open.id}`}
-          style={{ left: open.left }}
+          style={open.id === 'tools' ? undefined : { left: open.left }}
           onKeyDown={(e) => {
             if (e.key === 'ArrowDown') (e.preventDefault(), focusItem(1));
             else if (e.key === 'ArrowUp') (e.preventDefault(), focusItem(-1));
@@ -129,18 +141,17 @@ function ToolNav({ activeId, section }: { activeId: string | null; section: Sect
             }
           }}
         >
-          {groups
-            .find((g) => g.id === open.id)
-            ?.tools.map((tool) => {
-              const Icon = tool.icon;
-              const on = tool.id === activeId;
-              return (
-                <a key={tool.id} role="menuitem" href={`#/${tool.id}`} className={`toolnav-item${on ? ' is-active' : ''}`} aria-current={on ? 'page' : undefined} onClick={() => setOpen(null)}>
-                  <Icon size={16} aria-hidden />
-                  <span>{t(tool.name)}</span>
-                </a>
-              );
-            })}
+          {open.id === 'section' && SECTIONS.map((sec) => link(sec.id, `#/${sec.id}`, sec.icon, t(sec.title), sec.id === section))}
+          {open.id === 'studios' && studios.map((s) => link(s.id, `#/studio/${s.id}`, s.icon, t(s.name)))}
+          {open.id === 'tools' &&
+            groups.map((g) => (
+              <div key={g.id} role="group" aria-labelledby={`toolnav-g-${g.id}`} className="toolnav-col">
+                <p id={`toolnav-g-${g.id}`} className="toolnav-group">
+                  {t(g.title)}
+                </p>
+                {g.tools.map((tool) => link(tool.id, `#/${tool.id}`, tool.icon, t(tool.name), tool.id === activeId))}
+              </div>
+            ))}
         </div>
       )}
     </div>
@@ -175,14 +186,18 @@ function UndoRedo() {
 
 export function ToolPage({ title, desc, children }: { title: string; desc: string; children: ReactNode }) {
   return (
-    <section className="container tool-page">
-      <div className="tool-head">
-        <h1>{title}</h1>
-        <UndoRedo />
-      </div>
-      <p className="muted lead">{desc}</p>
-      {children}
-    </section>
+    <>
+      <header className="page-head tool-band">
+        <div className="container tool-head">
+          <div className="tool-titles">
+            <h1 className="section-title">{title}</h1>
+            <p className="lead">{desc}</p>
+          </div>
+          <UndoRedo />
+        </div>
+      </header>
+      <section className="container tool-page">{children}</section>
+    </>
   );
 }
 

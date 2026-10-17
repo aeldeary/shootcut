@@ -1,38 +1,44 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { ArrowLeft, ExternalLink, Gauge, Maximize, RefreshCw, Smartphone, Monitor, Type } from 'lucide-react';
 import { useI18n, type Key } from '../i18n';
-import { TOOLS } from '../lib/tools';
+import { TOOLS, type SectionId } from '../lib/tools';
 import { StudioFonts } from './StudioFonts';
 import { autoImportOn, canListInstalled, importAllInstalled, installedFontsGranted, sendSaved } from '../lib/localFonts';
 import {
-  STUDIOS,
   looksLikePhone,
   probeStudio,
   studioBase,
+  studiosOfSection,
   type Studio,
   type StudioApp,
   type StudioBuild,
 } from '../lib/studios';
 
-/** The Studios block on the home page. */
-export function StudiosBlock() {
+/** The full programs of a section, as a slim strip right under the section's title (never buried at the bottom). */
+export function SectionStudios({ section }: { section: SectionId }) {
   const { t } = useI18n();
+  const list = studiosOfSection(section);
+  if (list.length === 0) return null;
   return (
-    <section className="studios" aria-labelledby="studios-title">
-      <h2 id="studios-title">{t('studiosTitle')}</h2>
-      <p className="muted">{t('studiosDesc')}</p>
-      <div className="studio-grid">
-        {STUDIOS.filter((s) => !s.hidden).map((s) => {
+    <section className="studio-strip" aria-labelledby="studios-title">
+      <p className="studio-strip-head">
+        <strong id="studios-title">{t('sectionStudiosTitle')}</strong>
+        <span className="muted small">{t('sectionStudiosDesc')}</span>
+      </p>
+      <div className="studio-strip-list">
+        {list.map((s) => {
           const Icon = s.icon;
           return (
-            <a key={s.id} className="section-card studio-card" href={`#/studio/${s.id}`} data-studio={s.id}>
-              <span className="section-icon">
-                <Icon size={30} aria-hidden />
+            <a key={s.id} className="studio-chip" href={`#/studio/${s.id}`} data-studio={s.id}>
+              <span className="card-icon">
+                <Icon size={22} aria-hidden />
               </span>
-              <span className="section-name" dir="auto">
-                {t(s.name)}
+              <span className="studio-chip-text">
+                <span className="studio-chip-name" dir="auto">
+                  {t(s.name)}
+                </span>
+                <span className="studio-chip-desc">{t(s.desc)}</span>
               </span>
-              <span className="muted">{t(s.desc)}</span>
               <span className="tag tag-new is-updated">{t('studioBeta')}</span>
             </a>
           );
@@ -43,6 +49,25 @@ export function StudiosBlock() {
 }
 
 type Version = 'full' | 'light';
+const EDITION_KEY = 'shootcut-edition';
+
+/** The edition the person chose last time, kept in this browser (one choice for every studio and for PDF). */
+function readEdition(): Version | null {
+  try {
+    const v = localStorage.getItem(EDITION_KEY);
+    return v === 'full' || v === 'light' ? v : null;
+  } catch {
+    return null;
+  }
+}
+
+function saveEdition(v: Version): void {
+  try {
+    localStorage.setItem(EDITION_KEY, v);
+  } catch {
+    /* storage blocked: the choice lasts until the page closes */
+  }
+}
 
 /** Whether this browser can create a WebGL context, which the full apps need to draw. */
 function hasGraphics(): boolean {
@@ -59,14 +84,21 @@ function hasGraphics(): boolean {
   }
 }
 
-/** A studio's page. The person picks the full or the light version first; nothing opens before that. */
+/**
+ * A studio's page. It opens at once on the edition that suits this device (or the one the person chose last time);
+ * a switch at the top moves between Full and Light whenever they like. Nothing heavy loads until an app is opened.
+ */
 export function StudioPage({ studio, lightContent }: { studio: Studio; lightContent?: ReactNode }) {
   const { t } = useI18n();
-  const [version, setVersion] = useState<Version | null>(null);
   const phone = looksLikePhone();
   const [graphics] = useState(hasGraphics);
   const recommended: Version = phone || !graphics ? 'light' : 'full';
+  const [version, setVersion] = useState<Version>(() => readEdition() ?? recommended);
   const Icon = studio.icon;
+  const choose = (v: Version) => {
+    setVersion(v);
+    saveEdition(v);
+  };
 
   return (
     <div className="container studio-page">
@@ -75,40 +107,26 @@ export function StudioPage({ studio, lightContent }: { studio: Studio; lightCont
       </h1>
       <p className="muted lead">{t(studio.desc)}</p>
 
-      {version === null ? (
-        <section aria-labelledby="studio-choose">
-          <h2 id="studio-choose">{t('studioChoose')}</h2>
-          {phone && <p className="notice" role="note">{t('studioPhoneWarn')}</p>}
-          {!graphics && (
-            <p className="notice" role="note">
-              {t('studioNoGraphics')}{' '}
-              <button type="button" className="btn" onClick={() => setVersion('light')}>
-                {t('studioUseLight')}
-              </button>
-            </p>
-          )}
-          <div className="version-grid">
-            {(['full', 'light'] as const).map((v) => (
-              <button key={v} type="button" className="section-card version-card" data-version={v} onClick={() => setVersion(v)}>
-                <span className="section-icon">{v === 'full' ? <Monitor size={30} aria-hidden /> : <Smartphone size={30} aria-hidden />}</span>
-                <span className="section-name">{t(v === 'full' ? 'studioFull' : 'studioLight')}</span>
-                <span className="muted">{t(v === 'full' ? 'studioFullDesc' : 'studioLightDesc')}</span>
-                {recommended === v && <span className="tag tag-new">{t('studioRecommended')}</span>}
-              </button>
-            ))}
-          </div>
-        </section>
-      ) : (
-        <>
-          <p>
-            <button type="button" className="btn btn-ghost" onClick={() => setVersion(null)}>
-              {t('studioChange')}
-            </button>{' '}
-            <strong>{t(version === 'full' ? 'studioFull' : 'studioLight')}</strong>
-          </p>
-          {version === 'full' ? <FullList studio={studio} phone={phone} /> : (lightContent ?? <LightList studio={studio} />)}
-        </>
+      <div className="edition-switch" role="group" aria-label={t('studioEdition')}>
+        {(['full', 'light'] as const).map((v) => (
+          <button key={v} type="button" className={`edition-btn${version === v ? ' is-on' : ''}`} data-version={v} aria-pressed={version === v} onClick={() => choose(v)}>
+            {v === 'full' ? <Monitor size={18} aria-hidden /> : <Smartphone size={18} aria-hidden />}
+            <span>{t(v === 'full' ? 'studioFull' : 'studioLight')}</span>
+            {recommended === v && <span className="tag tag-new">{t('studioRecommended')}</span>}
+          </button>
+        ))}
+      </div>
+      <p className="muted small edition-hint">{t(version === 'full' ? 'studioFullDesc' : 'studioLightDesc')}</p>
+      {!graphics && version === 'full' && (
+        <p className="notice" role="note">
+          {t('studioNoGraphics')}{' '}
+          <button type="button" className="btn" onClick={() => choose('light')}>
+            {t('studioUseLight')}
+          </button>
+        </p>
       )}
+
+      {version === 'full' ? <FullList studio={studio} phone={phone} /> : (lightContent ?? <LightList studio={studio} />)}
     </div>
   );
 }
