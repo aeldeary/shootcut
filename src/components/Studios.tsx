@@ -247,6 +247,7 @@ const KEYS_BY_APP: Record<string, Key> = {
   light: 'studioKeys_light',
   vector: 'studioKeys_vector',
   design: 'studioKeys_design',
+  ui: 'studioKeys_ui',
   film: 'studioKeys_film',
   effect: 'studioKeys_effect',
   sound: 'studioKeys_sound',

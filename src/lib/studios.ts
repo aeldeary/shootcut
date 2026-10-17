@@ -52,6 +52,7 @@ export const STUDIOS: Studio[] = [
       { id: 'light', repo: 'lightcraft', name: 'appLight', desc: 'appLightDesc' },
       { id: 'vector', repo: 'vectorcraft', name: 'appVector', desc: 'appVectorDesc' },
       { id: 'design', repo: 'designcraft', name: 'appDesign', desc: 'appDesignDesc' },
+      { id: 'ui', repo: 'figcraft', name: 'appUi', desc: 'appUiDesc' },
     ],
     light: ['img-crop', 'img-resize', 'img-adjust', 'img-transparent', 'img-convert', 'img-social', 'img-watermark', 'img-blur'],
   },

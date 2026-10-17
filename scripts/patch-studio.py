@@ -13,9 +13,9 @@ import json, os, re, shutil, sys
 
 PRODUCT = {
     'Word': 'Docs', 'Grid': 'Sheets', 'Deck': 'Slides', 'Photo': 'Photo', 'Light': 'Photo Editor', 'Vector': 'Vector',
-    'Design': 'Design', 'Film': 'Film', 'Effect': 'Effects', 'Sound': 'Sound', 'CAD': 'CAD', 'Cad': 'CAD', 'PDF': 'PDF', 'Pdf': 'PDF',
+    'Design': 'Design', 'Fig': 'UI Design', 'Film': 'Film', 'Effect': 'Effects', 'Sound': 'Sound', 'CAD': 'CAD', 'Cad': 'CAD', 'PDF': 'PDF', 'Pdf': 'PDF',
 }
-NAME_RE = re.compile(r'(?:(?<=\\n)|\b)(Word|Grid|Deck|Photo|Light|Vector|Design|Film|Effect|Sound|CAD|Cad|PDF|Pdf)[Cc]raft(?![A-Za-z_])')
+NAME_RE = re.compile(r'(?:(?<=\\n)|\b)(Word|Grid|Deck|Photo|Light|Vector|Design|Fig|Film|Effect|Sound|CAD|Cad|PDF|Pdf)[Cc]raft(?![A-Za-z_])')
 ART_RE = re.compile(r'(?:(?<=\\n)|\b)Art[Cc]raft(?![A-Za-z_])')
 LITERAL = re.compile(r'"(?:[^"\\\n]|\\.)*"')
 
@@ -167,6 +167,23 @@ EDITS = {
         ('src/about.rs', r'(pub fn discord_button\(ui: &mut egui::Ui, label: &str, size: egui::Vec2\) -> bool \{\n).*?(\n\}\n)', r'\1    let _ = (ui, label, size);\n    false\2'),
         ('src/chrome.rs', r'(fn community_card\(app: &mut DesignApp, ui: &mut egui::Ui\) \{\n).*?(\n\}\n)', r'\1    let _ = (app, ui);\2'),
         ('src/about.rs', r'\n\s*ui\.add_space\(14\.0\);\n\s*ui\.horizontal\(\|ui\| \{\n\s*// Centre the row of links\..*?\n\s*\}\);\n(?=\s*ui\.add_space\(16\.0\);)', '\n'),
+    ],
+    'figcraft': [
+        # Arabic: the craft-fonts Arabic face is let into the web build (it only carried Inter), so Arabic text has glyphs
+        ('text/build.rs', r'if wasm && \*family != "Inter" && !cjk \{', 'if wasm && *family != "Inter" && !cjk && !scripts.split(\',\').any(|s| s.trim() == "Arab") {'),
+        # About: no community links, no "part of ArtCraft"
+        ('ui-egui/src/dialogs.rs', r', part of the ArtCraft Crafting Apps\.', '.'),
+        ('ui-egui/src/dialogs.rs', r'Dual-licensed MIT OR Apache-2\.0\. Made by the ArtCraft team and community\.', 'Open source (MIT OR Apache-2.0). See the open-source notices.'),
+        ('ui-egui/src/dialogs.rs', r'trf\("If it keeps happening, please report it at \{link\} with this message\.", &\[\("link", &ISSUES\)\]\)', 'tr("If it keeps happening, please report it with this message.").to_string()'),
+        ('ui-egui/src/dialogs.rs', r'const ISSUES: &str = "[^"]*";\n', ''),
+        # The Help page opened the upstream's site: the menu entry and its command go
+        ('ui-egui/src/lib.rs', r'"open\.help" => self\.services\.open_url\("[^"]*"\),', '"open.help" => {}'),
+        ('engine/src/catalog.rs', r'\n\s*m!\("Help", "Help page", "help\.page"\),', ''),
+        # The app's own mark (the chameleon's tail, drawn in code) becomes a Shootcut "S"
+        ('ui-egui/src/icons.rs', r'(        Logo => \{\n)\s*// FigCraft\'s own mark:.*?p\.dot\(7\.25, 6\.5, 0\.85\);\n', "\\1            // Shootcut's mark: an S of two bowls, one stroke\n            let mut s: Vec<(f32, f32)> = arc_pts(7.25, 5.5, 2.75, FRAC_PI_2, 11.0 * PI / 6.0).collect();\n            s.reverse();\n            s.extend(arc_pts(7.25, 11.0, 2.75, 3.0 * FRAC_PI_2, 17.0 * PI / 6.0));\n            let v: Vec<Pos2> = s.iter().map(|&(x, y)| p.raw(x, y)).collect();\n            p.painter.add(Shape::line(v, Stroke::new(1.9 * p.s, p.color)));\n"),
+        # Make the web runner's first module declaration a clean one, where the font bridge is declared
+        ('figcraft-web/src/main.rs', r'#\[cfg\(target_arch = "wasm32"\)\]\nmod web;\n', ''),
+        ('figcraft-web/src/main.rs', r'(#\[cfg\(any\(target_arch = "wasm32", test\)\)\]\nmod query;)', '#[cfg(target_arch = "wasm32")]\nmod web;\n\\1'),
     ],
     'pdfcraft': [
         # Choosing Prepare a form from All tools detects the fields at once (a file without fields), as the command does
@@ -625,6 +642,7 @@ FONT_BRIDGE = {
                    'photocraft-text', 'main.rs', 'web.rs'),
     'filmcraft': ('filmcraft_text::fonts::add_font_data(bytes).len()', 'filmcraft-text', 'lib.rs', 'lib.rs'),
     'effectcraft': ('effectcraft_text::fonts::add_font_data(bytes).len()', 'effectcraft-text', 'lib.rs', 'app.rs'),
+    'figcraft': ('figcraft_text::db().write().unwrap_or_else(|e| e.into_inner()).add_bytes(bytes).len()', 'figcraft-text', 'main.rs', 'web.rs'),
 }
 
 
@@ -850,7 +868,7 @@ def cmd_dist(dist, repo, lang=None):
     h = open(idx, encoding='utf-8').read()
     h = LOADING_RE.sub(r'\1Loading Shootcut Program&hellip;\2', h)
     h = re.sub(r'Loading [A-Za-z]*Craft(?:…|&hellip;|\.\.\.)', 'Loading Shootcut Program\u2026', h)
-    h = re.sub(r'If (?:Photo|Film|Effect|Light|Design|Word|Deck|Vector|Grid|Sound|CAD)Craft doesn', 'If Shootcut Program doesn', h)
+    h = re.sub(r'If (?:Photo|Film|Effect|Light|Design|Word|Deck|Vector|Grid|Sound|CAD|Fig)Craft doesn', 'If Shootcut Program doesn', h)
     h = re.sub(r'<title>[^<]*</title>', '<title>Shootcut</title>', h)
     h = re.sub(r'<link rel="icon"[^>]*>\s*', '', h)
     h = h.replace('<head>', '<head>\n  <link rel="icon" type="image/svg+xml" href="./shootcut-icon.svg">\n'
@@ -859,6 +877,9 @@ def cmd_dist(dist, repo, lang=None):
                   'Object.defineProperty(navigator,"languages",{get:function(){return l}});'
                   'document.documentElement.lang=q;if(q==="ar")document.documentElement.dir="rtl"}}catch(e){}</script>\n'
                   '  <script>try{if(new URLSearchParams(location.search).has("webgl"))Object.defineProperty(navigator,"gpu",{get:function(){return undefined}})}catch(e){}</script>', 1)
+    if repo == 'figcraft':
+        # The browser must not take the design shortcuts (duplicate, group, find, save, print, zoom, ...): stop its default, the app still sees the key
+        h = h.replace('</head>', '  <script>addEventListener("keydown",function(e){try{if((e.ctrlKey||e.metaKey)&&!e.altKey&&/^(Key[BDEFGHIJKLOPSU]|Digit[0-9]|Equal|Minus|NumpadAdd|NumpadSubtract|BracketLeft|BracketRight|Comma|Period|Slash|Quote|Backslash|Semicolon)$/.test(e.code))e.preventDefault()}catch(x){}},true)</script>\n</head>', 1)
     if repo == 'pdfcraft':
         # The browser must not take Acrobat's shortcuts (find, bookmark, address bar, page zoom, ...): stop its default, the app still sees the key
         h = h.replace('</head>', '  <script>addEventListener("keydown",function(e){try{if((e.ctrlKey||e.metaKey)&&!e.altKey&&/^(Key[BDFGHJKLOPSYZ]|Digit[0-9]|Equal|Minus|NumpadAdd|NumpadSubtract|BracketLeft|BracketRight|Comma)$/.test(e.code))e.preventDefault();else if(e.altKey&&!e.ctrlKey&&/^Arrow(Left|Right)$/.test(e.code))e.preventDefault()}catch(x){}},true)</script>\n</head>', 1)

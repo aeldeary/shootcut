@@ -122,7 +122,7 @@ Five studios (Docs, Design, Film, Audio, CAD) embed full open-source web apps (M
 | Studio | Full apps | Light version |
 | --- | --- | --- |
 | Docs | Documents, Spreadsheets, Presentations | Light spreadsheet, light slides, create and convert PDF |
-| Design | Photo editor, Photo developer, Vector drawing, Graphic design | Picture tools |
+| Design | Photo editor, Photo developer, Vector drawing, Graphic design, UI design | Picture tools |
 | Film | Video editor, Motion effects | Video tools |
 | Audio | Audio workstation | Trim, convert, join and improve sound |
 | CAD | CAD drafting | Light drafting board (lines, shapes, text, measure, DXF/SVG/PNG) |
