@@ -9,7 +9,7 @@ const en = {
   noticesTitle: 'Open-source notices',
   noticesIntro: 'Shootcut is free software. The full apps in the Studios are open-source programs under the MIT or Apache-2.0 licences; the licence texts are kept with each app and listed here.',
   footerNote: 'Free, open source, and everything runs in your browser',
-  tagline: 'Your files stay with you, professional programs, free, in your hands',
+  tagline: 'Your files stay with you. Professional programs, free, in your hands',
   privacyBadge: 'Free and runs in your browser',
   switchLang: 'العربية',
   switchLangLabel: 'Switch language to Arabic',
