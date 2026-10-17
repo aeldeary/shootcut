@@ -2845,9 +2845,13 @@ kbd {
 }
 .hero-headline {
   font-size: clamp(2rem, 4.6vw, 3.3rem);
-  line-height: 1.15;
+  line-height: 1.3;
   letter-spacing: -0.02em;
   text-wrap: balance;
+}
+[dir='rtl'] .hero-headline {
+  line-height: 1.5;
+  letter-spacing: 0;
 }
 .hero .badge {
   background: transparent;
