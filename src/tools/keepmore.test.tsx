@@ -80,46 +80,50 @@ describe('the file follows the person between tools', () => {
 });
 
 describe('tool bar', () => {
-  it('shows the groups as headings and opens a menu with that group\'s tools', () => {
+  const nav = () => screen.getByRole('navigation', { name: 'All tools' });
+  it('has three menus at most: the section, its tools and its full programs', () => {
     wrap(<Header showBack activeId="organize" section="pdf" />);
-    const nav = screen.getByRole('navigation', { name: 'All tools' });
-    expect(nav.querySelectorAll('button')).toHaveLength(6);
-    expect(nav.querySelectorAll('a')).toHaveLength(4); // the four sections
-    // the open tool's own group is marked, and its menu marks the tool
-    const heading = screen.getByRole('button', { name: /Organize pages/ });
-    expect(heading.className).toContain('is-here');
-    fireEvent.click(heading);
+    // the PDF section has no full programs of its own, so two menus
+    expect(nav().querySelectorAll('button')).toHaveLength(2);
+    expect(nav().querySelectorAll('a')).toHaveLength(0);
+    const tools = screen.getByRole('button', { name: /Tools/ });
+    expect(tools.className).toContain('is-here');
+    fireEvent.click(tools);
     const menu = screen.getByRole('menu');
+    expect(tools.getAttribute('aria-expanded')).toBe('true');
+    // every group is one column of the same panel, and the open tool is marked
+    expect(menu.querySelectorAll('[role=group]').length).toBeGreaterThan(3);
     expect(menu.querySelector('[aria-current="page"]')?.textContent).toContain('Organize');
-    expect(heading.getAttribute('aria-expanded')).toBe('true');
-    // another group opens its own tools
-    const create = screen.getByRole('button', { name: /Create/ });
-    expect(create.className).not.toContain('is-here');
-    fireEvent.click(create);
-    expect(screen.getByRole('menu').querySelector('a[href="#/merge"]')?.textContent).toContain('Merge');
+    expect(menu.querySelector('a[href="#/merge"]')?.textContent).toContain('Merge');
+  });
+  it('the section menu moves to another section', () => {
+    wrap(<Header showBack activeId="img-resize" section="image" />);
+    fireEvent.click(nav().querySelector('.toolnav-section')!);
+    const menu = screen.getByRole('menu');
+    expect(menu.querySelectorAll('a')).toHaveLength(4);
+    expect(menu.querySelector('[aria-current="page"]')?.getAttribute('href')).toBe('#/image');
+  });
+  it('the full programs menu lists the programs of the section', () => {
+    wrap(<Header showBack activeId="img-resize" section="image" />);
+    expect(nav().querySelectorAll('button')).toHaveLength(3);
+    fireEvent.click(screen.getByRole('button', { name: /Full programs/ }));
+    expect(screen.getByRole('menu').querySelector('a[href="#/studio/design"]')).toBeTruthy();
   });
   it('closes with Escape, with a second click and after picking a tool', () => {
     wrap(<Header showBack activeId="organize" section="pdf" />);
-    const heading = screen.getByRole('button', { name: /Create/ });
-    fireEvent.click(heading);
+    const tools = screen.getByRole('button', { name: /Tools/ });
+    fireEvent.click(tools);
     fireEvent.keyDown(screen.getByRole('menu'), { key: 'Escape' });
     expect(screen.queryByRole('menu')).toBeNull();
-    fireEvent.click(heading);
-    fireEvent.click(heading);
+    fireEvent.click(tools);
+    fireEvent.click(tools);
     expect(screen.queryByRole('menu')).toBeNull();
-    fireEvent.click(heading);
+    fireEvent.click(tools);
     fireEvent.click(screen.getByRole('menuitem', { name: /Merge/ }));
     expect(screen.queryByRole('menu')).toBeNull();
   });
-  it('the home page has no tool bar: its three section cards are the choice', () => {
+  it('the home page has no tool bar: its section cards are the choice', () => {
     wrap(<Header showBack={false} />);
     expect(screen.queryByRole('navigation', { name: 'All tools' })).toBeNull();
-  });
-  it('inside the image section it shows the image groups, and the PDF section the PDF ones', () => {
-    wrap(<Header showBack activeId="img-resize" section="image" />);
-    const nav = screen.getByRole('navigation', { name: 'All tools' });
-    expect(nav.querySelectorAll('button')).toHaveLength(5);
-    expect(screen.getByRole('button', { name: /Optimize/ }).className).toContain('is-here');
-    expect(nav.querySelector('a.is-here')?.getAttribute('href')).toBe('#/image');
   });
 });

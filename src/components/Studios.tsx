@@ -14,27 +14,31 @@ import {
   type StudioBuild,
 } from '../lib/studios';
 
-/** The full programs that belong to a section (Images, Video and audio, Sheets and slides), shown at the end of its page. */
+/** The full programs of a section, as a slim strip right under the section's title (never buried at the bottom). */
 export function SectionStudios({ section }: { section: SectionId }) {
   const { t } = useI18n();
   const list = studiosOfSection(section);
   if (list.length === 0) return null;
   return (
-    <section className="studios" aria-labelledby="studios-title">
-      <h2 id="studios-title">{t('sectionStudiosTitle')}</h2>
-      <p className="muted">{t('sectionStudiosDesc')}</p>
-      <div className="studio-grid">
+    <section className="studio-strip" aria-labelledby="studios-title">
+      <p className="studio-strip-head">
+        <strong id="studios-title">{t('sectionStudiosTitle')}</strong>
+        <span className="muted small">{t('sectionStudiosDesc')}</span>
+      </p>
+      <div className="studio-strip-list">
         {list.map((s) => {
           const Icon = s.icon;
           return (
-            <a key={s.id} className="section-card studio-card" href={`#/studio/${s.id}`} data-studio={s.id}>
-              <span className="section-icon">
-                <Icon size={30} aria-hidden />
+            <a key={s.id} className="studio-chip" href={`#/studio/${s.id}`} data-studio={s.id}>
+              <span className="card-icon">
+                <Icon size={22} aria-hidden />
               </span>
-              <span className="section-name" dir="auto">
-                {t(s.name)}
+              <span className="studio-chip-text">
+                <span className="studio-chip-name" dir="auto">
+                  {t(s.name)}
+                </span>
+                <span className="studio-chip-desc">{t(s.desc)}</span>
               </span>
-              <span className="muted">{t(s.desc)}</span>
               <span className="tag tag-new is-updated">{t('studioBeta')}</span>
             </a>
           );

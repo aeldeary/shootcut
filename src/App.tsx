@@ -166,8 +166,8 @@ function SectionPage({ section }: { section: SectionId }) {
     <div className="container">
       <h1 className="section-title">{t(sec.title)}</h1>
       <p className="muted lead">{t(sec.desc)}</p>
-      <ToolGrid section={section} />
       <SectionStudios section={section} />
+      <ToolGrid section={section} />
     </div>
   );
 }

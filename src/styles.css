@@ -1792,6 +1792,36 @@ label,
   font-weight: 700;
 }
 
+/* the section menu button is the "you are here" mark; the tools panel spans the bar and lists every group */
+.toolnav-section {
+  background: var(--primary);
+  color: var(--primary-ink);
+}
+.toolnav-section:hover,
+.toolnav-section.is-open {
+  background: var(--primary-hover);
+}
+.toolnav-panel {
+  inset-inline: max(12px, calc((100% - 1080px) / 2));
+  width: auto;
+  max-height: min(70vh, 560px);
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 6px 18px;
+  padding: 12px;
+}
+.toolnav-col {
+  display: flex;
+  flex-direction: column;
+}
+.toolnav-group {
+  margin: 0;
+  padding: 6px 10px 4px;
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
 @media (pointer: coarse) {
   .toolnav-btn {
     min-height: 40px;
@@ -2025,32 +2055,6 @@ kbd {
     display: block;
   }
 }
-.toolnav-sec {
-  flex: none;
-  display: inline-flex;
-  align-items: center;
-  min-height: 32px;
-  padding: 0 12px;
-  border-radius: 999px;
-  border: 1px solid var(--border);
-  font-size: 0.85rem;
-  font-weight: 700;
-  white-space: nowrap;
-  color: var(--text);
-  background: var(--surface);
-}
-.toolnav-sec.is-here {
-  background: var(--primary);
-  border-color: var(--primary);
-  color: var(--primary-ink);
-}
-.toolnav-sep {
-  flex: none;
-  width: 1px;
-  align-self: stretch;
-  margin-inline: 4px;
-  background: var(--border);
-}
 
 /* ---- image tools ---- */
 .img-files {
@@ -2182,25 +2186,6 @@ kbd {
 .tag-new.is-updated { background: transparent; color: var(--primary); }
 
 /* Studios */
-.studios {
-  margin-block: 36px 40px;
-}
-.studios h2 {
-  margin-block-end: 4px;
-  font-size: 1.15rem;
-}
-.studio-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 16px;
-  margin-top: 12px;
-}
-.studio-card {
-  padding: 24px 16px;
-}
-.studio-card .section-name {
-  font-size: 1.15rem;
-}
 .studio-page h1 {
   display: flex;
   align-items: center;
@@ -2772,4 +2757,59 @@ kbd {
   margin-inline-start: 6px;
   padding-block: 4px;
   width: auto;
+}
+
+/* The full programs of a section: a slim strip under the section's title */
+.studio-strip {
+  margin-block: 16px 4px;
+}
+.studio-strip-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 12px;
+  margin: 0 0 8px;
+}
+.studio-strip-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 12px;
+}
+.studio-chip {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  padding: 12px 14px;
+  background: var(--surface);
+  border: 1px solid color-mix(in srgb, var(--primary) 40%, var(--border));
+  border-radius: 12px;
+  color: inherit;
+  text-decoration: none;
+}
+.studio-chip:hover,
+.studio-chip:focus-visible {
+  border-color: var(--primary);
+  box-shadow: var(--shadow);
+}
+.studio-chip-text {
+  display: grid;
+  flex: 1;
+  gap: 2px;
+  min-width: 0;
+}
+.studio-chip-name {
+  font-weight: 700;
+}
+.studio-chip-desc {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 0.88rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.studio-chip .tag {
+  flex: none;
+  white-space: normal;
+  text-align: center;
 }
