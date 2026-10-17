@@ -3,7 +3,7 @@
 Live: https://aeldeary.github.io/shootcut/
 
 Free **PDF, image and video** tools that run **entirely in your browser**. No server, no uploads, no sign-up.
-The home page is a search box (Arabic and English) and five sections: PDF, Images, Video and audio, Sheets and slides, Engineering; each section page opens with a slim strip of its full programs (Studios), the five sections are a bar of tabs under the header on every page, each section page groups its tools in tabs, and the tool bar inside a section has two menus: tools and full programs. Interface in Arabic (RTL) and English (LTR).
+The home page is a search box (Arabic and English) and five sections: PDF, Images and designs, Video, audio and editing, Documents, sheets and slides, Engineering; each section page opens with a slim strip of its full programs (Studios), the five sections are a bar of tabs under the header on every page, each section page groups its tools in tabs, and the tool bar inside a section has two menus: tools and full programs. Interface in Arabic (RTL) and English (LTR).
 
 أدوات مجانية للـ **PDF والصور والفيديو** تعمل **بالكامل داخل المتصفح**. بلا خادم ولا رفع ملفات ولا تسجيل.
 تضم الصفحة الرئيسية ثلاثة أقسام: PDF والصور والفيديو. الواجهة بالعربية (من اليمين إلى اليسار) والإنجليزية (من اليسار إلى اليمين).

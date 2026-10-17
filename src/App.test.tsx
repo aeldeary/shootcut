@@ -57,7 +57,7 @@ describe('the home page', () => {
       </I18nProvider>,
     );
     go('#/studio/film');
-    await waitFor(() => expect(document.querySelector('.main-tab.is-active')?.textContent).toBe('Video & audio'));
+    await waitFor(() => expect(document.querySelector('.main-tab.is-active')?.textContent).toBe('Video, audio & editing'));
     go('#/studio/cad');
     await waitFor(() => expect(document.querySelector('.main-tab.is-active')?.textContent).toBe('Engineering'));
   });

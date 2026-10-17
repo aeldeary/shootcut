@@ -59,7 +59,6 @@ export function SectionStudios({ section }: { section: SectionId }) {
                 </span>
                 <span className="studio-chip-desc">{t(s.desc)}</span>
               </span>
-              <span className="tag tag-new is-updated">{t("studioBeta")}</span>
             </a>
           );
         })}
