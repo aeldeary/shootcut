@@ -280,7 +280,6 @@ export default function App() {
       <footer className="site-footer">
         <p>
           <strong>{t('footerCredit')}</strong>
-          <span>{t('footerNote')}</span>
         </p>
       </footer>
       {toastText && <div className="toast" role="status">{toastText}</div>}
