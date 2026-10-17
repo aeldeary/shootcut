@@ -138,6 +138,9 @@ function Home() {
               {t('appName')}
             </h2>
           </div>
+          <div className="hero-logo">
+            <img src="./logo.svg" alt={t('appName')} width={554} height={586} />
+          </div>
         </div>
       </section>
       <div className="container home-body">

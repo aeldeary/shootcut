@@ -3074,21 +3074,19 @@ a.card:hover {
   padding-block-end: 56px;
 }
 
-/* Header: the original logo (mark with the name in English and Arabic) */
-.brand img {
-  width: auto;
-  height: 64px;
+/* Home hero: the original logo (mark with the name in English and Arabic) on a white card */
+.hero .hero-logo {
+  width: clamp(120px, 18vw, 190px);
+  padding: 18px 20px;
+}
+.hero .hero-logo img {
   display: block;
+  width: 100%;
+  height: auto;
 }
-.header-row {
-  min-height: 74px;
-}
-@media (max-width: 520px) {
-  .brand img {
-    width: auto;
-    height: 54px;
-  }
-  .header-row {
-    min-height: 64px;
+@media (max-width: 640px) {
+  .hero .hero-inner {
+    flex-direction: column-reverse;
+    align-items: flex-start;
   }
 }
