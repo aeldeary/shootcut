@@ -125,6 +125,11 @@ function ToolGrid({ section }: { section: SectionId }) {
 }
 
 /** The home page: a search box and the five sections, nothing else. New tools are marked with a badge on their cards. */
+function readyCount(section: SectionId): number {
+  const groups = new Set(GROUPS.filter((g) => g.section === section).map((g) => g.id));
+  return TOOLS.filter((x) => x.status === 'ready' && groups.has(x.group)).length;
+}
+
 function Home() {
   const { t } = useI18n();
   return (
@@ -138,6 +143,7 @@ function Home() {
               {t('appName')}
             </h2>
           </div>
+          <div className="hero-aurora" aria-hidden />
           <div className="hero-logo">
             <img src="./logo.svg" alt={t('appName')} width={554} height={586} />
           </div>
@@ -146,13 +152,13 @@ function Home() {
       <div className="container home-body">
         <ToolSearch />
         <nav className="sections" aria-label={t('sectionsNav')}>
-          {SECTIONS.map((sec, i) => {
+          {SECTIONS.map((sec) => {
             const Icon = sec.icon;
             return (
               <a key={sec.id} className="section-card" href={`#/${sec.id}`}>
                 <span className="section-top">
-                  <span className="section-num" aria-hidden>
-                    0{i + 1}
+                  <span className="section-count">
+                    {readyCount(sec.id)} {t('toolsUnit')}
                   </span>
                   <span className="section-icon">
                     <Icon size={30} aria-hidden />
