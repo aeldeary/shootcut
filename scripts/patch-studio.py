@@ -866,7 +866,11 @@ PDF_LOADING = (
 def cmd_dist(dist, repo, lang=None):
     idx = os.path.join(dist, 'index.html')
     h = open(idx, encoding='utf-8').read()
-    h = LOADING_RE.sub(r'\1Loading Shootcut Program&hellip;\2', h)
+    # a loading screen with only text gets Shootcut's mark above it, like the editing programs that already show one
+    h, n_mark = LOADING_RE.subn(r'\1<img class="sc-mark" src="./shootcut-icon.svg" alt="">Loading Shootcut Program&hellip;\2', h)
+    if n_mark:
+        h = h.replace('</head>', '  <style>[id$="_loading"]{flex-direction:column;align-items:center;text-align:center}'
+                      '[id$="_loading"] img.sc-mark{display:block;width:88px;height:88px;margin:0 auto 14px}</style>\n</head>', 1)
     h = re.sub(r'Loading [A-Za-z]*Craft(?:…|&hellip;|\.\.\.)', 'Loading Shootcut Program\u2026', h)
     h = re.sub(r'If (?:Photo|Film|Effect|Light|Design|Word|Deck|Vector|Grid|Sound|CAD|Fig)Craft doesn', 'If Shootcut Program doesn', h)
     h = re.sub(r'<title>[^<]*</title>', '<title>Shootcut</title>', h)
