@@ -887,6 +887,9 @@ def cmd_dist(dist, repo, lang=None):
     h = re.sub(r'Loading [A-Za-z]*Craft(?:…|&hellip;|\.\.\.)', 'Loading Shootcut Program\u2026', h)
     h = re.sub(r'If (?:Photo|Film|Effect|Light|Design|Word|Deck|Vector|Grid|Sound|CAD|Fig)Craft doesn', 'If Shootcut Program doesn', h)
     h = re.sub(r'<title>[^<]*</title>', '<title>Shootcut</title>', h)
+    # a program that cannot start says so in Shootcut's name, with a way out, and keeps the technical lines below
+    h = re.sub(r'"[A-Za-z]*Craft failed to start:\\n"',
+               lambda m: '"Shootcut Program could not start.\\nIt needs a browser with graphics acceleration. Tick \\u201cCompatibility mode (WebGL)\\u201d above the program and reload the page.\\n\\nDetails:\\n"', h)
     h = re.sub(r'<link rel="icon"[^>]*>\s*', '', h)
     h = h.replace('<head>', '<head>\n  <link rel="icon" type="image/svg+xml" href="./shootcut-icon.svg">\n'
                   '  <script>try{var q=new URLSearchParams(location.search).get("lang");if(q){var l=[q];'
