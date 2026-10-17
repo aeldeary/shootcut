@@ -186,14 +186,18 @@ function UndoRedo() {
 
 export function ToolPage({ title, desc, children }: { title: string; desc: string; children: ReactNode }) {
   return (
-    <section className="container tool-page">
-      <div className="tool-head">
-        <h1>{title}</h1>
-        <UndoRedo />
-      </div>
-      <p className="muted lead">{desc}</p>
-      {children}
-    </section>
+    <>
+      <header className="page-head tool-band">
+        <div className="container tool-head">
+          <div className="tool-titles">
+            <h1 className="section-title">{title}</h1>
+            <p className="lead">{desc}</p>
+          </div>
+          <UndoRedo />
+        </div>
+      </header>
+      <section className="container tool-page">{children}</section>
+    </>
   );
 }
 

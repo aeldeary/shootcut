@@ -2982,3 +2982,82 @@ a.card:hover {
     height: 48px;
   }
 }
+
+/* ---- Tool pages: the same dark band as the sections, a bolder drop area ---- */
+.tool-band {
+  padding-block: 38px 36px;
+}
+.tool-band .tool-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+.tool-band .tool-titles {
+  min-width: 0;
+}
+.tool-band .section-title {
+  font-size: clamp(1.7rem, 4vw, 2.5rem);
+}
+.tool-band .history-bar {
+  background: var(--ink-2);
+  border-color: var(--ink-line);
+}
+.tool-band .history-bar .icon-btn {
+  background: transparent;
+  border-color: var(--ink-line);
+  color: var(--ink-text);
+}
+.tool-band .history-bar .icon-btn:disabled {
+  color: var(--ink-muted);
+  opacity: 0.45;
+}
+.tool-page {
+  padding-block: 28px 56px;
+}
+.dropzone {
+  gap: 10px;
+  padding: 56px 20px;
+  border: 2px dashed color-mix(in srgb, var(--primary) 45%, var(--border));
+  border-radius: 22px;
+  background:
+    radial-gradient(600px 220px at 50% 0%, color-mix(in srgb, var(--primary) 7%, transparent), transparent 70%),
+    var(--surface);
+}
+.dropzone > svg:first-child {
+  box-sizing: content-box;
+  padding: 16px;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--primary);
+}
+.dropzone-title {
+  font-size: 1.25rem;
+}
+.dropzone.is-compact {
+  padding: 16px;
+  border-radius: 16px;
+}
+.dropzone.is-compact > svg:first-child {
+  padding: 0;
+  background: none;
+}
+.btn.primary,
+.btn-primary {
+  border-radius: 12px;
+}
+.site-footer {
+  background: var(--ink);
+  color: var(--ink-text);
+  border-block-start: 0;
+}
+.site-footer span,
+.site-footer .muted,
+.footer-link {
+  color: #c9c5be;
+}
+@media (max-width: 720px) {
+  .tool-band {
+    padding-block: 20px 22px;
+  }
+}
