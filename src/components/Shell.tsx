@@ -11,8 +11,7 @@ export function Header({ showBack, activeId, section }: { showBack: boolean; act
     <header className="header">
       <div className="container header-row">
         <a className="brand" href="#/" aria-label={t('appName')}>
-          <img src="./favicon.svg" alt="" width={32} height={32} />
-          <span dir="ltr">{t('appName')}</span>
+          <img src="./logo.svg" alt={t('appName')} width={46} height={49} />
         </a>
         <div className="header-actions">
           {showBack && (

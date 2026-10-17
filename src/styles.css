@@ -3073,3 +3073,22 @@ a.card:hover {
 .section-card {
   padding-block-end: 56px;
 }
+
+/* Header: the original logo (mark with the name in English and Arabic) */
+.brand img {
+  width: auto;
+  height: 64px;
+  display: block;
+}
+.header-row {
+  min-height: 74px;
+}
+@media (max-width: 520px) {
+  .brand img {
+    width: auto;
+    height: 54px;
+  }
+  .header-row {
+    min-height: 64px;
+  }
+}
