@@ -153,3 +153,10 @@ Adobe and Acrobat are trademarks of Adobe Inc.
 
 ## Your files stay with you
 The PDF, pictures or video you open are kept in this browser (IndexedDB, never uploaded) only after you say yes the first time, and for 24 hours, so the next tool of the same kind opens with them. A bar under the file lets you delete one file, delete all saved files, or switch keeping off.
+
+## Custom domain
+
+1. Buy the domain, then in the repository open Settings, Pages, Custom domain and enter it (for example `shootcut.com`); turn on Enforce HTTPS once the certificate is ready.
+2. At the domain registrar add the DNS records. For an apex domain: four `A` records to `185.199.108.153`, `185.199.109.153`, `185.199.110.153`, `185.199.111.153` (and, optionally, four `AAAA` records `2606:50c0:8000::153` to `2606:50c0:8003::153`). For `www`: a `CNAME` record pointing to `aeldeary.github.io`.
+3. In Settings, Secrets and variables, Actions, Variables add `CUSTOM_DOMAIN` with the same domain (no `https://`). The next deploy writes the `CNAME` file and sets the canonical link, share card, `robots.txt` and `sitemap.xml` to the new address.
+4. Nothing else changes: the site uses relative paths, so it works at the root of a domain as well as under `/shootcut/`.

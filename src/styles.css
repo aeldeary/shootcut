@@ -3550,3 +3550,78 @@ a.card:hover .card-icon {
     position: relative;
   }
 }
+
+/* ===== Smoothness ===== */
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+body {
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+::selection {
+  background: color-mix(in srgb, var(--primary) 30%, transparent);
+}
+.route {
+  animation: route-in 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes route-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+.route-loading {
+  position: fixed;
+  inset-block-start: 0;
+  inset-inline: 0;
+  height: 3px;
+  z-index: 50;
+  background: linear-gradient(90deg, transparent, var(--primary), transparent);
+  background-size: 40% 100%;
+  background-repeat: no-repeat;
+  animation: route-bar 1s ease-in-out infinite;
+}
+@keyframes route-bar {
+  from {
+    background-position: -40% 0;
+  }
+  to {
+    background-position: 140% 0;
+  }
+}
+a,
+button,
+.card,
+.main-tab,
+.group-tab,
+.btn,
+.input {
+  transition-property: background-color, border-color, color, box-shadow, transform, opacity;
+  transition-duration: 0.18s;
+  transition-timing-function: ease;
+}
+.btn:active,
+.group-tab:active,
+.main-tab:active {
+  transform: scale(0.97);
+}
+.search-box:focus-within {
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary) 22%, transparent), 0 18px 50px rgb(0 0 0 / 22%);
+}
+:focus-visible {
+  outline-offset: 3px;
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .route,
+  .route-loading {
+    animation: none;
+  }
+  * {
+    transition-duration: 0.01ms !important;
+  }
+}

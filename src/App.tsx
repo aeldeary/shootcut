@@ -269,6 +269,10 @@ export default function App() {
     },
     0,
   );
+  // a new page starts at the top (the shortcuts page scrolls itself to its table)
+  useEffect(() => {
+    if (route !== 'shortcuts') window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
+  }, [route]);
   const tool = findTool(route);
   const page = route === 'features' || route === 'shortcuts';
   // The PDF section opens on a page with a Full / Light switch; its light edition is the PDF tools.
@@ -283,7 +287,8 @@ export default function App() {
     <>
       <Header showBack={active !== null || page || sectionPage !== null || studioRoute !== null} activeId={active} section={section} />
       <main data-section={section ?? ''}>
-        <Suspense fallback={null}>
+        <Suspense fallback={<div className="route-loading" role="progressbar" aria-label={t('loading')} />}>
+          <div key={route} className="route">
           {studioRoute ? (
             studioRoute.app ? (
               <StudioLauncher key={studioRoute.app.id} studio={studioRoute.studio} app={studioRoute.app} />
@@ -305,6 +310,7 @@ export default function App() {
           ) : (
             <Home />
           )}
+          </div>
         </Suspense>
       </main>
       <footer className="site-footer">
