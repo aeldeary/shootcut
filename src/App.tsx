@@ -144,7 +144,7 @@ function readyCount(section: SectionId): number {
 }
 
 function Home() {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   return (
     <>
       <section className="hero">
@@ -153,7 +153,7 @@ function Home() {
             <PrivacyBadge />
             <h1 className="hero-headline">
               {t('tagline')
-                .split(/(?<=[,،.])\s+/)
+                .split(lang === 'ar' ? /(?<=،)\s+/ : /$^/)
                 .map((line, i) => (
                   <span key={i} className="hero-line">
                     {line}
