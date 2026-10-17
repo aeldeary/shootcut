@@ -411,9 +411,13 @@ export function StudioLauncher({
       ? Math.min(1, box.w / DESIGN_W, box.h / DESIGN_H)
       : 1;
   // very sharp screens (3x phones) would make the drawing surface huge: the program is told 2x at most
-  const [dpr] = useState(() =>
-    typeof window !== "undefined" && window.devicePixelRatio > 2 ? 2 : 0,
-  );
+  // the video and effects programs redraw the whole canvas every frame: they are told 1x on any sharp screen so the browser keeps up
+  const [dpr] = useState(() => {
+    if (typeof window === "undefined") return 0;
+    const r = window.devicePixelRatio;
+    if ((app.id === "effect" || app.id === "film") && r > 1) return 1;
+    return r > 2 ? 2 : 0;
+  });
   const keys = t(KEYS_BY_APP[app.id] ?? "studioKeysDefault");
   const lockHint = t("studioLockHint").replace("{keys}", keys);
   // the program opens in the chosen language (?lang=), else Shootcut's, with WebGL compatibility unless switched off
