@@ -886,6 +886,8 @@ def cmd_dist(dist, repo, lang=None):
                       '[id$="_loading"] img.sc-mark{display:block;width:88px;height:88px;margin:0 auto 14px}</style>\n</head>', 1)
     h = re.sub(r'Loading [A-Za-z]*Craft(?:…|&hellip;|\.\.\.)', 'Loading Shootcut Program\u2026', h)
     h = re.sub(r'If (?:Photo|Film|Effect|Light|Design|Word|Deck|Vector|Grid|Sound|CAD|Fig)Craft doesn', 'If Shootcut Program doesn', h)
+    # whatever visible name is left in the page (stopped-working, stalled and failed-to-load messages, the description)
+    h = re.sub(r'\b(?:Photo|Film|Effect|Light|Design|Word|Deck|Vector|Grid|Sound|CAD|Fig|Pdf|PDF)Craft\b', 'Shootcut Program', h)
     h = re.sub(r'<title>[^<]*</title>', '<title>Shootcut</title>', h)
     # a program that cannot start says so in Shootcut's name, with a way out, and keeps the technical lines below
     h = re.sub(r'"[A-Za-z]*Craft failed to start:\\n"',
