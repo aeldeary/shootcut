@@ -876,7 +876,8 @@ def cmd_dist(dist, repo, lang=None):
                   'Object.defineProperty(navigator,"language",{get:function(){return q}});'
                   'Object.defineProperty(navigator,"languages",{get:function(){return l}});'
                   'document.documentElement.lang=q;if(q==="ar")document.documentElement.dir="rtl"}}catch(e){}</script>\n'
-                  '  <script>try{if(new URLSearchParams(location.search).has("webgl"))Object.defineProperty(navigator,"gpu",{get:function(){return undefined}})}catch(e){}</script>', 1)
+                  '  <script>try{if(new URLSearchParams(location.search).has("webgl"))Object.defineProperty(navigator,"gpu",{get:function(){return undefined}})}catch(e){}</script>\n'
+                  '  <script>try{var d=parseFloat(new URLSearchParams(location.search).get("dpr"));if(d>0)Object.defineProperty(window,"devicePixelRatio",{get:function(){return d}})}catch(e){}</script>', 1)
     if repo == 'figcraft':
         # The browser must not take the design shortcuts (duplicate, group, find, save, print, zoom, ...): stop its default, the app still sees the key
         h = h.replace('</head>', '  <script>addEventListener("keydown",function(e){try{if((e.ctrlKey||e.metaKey)&&!e.altKey&&/^(Key[BDEFGHIJKLOPSU]|Digit[0-9]|Equal|Minus|NumpadAdd|NumpadSubtract|BracketLeft|BracketRight|Comma|Period|Slash|Quote|Backslash|Semicolon)$/.test(e.code))e.preventDefault()}catch(x){}},true)</script>\n</head>', 1)

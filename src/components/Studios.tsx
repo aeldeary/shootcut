@@ -364,6 +364,10 @@ function saveProgramLang(v: ProgramLang): void {
   }
 }
 
+/** the screen size a program is drawn for; a smaller window shows it scaled down */
+const DESIGN_W = 1100;
+const DESIGN_H = 680;
+
 /** Runs one built app in a frame, with Shootcut's own toolbar and credit line around it. */
 export function StudioLauncher({
   studio,
@@ -381,13 +385,43 @@ export function StudioLauncher({
   const [loaded, setLoaded] = useState(false);
   const [fontsOpen, setFontsOpen] = useState(false);
   const frame = useRef<HTMLIFrameElement>(null);
+  const wrap = useRef<HTMLDivElement>(null);
+  // The program is drawn as if on a desktop-sized screen and scaled down to fit, so on a phone or a tablet (in either
+  // orientation) every window and menu is on screen. It follows rotation and full screen.
+  const [box, setBox] = useState({ w: 0, h: 0 });
+  useEffect(() => {
+    const el = wrap.current;
+    if (!el) return;
+    const read = () => setBox({ w: el.clientWidth, h: el.clientHeight });
+    read();
+    const ro =
+      typeof ResizeObserver !== "undefined" ? new ResizeObserver(read) : null;
+    ro?.observe(el);
+    window.addEventListener("resize", read);
+    window.addEventListener("orientationchange", read);
+    document.addEventListener("fullscreenchange", read);
+    return () => {
+      ro?.disconnect();
+      window.removeEventListener("resize", read);
+      window.removeEventListener("orientationchange", read);
+      document.removeEventListener("fullscreenchange", read);
+    };
+  }, []);
+  const scale =
+    box.w > 0 && box.h > 0
+      ? Math.min(1, box.w / DESIGN_W, box.h / DESIGN_H)
+      : 1;
+  // very sharp screens (3x phones) would make the drawing surface huge: the program is told 2x at most
+  const [dpr] = useState(() =>
+    typeof window !== "undefined" && window.devicePixelRatio > 2 ? 2 : 0,
+  );
   const keys = t(KEYS_BY_APP[app.id] ?? "studioKeysDefault");
   const lockHint = t("studioLockHint").replace("{keys}", keys);
   // the program opens in the chosen language (?lang=), else Shootcut's, with WebGL compatibility unless switched off
   // only Documents (and the PDF editor) are translated; the Design, Video editing, Audio and Engineering programs stay in English
   const translated = studio.id === "docs" || studio.id === "pdf";
   const programLang = !translated ? "en" : choice === "site" ? lang : choice;
-  const src = `${studioBase(app.id)}index.html?lang=${programLang}${webgl ? "&webgl" : ""}`;
+  const src = `${studioBase(app.id)}index.html?lang=${programLang}${webgl ? "&webgl" : ""}${dpr ? `&dpr=${dpr}` : ""}`;
 
   return (
     <div className="studio-launcher">
@@ -448,7 +482,7 @@ export function StudioLauncher({
           <button
             type="button"
             className="btn btn-primary fs-attn"
-            onClick={() => void goFullscreen(frame.current)}
+            onClick={() => void goFullscreen(wrap.current)}
           >
             <Maximize size={14} aria-hidden /> {t("studioFullscreen")}
           </button>
@@ -471,7 +505,7 @@ export function StudioLauncher({
           <button
             type="button"
             className="btn btn-primary"
-            onClick={() => void goFullscreen(frame.current)}
+            onClick={() => void goFullscreen(wrap.current)}
           >
             {t("studioFullscreen")}
           </button>
@@ -480,7 +514,7 @@ export function StudioLauncher({
       {fontsOpen && (
         <StudioFonts frame={frame} onClose={() => setFontsOpen(false)} />
       )}
-      <div className="frame-wrap">
+      <div className="frame-wrap" ref={wrap}>
         {!loaded && (
           <p className="muted frame-loading" role="status">
             {t("studioLoading")}
@@ -490,6 +524,19 @@ export function StudioLauncher({
           key={`${src}#${nonce}`}
           ref={frame}
           className="studio-frame"
+          style={
+            scale < 1
+              ? {
+                  inset: "auto",
+                  top: 0,
+                  left: 0,
+                  width: box.w / scale,
+                  height: box.h / scale,
+                  transform: `scale(${scale})`,
+                  transformOrigin: "top left",
+                }
+              : undefined
+          }
           title={`${t("studioFrameTitle")}: ${t(app.name)}`}
           src={src}
           sandbox="allow-scripts allow-same-origin allow-downloads allow-popups allow-modals"
