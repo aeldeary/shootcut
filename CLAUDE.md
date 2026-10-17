@@ -23,7 +23,7 @@ Whenever a feature is added, changed or removed, update the Features page in the
 
 - PDF has two editions: the PDF card (`#/pdf`) opens `StudioPage` for the hidden studio `pdf` (`hidden: true` in `STUDIOS`, so it is not a sixth studio and not in the Studios block): Full = the pdfcraft app (`studio/pdf/pdf`, matrix id `pdf`), Light = the PDF tools (`ToolGrid section="pdf"` passed as `lightContent`). `patch-studio.py` has pdfcraft EDITS (Discord button, home community card, about logo, link tables) and `PDF_LOADING` (a Shootcut loading screen, since its page is a bare canvas).
 
-- The tool bar under the header (`ToolNav` in `src/components/Shell.tsx`) has at most three menus: the section (to move to another), "Tools" (every group of the section in one panel) and "Full programs" (the section's studios). Never go back to a row of group buttons.
+- The five sections are always visible as tabs under the header (`main-tabs` in `Header`, `src/components/Shell.tsx`) on every page, the current one highlighted: moving to another section never needs a trip back to the home page. Inside a section the tool bar (`ToolNav`) has at most two menus: "Tools" (every group of the section in one panel) and "Full programs" (the section's studios). Section pages (`ToolGrid` in `src/App.tsx`) show the groups as tabs (All + one per group). A group with a single tool is merged into a neighbouring group instead of standing alone (forms into review, convert into optimize, slides into sheets). Tool pages show a breadcrumb chip with their section. Never go back to a row of group buttons.
 
 ## Other conventions
 - Arabic text in the interface is Modern Standard Arabic (Fusha), not dialect.

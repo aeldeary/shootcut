@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } fro
 import { ArrowLeft, ChevronDown, Languages, Redo2, ShieldCheck, Sparkles, Undo2, type LucideIcon } from 'lucide-react';
 import { historyStore } from '../lib/history';
 import { useI18n } from '../i18n';
-import { GROUPS, SECTIONS, TOOLS, type SectionId } from '../lib/tools';
+import { GROUPS, SECTIONS, TOOLS, sectionOfRoute, type SectionId } from '../lib/tools';
 import { studiosOfSection } from '../lib/studios';
 
 export function Header({ showBack, activeId, section }: { showBack: boolean; activeId?: string | null; section?: SectionId | null }) {
@@ -31,19 +31,33 @@ export function Header({ showBack, activeId, section }: { showBack: boolean; act
           </button>
         </div>
       </div>
-      {(showBack || section) && <ToolNav activeId={activeId ?? null} section={section ?? null} />}
+      <nav className="main-tabs" aria-label={t('sectionsNav')}>
+        <div className="container main-tabs-row">
+          {SECTIONS.map((sec) => {
+            const Icon = sec.icon;
+            const on = sec.id === section;
+            return (
+              <a key={sec.id} href={`#/${sec.id}`} className={`main-tab${on ? ' is-active' : ''}`} data-section={sec.id} aria-current={on ? 'page' : undefined}>
+                <Icon size={17} aria-hidden />
+                <span>{t(sec.title)}</span>
+              </a>
+            );
+          })}
+        </div>
+      </nav>
+      {section && <ToolNav activeId={activeId ?? null} section={section} />}
     </header>
   );
 }
 
-type MenuId = 'section' | 'tools' | 'studios';
+type MenuId = 'tools' | 'studios';
 
 /**
  * One slim row under the header with at most three menus: the section (to move to another), the tools of this
  * section (every group in one panel) and the full programs of this section. Switching tools or sections never
  * needs a trip back to the home page.
  */
-function ToolNav({ activeId, section }: { activeId: string | null; section: SectionId | null }) {
+function ToolNav({ activeId, section }: { activeId: string | null; section: SectionId }) {
   const { t } = useI18n();
   const wrap = useRef<HTMLDivElement>(null);
   const menu = useRef<HTMLDivElement>(null);
@@ -78,11 +92,10 @@ function ToolNav({ activeId, section }: { activeId: string | null; section: Sect
     items[dir === 'first' ? 0 : (at + dir + items.length) % items.length]?.focus();
   };
 
-  const current = SECTIONS.find((x) => x.id === section);
   const groups = GROUPS.filter((g) => g.section === section)
     .map((g) => ({ ...g, tools: TOOLS.filter((x) => x.group === g.id && x.status === 'ready') }))
     .filter((g) => g.tools.length > 0);
-  const studios = section ? studiosOfSection(section) : [];
+  const studios = studiosOfSection(section);
 
   const trigger = (id: MenuId, label: string, extra = '') => {
     const isOpen = open?.id === id;
@@ -120,7 +133,6 @@ function ToolNav({ activeId, section }: { activeId: string | null; section: Sect
   return (
     <div className="toolnav-wrap" ref={wrap}>
       <nav className="toolnav" aria-label={t('toolsNav')}>
-        {trigger('section', current ? t(current.title) : t('sectionsNav'))}
         {groups.length > 0 && trigger('tools', t('navTools'), activeId ? ' is-here' : '')}
         {studios.length > 0 && trigger('studios', t('navStudios'))}
       </nav>
@@ -141,7 +153,6 @@ function ToolNav({ activeId, section }: { activeId: string | null; section: Sect
             }
           }}
         >
-          {open.id === 'section' && SECTIONS.map((sec) => link(sec.id, `#/${sec.id}`, sec.icon, t(sec.title), sec.id === section))}
           {open.id === 'studios' && studios.map((s) => link(s.id, `#/studio/${s.id}`, s.icon, t(s.name)))}
           {open.id === 'tools' &&
             groups.map((g) => (
@@ -185,11 +196,20 @@ function UndoRedo() {
 }
 
 export function ToolPage({ title, desc, children }: { title: string; desc: string; children: ReactNode }) {
+  const { t } = useI18n();
+  const sid = sectionOfRoute(window.location.hash.replace(/^#\/?/, ''));
+  const crumb = SECTIONS.find((x) => x.id === sid);
   return (
     <>
       <header className="page-head tool-band">
         <div className="container tool-head">
           <div className="tool-titles">
+            {crumb && (
+              <a className="crumb" href={`#/${crumb.id}`}>
+                <crumb.icon size={15} aria-hidden />
+                {t(crumb.title)}
+              </a>
+            )}
             <h1 className="section-title">{title}</h1>
             <p className="lead">{desc}</p>
           </div>

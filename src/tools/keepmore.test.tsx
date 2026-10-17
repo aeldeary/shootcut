@@ -81,10 +81,10 @@ describe('the file follows the person between tools', () => {
 
 describe('tool bar', () => {
   const nav = () => screen.getByRole('navigation', { name: 'All tools' });
-  it('has three menus at most: the section, its tools and its full programs', () => {
+  it('has two menus at most: the tools and the full programs of the section', () => {
     wrap(<Header showBack activeId="organize" section="pdf" />);
-    // the PDF section has no full programs of its own, so two menus
-    expect(nav().querySelectorAll('button')).toHaveLength(2);
+    // the PDF section has no full programs of its own, so one menu
+    expect(nav().querySelectorAll('button')).toHaveLength(1);
     expect(nav().querySelectorAll('a')).toHaveLength(0);
     const tools = screen.getByRole('button', { name: /Tools/ });
     expect(tools.className).toContain('is-here');
@@ -96,16 +96,15 @@ describe('tool bar', () => {
     expect(menu.querySelector('[aria-current="page"]')?.textContent).toContain('Organize');
     expect(menu.querySelector('a[href="#/merge"]')?.textContent).toContain('Merge');
   });
-  it('the section menu moves to another section', () => {
+  it('the main bar shows the five sections at all times and marks the current one', () => {
     wrap(<Header showBack activeId="img-resize" section="image" />);
-    fireEvent.click(nav().querySelector('.toolnav-section')!);
-    const menu = screen.getByRole('menu');
-    expect(menu.querySelectorAll('a')).toHaveLength(5);
-    expect(menu.querySelector('[aria-current="page"]')?.getAttribute('href')).toBe('#/image');
+    const bar = screen.getByRole('navigation', { name: 'Sections' });
+    expect(bar.querySelectorAll('a')).toHaveLength(5);
+    expect(bar.querySelector('[aria-current="page"]')?.getAttribute('href')).toBe('#/image');
   });
   it('the full programs menu lists the programs of the section', () => {
     wrap(<Header showBack activeId="img-resize" section="image" />);
-    expect(nav().querySelectorAll('button')).toHaveLength(3);
+    expect(nav().querySelectorAll('button')).toHaveLength(2);
     fireEvent.click(screen.getByRole('button', { name: /Full programs/ }));
     expect(screen.getByRole('menu').querySelector('a[href="#/studio/design"]')).toBeTruthy();
   });

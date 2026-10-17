@@ -3268,3 +3268,285 @@ a.card:hover {
     animation: none;
   }
 }
+
+/* ===== Section accents ===== */
+main[data-section='pdf'], .main-tab[data-section='pdf'] { --sec: #d71920; }
+main[data-section='image'], .main-tab[data-section='image'] { --sec: #e8590c; }
+main[data-section='video'], .main-tab[data-section='video'] { --sec: #7048e8; }
+main[data-section='office'], .main-tab[data-section='office'] { --sec: #1c7ed6; }
+main[data-section='eng'], .main-tab[data-section='eng'] { --sec: #0ca678; }
+main { --sec: var(--primary); }
+
+/* ===== The main bar: the five sections, always one click away ===== */
+.main-tabs {
+  border-block-start: 1px solid var(--border);
+}
+.main-tabs-row {
+  display: flex;
+  gap: 6px;
+  padding-block: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.main-tabs-row::-webkit-scrollbar {
+  display: none;
+}
+.main-tab {
+  --sec: var(--primary);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+  padding: 9px 16px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--muted);
+  white-space: nowrap;
+  transition: background 0.2s, color 0.2s;
+}
+.main-tab svg {
+  color: var(--sec);
+}
+.main-tab:hover {
+  background: color-mix(in srgb, var(--sec) 10%, transparent);
+  color: var(--fg, inherit);
+}
+.main-tab.is-active {
+  background: var(--sec);
+  color: #fff;
+  box-shadow: 0 8px 20px color-mix(in srgb, var(--sec) 35%, transparent);
+}
+.main-tab.is-active svg {
+  color: #fff;
+}
+.main-tab:focus-visible {
+  outline: 2px solid var(--sec);
+  outline-offset: 2px;
+}
+
+/* ===== Section page head and group tabs ===== */
+.section-head {
+  background-image:
+    radial-gradient(700px 280px at 92% -30%, color-mix(in srgb, var(--sec) 55%, transparent), transparent 70%),
+    linear-gradient(rgb(255 255 255 / 4%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(255 255 255 / 4%) 1px, transparent 1px);
+  background-size: auto, 48px 48px, 48px 48px;
+  padding-block: 44px 48px;
+}
+.section-head-row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.section-head-row > div {
+  flex: 1;
+  min-width: 0;
+}
+.section-head-icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 72px;
+  height: 72px;
+  border-radius: 22px;
+  background: var(--sec);
+  color: #fff;
+  box-shadow: 0 14px 34px color-mix(in srgb, var(--sec) 45%, transparent);
+}
+.section-head .section-title {
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  margin: 0;
+}
+.section-head-count {
+  flex: none;
+  background: rgb(255 255 255 / 12%);
+  color: #fff;
+}
+.group-tabs {
+  display: flex;
+  gap: 8px;
+  margin-block: 26px 18px;
+  padding-block-end: 2px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.group-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+  padding: 10px 16px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  color: inherit;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, color 0.2s, box-shadow 0.2s;
+}
+.group-tab:hover {
+  border-color: var(--sec);
+}
+.group-tab.is-active {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--ink-text);
+  box-shadow: 0 10px 24px rgb(0 0 0 / 22%);
+}
+.group-tab-n {
+  min-width: 24px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  text-align: center;
+  background: color-mix(in srgb, var(--sec) 14%, transparent);
+  color: var(--sec);
+}
+.group-tab.is-active .group-tab-n {
+  background: var(--sec);
+  color: #fff;
+}
+.group-tab:focus-visible {
+  outline: 2px solid var(--sec);
+  outline-offset: 2px;
+}
+.group h2 {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.group h2::before {
+  content: '';
+  width: 6px;
+  height: 1.2em;
+  border-radius: 3px;
+  background: var(--sec);
+}
+
+/* ===== Tool cards ===== */
+.card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 20px;
+}
+.card .card-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--sec) 13%, transparent);
+  color: var(--sec);
+  transition: background 0.2s, color 0.2s, transform 0.2s;
+}
+a.card:hover,
+a.card:focus-visible {
+  border-color: var(--sec);
+  box-shadow: 0 16px 36px color-mix(in srgb, var(--sec) 22%, transparent);
+  transform: translateY(-3px);
+}
+a.card:hover .card-icon {
+  background: var(--sec);
+  color: #fff;
+  transform: scale(1.06);
+}
+
+/* ===== Tool pages ===== */
+.tool-band {
+  background-image:
+    radial-gradient(700px 260px at 92% -30%, color-mix(in srgb, var(--sec) 50%, transparent), transparent 70%),
+    linear-gradient(rgb(255 255 255 / 4%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(255 255 255 / 4%) 1px, transparent 1px);
+  background-size: auto, 48px 48px, 48px 48px;
+}
+.crumb {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-block-end: 12px;
+  padding: 6px 14px;
+  border: 1px solid var(--ink-line);
+  border-radius: 999px;
+  color: var(--ink-text);
+  font-size: 0.88rem;
+  font-weight: 700;
+  transition: background 0.2s, border-color 0.2s;
+}
+.crumb svg {
+  color: var(--sec);
+}
+.crumb:hover {
+  background: var(--sec);
+  border-color: var(--sec);
+}
+.crumb:hover svg {
+  color: #fff;
+}
+.tool-page .panel {
+  border-radius: 20px;
+  box-shadow: 0 1px 2px rgb(16 24 40 / 5%), 0 12px 32px rgb(16 24 40 / 6%);
+}
+.tool-page .panel-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.tool-page .panel-title::before {
+  content: '';
+  width: 5px;
+  height: 1.1em;
+  border-radius: 3px;
+  background: var(--sec);
+}
+.tool-page .input {
+  border-radius: 12px;
+}
+.tool-page .btn {
+  border-radius: 12px;
+  font-weight: 700;
+}
+.tool-page .btn-primary {
+  box-shadow: 0 10px 24px color-mix(in srgb, var(--primary) 32%, transparent);
+}
+.dropzone {
+  border-color: color-mix(in srgb, var(--sec) 50%, var(--border));
+  background:
+    radial-gradient(600px 220px at 50% 0%, color-mix(in srgb, var(--sec) 10%, transparent), transparent 70%),
+    var(--surface);
+}
+.dropzone > svg:first-child {
+  background: color-mix(in srgb, var(--sec) 14%, transparent);
+  color: var(--sec);
+}
+@media (max-width: 640px) {
+  .section-head-row {
+    flex-wrap: wrap;
+  }
+  .section-head-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 18px;
+  }
+  .section-head-count {
+    display: none;
+  }
+}
+
+.group-tabs {
+  flex-wrap: wrap;
+  overflow: visible;
+}
+@media (max-width: 640px) {
+  .group-tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+  }
+}
+.studio-page {
+  padding-block-start: 26px;
+}
+@media (max-width: 720px) {
+  .header {
+    position: relative;
+  }
+}

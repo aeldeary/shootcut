@@ -57,9 +57,9 @@ describe('the home page', () => {
       </I18nProvider>,
     );
     go('#/studio/film');
-    await waitFor(() => expect(document.querySelector('.toolnav-section')?.textContent).toBe('Video & audio'));
+    await waitFor(() => expect(document.querySelector('.main-tab.is-active')?.textContent).toBe('Video & audio'));
     go('#/studio/cad');
-    await waitFor(() => expect(document.querySelector('.toolnav-section')?.textContent).toBe('Engineering'));
+    await waitFor(() => expect(document.querySelector('.main-tab.is-active')?.textContent).toBe('Engineering'));
   });
 
   it('splits the PDF tools into creating and organizing pages', async () => {

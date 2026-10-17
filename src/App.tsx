@@ -86,11 +86,24 @@ function useHashRoute(): string {
 
 function ToolGrid({ section }: { section: SectionId }) {
   const { t } = useI18n();
+  const [tab, setTab] = useState<string>('all');
+  const groups = GROUPS.filter((g) => g.section === section).filter((g) => TOOLS.some((x) => x.group === g.id));
+  const shown = tab === 'all' ? groups : groups.filter((g) => g.id === tab);
   return (
     <>
-      {GROUPS.filter((g) => g.section === section).map((g) => (
+      {groups.length > 1 && (
+        <div className="group-tabs" role="tablist" aria-label={t('navTools')}>
+          {[{ id: 'all', title: 'tabAll' as const }, ...groups].map((g) => (
+            <button key={g.id} type="button" role="tab" id={`gtab-${g.id}`} aria-selected={tab === g.id} className={`group-tab${tab === g.id ? ' is-active' : ''}`} onClick={() => setTab(g.id)}>
+              {t(g.title)}
+              <span className="group-tab-n">{g.id === 'all' ? TOOLS.filter((x) => x.status === 'ready' && groups.some((gg) => gg.id === x.group)).length : TOOLS.filter((x) => x.group === g.id && x.status === 'ready').length}</span>
+            </button>
+          ))}
+        </div>
+      )}
+      {shown.map((g) => (
         <section key={g.id} className="group" aria-labelledby={`g-${g.id}`}>
-          <h2 id={`g-${g.id}`}>{t(g.title)}</h2>
+          {(tab === 'all' || groups.length === 1) && <h2 id={`g-${g.id}`}>{t(g.title)}</h2>}
           <div className="grid">
             {TOOLS.filter((x) => x.group === g.id).map((tool) => {
               const Icon = tool.icon;
@@ -181,10 +194,18 @@ function SectionPage({ section }: { section: SectionId }) {
   const sec = SECTIONS.find((x) => x.id === section)!;
   return (
     <>
-      <header className="page-head">
-        <div className="container">
-          <h1 className="section-title">{t(sec.title)}</h1>
-          <p className="lead">{t(sec.desc)}</p>
+      <header className="page-head section-head">
+        <div className="container section-head-row">
+          <span className="section-head-icon">
+            <sec.icon size={34} aria-hidden />
+          </span>
+          <div>
+            <h1 className="section-title">{t(sec.title)}</h1>
+            <p className="lead">{t(sec.desc)}</p>
+          </div>
+          <span className="section-count section-head-count">
+            {readyCount(section)} {t('toolsUnit')}
+          </span>
         </div>
       </header>
       <div className="container">
@@ -261,7 +282,7 @@ export default function App() {
   return (
     <>
       <Header showBack={active !== null || page || sectionPage !== null || studioRoute !== null} activeId={active} section={section} />
-      <main>
+      <main data-section={section ?? ''}>
         <Suspense fallback={null}>
           {studioRoute ? (
             studioRoute.app ? (

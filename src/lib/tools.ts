@@ -60,7 +60,7 @@ import {
 import type { Key } from '../i18n';
 
 export type SectionId = 'pdf' | 'image' | 'video' | 'office' | 'eng';
-export type GroupId = 'view' | 'create' | 'pages' | 'forms' | 'review' | 'protect' | 'imgOptimize' | 'imgEdit' | 'imgConvert' | 'imgCreate' | 'imgPrivacy' | 'vidFormat' | 'vidEdit' | 'vidExtract' | 'audio' | 'sheets' | 'slides' | 'cad';
+export type GroupId = 'view' | 'create' | 'pages' | 'review' | 'protect' | 'imgOptimize' | 'imgEdit' | 'imgCreate' | 'imgPrivacy' | 'vidFormat' | 'vidEdit' | 'vidExtract' | 'audio' | 'sheets' | 'cad';
 
 /** The three parts of the site, chosen first on the home page. */
 export const SECTIONS: { id: SectionId; title: Key; desc: Key; icon: LucideIcon }[] = [
@@ -91,12 +91,10 @@ export const GROUPS: { id: GroupId; title: Key; section: SectionId }[] = [
   { id: 'view', title: 'groupView', section: 'pdf' },
   { id: 'create', title: 'groupCreate', section: 'pdf' },
   { id: 'pages', title: 'groupPages', section: 'pdf' },
-  { id: 'forms', title: 'groupForms', section: 'pdf' },
   { id: 'review', title: 'groupReview', section: 'pdf' },
   { id: 'protect', title: 'groupProtect', section: 'pdf' },
   { id: 'imgOptimize', title: 'groupImgOptimize', section: 'image' },
   { id: 'imgEdit', title: 'groupImgEdit', section: 'image' },
-  { id: 'imgConvert', title: 'groupImgConvert', section: 'image' },
   { id: 'imgCreate', title: 'groupImgCreate', section: 'image' },
   { id: 'imgPrivacy', title: 'groupImgPrivacy', section: 'image' },
   { id: 'vidFormat', title: 'groupVidFormat', section: 'video' },
@@ -104,7 +102,6 @@ export const GROUPS: { id: GroupId; title: Key; section: SectionId }[] = [
   { id: 'vidExtract', title: 'groupVidExtract', section: 'video' },
   { id: 'audio', title: 'groupAudio', section: 'video' },
   { id: 'sheets', title: 'groupSheets', section: 'office' },
-  { id: 'slides', title: 'groupSlides', section: 'office' },
   { id: 'cad', title: 'groupCad', section: 'eng' },
 ];
 
@@ -138,7 +135,7 @@ export const TOOLS: ToolDef[] = [
   { id: 'pdf-a11y', group: 'review', icon: Accessibility, name: 'toolPdfA11y', desc: 'toolPdfA11yDesc', status: 'ready' },
   { id: 'pdf-repair', group: 'protect', icon: Wrench, name: 'toolPdfRepair', desc: 'toolPdfRepairDesc', status: 'ready' },
   { id: 'fill-sign', group: 'review', icon: PenLine, name: 'toolFillSign', desc: 'toolFillSignDesc', status: 'ready' },
-  { id: 'form', group: 'forms', icon: TextCursorInput, name: 'toolForm', desc: 'toolFormDesc', status: 'ready' },
+  { id: 'form', group: 'review', icon: TextCursorInput, name: 'toolForm', desc: 'toolFormDesc', status: 'ready' },
   { id: 'comment', group: 'review', icon: MessageSquare, name: 'toolComment', desc: 'toolCommentDesc', status: 'ready' },
   { id: 'stamp', group: 'review', icon: Stamp, name: 'toolStamp', desc: 'toolStampDesc', status: 'ready' },
   { id: 'compare', group: 'review', icon: Columns2, name: 'toolCompare', desc: 'toolCompareDesc', status: 'ready' },
@@ -153,7 +150,7 @@ export const TOOLS: ToolDef[] = [
   { id: 'img-rotate', group: 'imgEdit', icon: RotateCw, name: 'toolImgRotate', desc: 'toolImgRotateDesc', status: 'ready' },
   { id: 'img-adjust', group: 'imgEdit', icon: SlidersHorizontal, name: 'toolImgAdjust', desc: 'toolImgAdjustDesc', status: 'ready' },
   { id: 'img-transparent', group: 'imgEdit', icon: Eraser, name: 'toolImgTransparent', desc: 'toolImgTransparentDesc', status: 'ready' },
-  { id: 'img-convert', group: 'imgConvert', icon: Repeat2, name: 'toolImgConvert', desc: 'toolImgConvertDesc', status: 'ready' },
+  { id: 'img-convert', group: 'imgOptimize', icon: Repeat2, name: 'toolImgConvert', desc: 'toolImgConvertDesc', status: 'ready' },
   { id: 'img-social', group: 'imgCreate', icon: Smartphone, name: 'toolImgSocial', desc: 'toolImgSocialDesc', status: 'ready' },
   { id: 'img-meme', group: 'imgCreate', icon: Smile, name: 'toolImgMeme', desc: 'toolImgMemeDesc', status: 'ready' },
   { id: 'img-watermark', group: 'imgPrivacy', icon: Droplets, name: 'toolImgWatermark', desc: 'toolImgWatermarkDesc', status: 'ready' },
@@ -174,7 +171,7 @@ export const TOOLS: ToolDef[] = [
   { id: 'aud-merge', group: 'audio', icon: ListMusic, name: 'toolAudMerge', desc: 'toolAudMergeDesc', status: 'ready' },
   { id: 'aud-polish', group: 'audio', icon: Volume2, name: 'toolAudPolish', desc: 'toolAudPolishDesc', status: 'ready' },
   { id: 'sheet', group: 'sheets', icon: SheetIcon, name: 'toolSheet', desc: 'toolSheetDesc', status: 'ready' },
-  { id: 'slides', group: 'slides', icon: PresentationIcon, name: 'toolSlides', desc: 'toolSlidesDesc', status: 'ready' },
+  { id: 'slides', group: 'sheets', icon: PresentationIcon, name: 'toolSlides', desc: 'toolSlidesDesc', status: 'ready' },
   { id: 'cad', group: 'cad', icon: DraftingCompass, name: 'toolCad', desc: 'toolCadDesc', status: 'ready' },
   { id: 'vid-info', group: 'vidExtract', icon: Info, name: 'toolVidInfo', desc: 'toolVidInfoDesc', status: 'ready' },
 ];
