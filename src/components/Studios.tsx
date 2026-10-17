@@ -377,7 +377,16 @@ export function StudioLauncher({
 }) {
   const { t, lang } = useI18n();
   // WebGL is the default: WebGPU can hang the whole browser on some machines. The box switches it off.
-  const [webgl, setWebgl] = useState(true);
+  // The video and effects programs are the exception: their compositor needs compute shaders, which only WebGPU has;
+  // on WebGL they fall back to drawing every frame on the processor and freeze the browser. They open on WebGPU when the browser has it.
+  const [webgl, setWebgl] = useState(
+    () =>
+      !(
+        (app.id === "effect" || app.id === "film") &&
+        typeof navigator !== "undefined" &&
+        "gpu" in navigator
+      ),
+  );
   // the person's own choice of the program's language, kept in this browser; "site" follows the site's language
   const [choice, setChoice] = useState<ProgramLang>(readProgramLang);
   const [nonce, setNonce] = useState(0);
