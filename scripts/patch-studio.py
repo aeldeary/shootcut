@@ -224,6 +224,8 @@ EDITS = {
         ('ui-egui/src/widgets.rs', r'pub fn community_links\(ui: &mut egui::Ui\) -> Option<&\'static str> \{.*?\n\}\n', 'pub fn community_links(ui: &mut egui::Ui) -> Option<&\'static str> {\n    let _ = ui;\n    None\n}\n'),
     ],
     'soundcraft': [
+        # the sample session carries Shootcut's name
+        ('engine/src/demo.rs', r'Session::new\("Midnight Groove", sr\)', 'Session::new("Shootcut Session", sr)'),
         # Familiar editor key layout: split, marker, delete, import, loop get the keys people expect
         # (the keys are listed in one table inside command_specs, applied after every command is registered)
         ('cmd/mod.rs', r'(\n)(\s*)v\n(\s*\}\)\n\}\n\s*pub fn find_command)',
@@ -237,6 +239,9 @@ EDITS = {
 \3'''),
     ],
     'filmcraft': [
+        # the sample project: Shootcut's name and the brand red in the colour matte
+        ('engine/src/demo.rs', r'Project::new\("[^"]*Demo"\)', 'Project::new("Shootcut Project")', 'all'),
+        ('engine/src/demo.rs', r'ColorMatte \{ color: \[0\.08, 0\.1, 0\.16, 1\.0\] \}', 'ColorMatte { color: [0.55, 0.06, 0.09, 1.0] }'),
         # The classic editing key layout is the default one, under a Shootcut name
         ('engine/src/shortcuts.rs', r'PREMIERE_PRESET: &str = "[^"]*";', 'PREMIERE_PRESET: &str = "Shootcut Classic Editing";'),
         ('engine/src/shortcuts.rs', r'DEFAULT_PRESET => Vec::new\(\),', 'DEFAULT_PRESET => presets::premiere(),'),
@@ -249,6 +254,11 @@ EDITS = {
         ('panels/import_mode.rs', r'crate::links::ALL\.iter\(\)\.take\(4\)', 'crate::links::ALL.iter().take(0)'),
     ],
     'effectcraft': [
+        # the sample project: Shootcut's name, tagline and brand red instead of the blue night sky
+        ('engine/src/demo.rs', r'MAIN_COMP: &str = "[^"]*"', 'MAIN_COMP: &str = "Shootcut Intro"'),
+        ('engine/src/demo.rs', r'text: "MOTION GRAPHICS[^"]*"', 'text: "SHOOT  ·  DESIGN  ·  MANAGE"'),
+        ('engine/src/demo.rs', r'"#26306E"', '"#6B0F14"'),
+        ('engine/src/demo.rs', r'fill: \[0\.68, 0\.75, 1\.0, 1\.0\]', 'fill: [0.97, 0.82, 0.82, 1.0]'),
         ('engine/src/demo.rs', r'"EFFECTCRAFT"', '"SHOOTCUT"', 'all'),
         ('src/links.rs', r'(pub const SIBLINGS: &\[[^\n]*\] = &\[)\n.*?\n\];', r'\1];'),
         ('panels/dialogs.rs', r'let links: \[\(Icon, &str, &str, &\'static str\); 4\] = \[.*?\];', "let links: [(Icon, &str, &str, &'static str); 0] = [];"),
