@@ -313,7 +313,8 @@ def clean_rust_strings(src):
             end = '"' + hashes
             j = src.find(end, i + 2 + len(hashes))
             j = n if j < 0 else j + len(end)
-            out.append(src[i:j]); i = j
+            # raw strings hold menus, presets and help text the person reads: renamed like the others
+            out.append(clean_text(DEAD_URL_RE.sub('', src[i:j]))); i = j
         elif c == '"':
             j = i + 1
             while j < n and src[j] != '"':
@@ -765,6 +766,8 @@ def cmd_source(src, repo):
         for f in files:
             if f.endswith('.tsv') and patch_tsv(os.path.join(d, f)):
                 m += 1
+            elif f.endswith('.toml') and '/locales' in d.replace('\\', '/') and patch_tsv(os.path.join(d, f)):
+                m += 1
             elif f.endswith('.json') and '/locales' in d.replace('\\', '/') and patch_json(os.path.join(d, f)):
                 m += 1
             elif f.endswith(TEXT_ASSET_EXT) and patch_text_asset(os.path.join(d, f)):
@@ -881,6 +884,9 @@ def cmd_dist(dist, repo, lang=None):
     h = open(idx, encoding='utf-8').read()
     # a loading screen with only text gets Shootcut's mark above it, like the editing programs that already show one
     h, n_mark = LOADING_RE.subn(r'\1<img class="sc-mark" src="./shootcut-icon.svg" alt="">Loading Shootcut Program&hellip;\2', h)
+    if not n_mark:
+        # a loading box that already holds paragraphs but no picture (photo): the mark goes in front of them
+        h, n_mark = re.subn(r'(<div id="[a-z]+_loading">)(?![^<]*<img)(?=(?:(?!</div>).)*?<p)', r'\1<img class="sc-mark" src="./shootcut-icon.svg" alt="">', h, count=1, flags=re.S)
     if n_mark:
         h = h.replace('</head>', '  <style>[id$="_loading"]{flex-direction:column;align-items:center;text-align:center}'
                       '[id$="_loading"] img.sc-mark{display:block;width:88px;height:88px;margin:0 auto 14px}</style>\n</head>', 1)
