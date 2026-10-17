@@ -99,6 +99,9 @@ EDITS = {
         ('src/status.rs', r'Align2::LEFT_CENTER, "English \(United States\)"', 'Align2::LEFT_CENTER, crate::ar::t("English (United States)")'),
     ],
     'wordcraft': [
+        # the Zotero tab needs the Zotero desktop app and is greyed out in a browser: it is removed from the ribbon
+        ('engine/src/ribbon.rs', r'pub const TABS: \[&str; 13\] =\s*\["File", "Home", "Insert", "Draw", "Design", "Layout", "References", "Mailings", "Review", "View", "Developer", "Zotero", "Help"\];', 'pub const TABS: [&str; 12] = ["File", "Home", "Insert", "Draw", "Design", "Layout", "References", "Mailings", "Review", "View", "Developer", "Help"];'),
+        ('ui-egui/src/ribbon.rs', r'pub const TABS: \[&str; 13\] = wordcraft_engine::ribbon::TABS;', 'pub const TABS: [&str; 12] = wordcraft_engine::ribbon::TABS;'),
         # Arabic: the craft-fonts Arabic face is a document font too (it was only the interface's), so Arabic text has glyphs
         ('fonts/src/fontdb.rs', r'\.chain\(crate::chinese_fonts\(\)\)\.map\(\|f\| f\.bytes\);', '.chain(crate::chinese_fonts()).chain(crate::CRAFT_FONTS.iter().filter(|f| f.scripts.contains(&"Arab"))).map(|f| f.bytes);'),
         ('fonts/build.rs', r'if wasm && !\(\*family == "BIZ UDPGothic" && \*style == "Regular"\) \{', 'if wasm && !(*family == "BIZ UDPGothic" && *style == "Regular") && !scripts.split(\',\').any(|s| s.trim() == "Arab") {'),
