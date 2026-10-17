@@ -59,7 +59,7 @@ import {
 } from 'lucide-react';
 import type { Key } from '../i18n';
 
-export type SectionId = 'pdf' | 'image' | 'video' | 'office';
+export type SectionId = 'pdf' | 'image' | 'video' | 'office' | 'eng';
 export type GroupId = 'view' | 'create' | 'pages' | 'forms' | 'review' | 'protect' | 'imgOptimize' | 'imgEdit' | 'imgConvert' | 'imgCreate' | 'imgPrivacy' | 'vidFormat' | 'vidEdit' | 'vidExtract' | 'audio' | 'sheets' | 'slides' | 'cad';
 
 /** The three parts of the site, chosen first on the home page. */
@@ -68,6 +68,7 @@ export const SECTIONS: { id: SectionId; title: Key; desc: Key; icon: LucideIcon 
   { id: 'image', title: 'sectionImage', desc: 'sectionImageDesc', icon: ImageIcon },
   { id: 'video', title: 'sectionVideo', desc: 'sectionVideoDesc', icon: VideoIcon },
   { id: 'office', title: 'sectionOffice', desc: 'sectionOfficeDesc', icon: BriefcaseBusiness },
+  { id: 'eng', title: 'sectionEng', desc: 'sectionEngDesc', icon: DraftingCompass },
 ];
 
 export interface ToolDef {
@@ -104,7 +105,7 @@ export const GROUPS: { id: GroupId; title: Key; section: SectionId }[] = [
   { id: 'audio', title: 'groupAudio', section: 'video' },
   { id: 'sheets', title: 'groupSheets', section: 'office' },
   { id: 'slides', title: 'groupSlides', section: 'office' },
-  { id: 'cad', title: 'groupCad', section: 'office' },
+  { id: 'cad', title: 'groupCad', section: 'eng' },
 ];
 
 export function sectionOfGroup(g: GroupId): SectionId {
@@ -113,7 +114,7 @@ export function sectionOfGroup(g: GroupId): SectionId {
 
 /** The section a route belongs to: a tool's section, or a section page itself. */
 export function sectionOfRoute(route: string): SectionId | null {
-  if (route === 'pdf' || route === 'image' || route === 'video' || route === 'office') return route;
+  if (route === 'pdf' || route === 'image' || route === 'video' || route === 'office' || route === 'eng') return route;
   const tool = TOOLS.find((t) => t.id === route);
   return tool ? sectionOfGroup(tool.group) : null;
 }

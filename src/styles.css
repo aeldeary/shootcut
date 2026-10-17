@@ -3061,3 +3061,15 @@ a.card:hover {
     padding-block: 20px 22px;
   }
 }
+
+.sections {
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+}
+@media (max-width: 720px) {
+  .sections {
+    grid-template-columns: 1fr;
+  }
+}
+.section-card {
+  padding-block-end: 56px;
+}

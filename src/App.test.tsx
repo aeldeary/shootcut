@@ -19,14 +19,14 @@ afterEach(() => {
 });
 
 describe('the home page', () => {
-  it('is a search box and four sections, and nothing else', () => {
+  it('is a search box and five sections, and nothing else', () => {
     render(
       <I18nProvider>
         <App />
       </I18nProvider>,
     );
     expect(document.querySelector('#tool-search')).toBeTruthy();
-    expect(document.querySelectorAll('nav.sections a.section-card').length).toBe(4);
+    expect(document.querySelectorAll('nav.sections a.section-card').length).toBe(5);
     expect(document.querySelector('[data-studio]')).toBeNull();
     expect(document.querySelector('.features-banner')).toBeNull();
     expect(document.querySelector('.whats-new')).toBeNull();
@@ -45,7 +45,9 @@ describe('the home page', () => {
     go('#/image');
     await waitFor(() => expect(document.querySelectorAll('[data-studio]').length).toBe(1));
     go('#/office');
-    await waitFor(() => expect(document.querySelectorAll('[data-studio]').length).toBe(2));
+    await waitFor(() => expect(document.querySelectorAll('[data-studio]').length).toBe(1));
+    go('#/eng');
+    await waitFor(() => expect(document.querySelectorAll('[data-studio]').length).toBe(1));
   });
 
   it('keeps the section marked on a studio page, so the person always knows where they are', async () => {
@@ -57,7 +59,7 @@ describe('the home page', () => {
     go('#/studio/film');
     await waitFor(() => expect(document.querySelector('.toolnav-section')?.textContent).toBe('Video & audio'));
     go('#/studio/cad');
-    await waitFor(() => expect(document.querySelector('.toolnav-section')?.textContent).toBe('Sheets & slides'));
+    await waitFor(() => expect(document.querySelector('.toolnav-section')?.textContent).toBe('Engineering'));
   });
 
   it('splits the PDF tools into creating and organizing pages', async () => {

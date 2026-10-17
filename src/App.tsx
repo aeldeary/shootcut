@@ -124,7 +124,7 @@ function ToolGrid({ section }: { section: SectionId }) {
   );
 }
 
-/** The home page: a search box and the four sections, nothing else. New tools are marked with a badge on their cards. */
+/** The home page: a search box and the five sections, nothing else. New tools are marked with a badge on their cards. */
 function Home() {
   const { t } = useI18n();
   return (
@@ -138,7 +138,6 @@ function Home() {
               {t('appName')}
             </h2>
           </div>
-          <img className="hero-logo" src="./logo.svg" alt="" width={190} height={201} />
         </div>
       </section>
       <div className="container home-body">
@@ -246,7 +245,7 @@ export default function App() {
   const studioRoute = parseStudioRoute(route === 'pdf' ? 'studio/pdf' : route);
   // a studio belongs to a section, so the bar under the header keeps showing where the person is
   const section = studioRoute ? studioRoute.studio.section : sectionOfRoute(route);
-  const sectionPage = route === 'image' || route === 'video' || route === 'office' ? route : null;
+  const sectionPage = route === 'image' || route === 'video' || route === 'office' || route === 'eng' ? route : null;
   const active = tool && tool.status === 'ready' ? tool.id : null;
   const Active = active ? COMPONENTS[active] : undefined;
 
@@ -279,7 +278,6 @@ export default function App() {
         </Suspense>
       </main>
       <footer className="site-footer">
-        <img src={`${import.meta.env.BASE_URL}favicon.svg`} alt="" width={22} height={22} />
         <p>
           <strong>{t('footerCredit')}</strong>
           <span>{t('footerNote')}</span>

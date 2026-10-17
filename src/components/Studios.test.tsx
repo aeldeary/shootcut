@@ -33,7 +33,7 @@ const pressed = (v: 'full' | 'light') => document.querySelector(`[data-version=$
 
 describe('Studios', () => {
   it('offers each studio inside the section it belongs to, and none on the PDF section', () => {
-    const count = (section: 'pdf' | 'image' | 'video' | 'office') => {
+    const count = (section: 'pdf' | 'image' | 'video' | 'office' | 'eng') => {
       wrap(<SectionStudios section={section} />);
       const n = document.querySelectorAll('[data-studio]').length;
       cleanup();
@@ -41,7 +41,8 @@ describe('Studios', () => {
     };
     expect(count('image')).toBe(1);
     expect(count('video')).toBe(2);
-    expect(count('office')).toBe(2);
+    expect(count('office')).toBe(1);
+    expect(count('eng')).toBe(1);
     expect(count('pdf')).toBe(0);
     wrap(<SectionStudios section="image" />);
     expect(screen.getByText('Design')).toBeTruthy();

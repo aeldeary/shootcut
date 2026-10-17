@@ -100,7 +100,7 @@ describe('tool bar', () => {
     wrap(<Header showBack activeId="img-resize" section="image" />);
     fireEvent.click(nav().querySelector('.toolnav-section')!);
     const menu = screen.getByRole('menu');
-    expect(menu.querySelectorAll('a')).toHaveLength(4);
+    expect(menu.querySelectorAll('a')).toHaveLength(5);
     expect(menu.querySelector('[aria-current="page"]')?.getAttribute('href')).toBe('#/image');
   });
   it('the full programs menu lists the programs of the section', () => {

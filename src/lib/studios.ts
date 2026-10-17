@@ -78,7 +78,7 @@ export const STUDIOS: Studio[] = [
   },
   {
     id: 'cad',
-    section: 'office',
+    section: 'eng',
     name: 'studioCad',
     desc: 'studioCadDesc',
     icon: DraftingCompass,
