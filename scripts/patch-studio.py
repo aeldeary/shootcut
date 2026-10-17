@@ -898,7 +898,7 @@ def cmd_dist(dist, repo, lang=None):
                   'Object.defineProperty(navigator,"language",{get:function(){return q}});'
                   'Object.defineProperty(navigator,"languages",{get:function(){return l}});'
                   'document.documentElement.lang=q;if(q==="ar")document.documentElement.dir="rtl"}}catch(e){}</script>\n'
-                  '  <script>try{if(new URLSearchParams(location.search).has("webgl"))Object.defineProperty(navigator,"gpu",{get:function(){return undefined}})}catch(e){}</script>\n'
+                  '  <script>try{if(new URLSearchParams(location.search).has("webgl")){Object.defineProperty(navigator,"gpu",{get:function(){return undefined}});var P=Worker.prototype.postMessage;Worker.prototype.postMessage=function(m,t){if(m&&m.type==="init"&&m.gpu)m=Object.assign({},m,{gpu:false});return P.call(this,m,t)}}}catch(e){}</script>\n'
                   '  <script>try{var d=parseFloat(new URLSearchParams(location.search).get("dpr"));if(d>0)Object.defineProperty(window,"devicePixelRatio",{get:function(){return d}})}catch(e){}</script>\n'
                   '  <script>try{var g=HTMLCanvasElement.prototype.getContext;HTMLCanvasElement.prototype.getContext=function(t,o){if(t==="webgl"||t==="webgl2"||t==="experimental-webgl")o=Object.assign({},o,{powerPreference:"high-performance"});return g.call(this,t,o)}}catch(e){}</script>', 1)
     if repo == 'figcraft':
