@@ -899,6 +899,7 @@ def cmd_dist(dist, repo, lang=None):
     h = re.sub(r'<title>[^<]*</title>', '<title>Shootcut</title>', h)
     if repo == 'filmcraft':
         # the sample: four short clips and the script that puts them on a timeline (the page is opened with ?empty)
+        # The sample (clips, seed.js with transitions and effects) is copied as it is; changes to it need a studios rebuild.
         sd = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'studio-patches', 'film-sample')
         os.makedirs(os.path.join(dist, 'sample'), exist_ok=True)
         for f in os.listdir(sd):
