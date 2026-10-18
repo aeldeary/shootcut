@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <script>window.__sw=function(u){var g=u.replace(/\.wasm(\?|$)/,".wasm.gz$1"),el=document.querySelector('[id$="_loading"] p'),base=el&&el.textContent;function plain(){return fetch(u)}if(typeof DecompressionStream==="undefined")return plain();return fetch(g).then(function(r){if(!r.ok||!r.body)return plain();var t=+r.headers.get("content-length")||0,n=0,rd=r.body.getReader();var s=new ReadableStream({pull:function(c){return rd.read().then(function(x){if(x.done){c.close();return}n+=x.value.length;if(el&&t)el.textContent=base+" "+Math.min(99,Math.round(n*100/t))+"%";c.enqueue(x.value)})},cancel:function(e){return rd.cancel(e)}});return new Response(s.pipeThrough(new DecompressionStream("gzip")),{headers:{"content-type":"application/wasm"}})}).catch(plain)};</script>
+  <link rel="icon" type="image/svg+xml" href="./shootcut-icon.svg">
+  <script>try{var q=new URLSearchParams(location.search).get("lang");if(q){var l=[q];Object.defineProperty(navigator,"language",{get:function(){return q}});Object.defineProperty(navigator,"languages",{get:function(){return l}});document.documentElement.lang=q;if(q==="ar")document.documentElement.dir="rtl"}}catch(e){}</script>
+  <script>try{if(new URLSearchParams(location.search).has("webgl")){Object.defineProperty(navigator,"gpu",{get:function(){return undefined}});var P=Worker.prototype.postMessage;Worker.prototype.postMessage=function(m,t){if(m&&m.type==="init"&&m.gpu)m=Object.assign({},m,{gpu:false});return P.call(this,m,t)}}}catch(e){}</script>
+  <script>try{var d=parseFloat(new URLSearchParams(location.search).get("dpr"));if(d>0)Object.defineProperty(window,"devicePixelRatio",{get:function(){return d}})}catch(e){}</script>
+  <script>try{var g=HTMLCanvasElement.prototype.getContext;HTMLCanvasElement.prototype.getContext=function(t,o){if(t==="webgl"||t==="webgl2"||t==="experimental-webgl")o=Object.assign({},o,{powerPreference:"high-performance"});return g.call(this,t,o)}}catch(e){}</script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shootcut</title>
+  <meta name="description" content="Shootcut Program: open-source photo library and raw developer, running in your browser (WASM).">
+  <style>
+    :root { color-scheme: dark; }
+    html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #1c1c1c; }
+    canvas#lightcraft_canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+    #lightcraft_loading {
+      position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+      color: #b8b8b8; font: 15px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif; pointer-events: none;
+    }
+    #lightcraft_status { position: absolute; left: 0; bottom: 0; width: 1px; height: 1px; overflow: hidden; }
+  </style>
+  <style>[id$="_loading"]{flex-direction:column;align-items:center;text-align:center}[id$="_loading"] img.sc-mark{display:block;width:88px;height:88px;margin:0 auto 14px}</style>
+</head>
+<body>
+  <canvas id="lightcraft_canvas"></canvas>
+  <div id="lightcraft_loading"><img class="sc-mark" src="./shootcut-icon.svg" alt="">Loading Shootcut Program&hellip;</div>
+  <div id="lightcraft_status" aria-live="polite"></div>
+  <script type="module">
+    import init, { start, command } from "./lightcraft_web.js";
+    (async () => {
+      // The Chinese font is a separate file: embedding it would exceed the host's WASM size limit.
+      // Font-free development builds can still run, with the same missing-glyph warning as before.
+      const chineseFont = fetch("./lightcraft_zh_hans.otf")
+        .then(async response => response.ok ? new Uint8Array(await response.arrayBuffer()) : new Uint8Array())
+        .catch(() => new Uint8Array());
+      // Compile once; the render workers (worker.js) instantiate the same compiled module.
+      const [module, font] = await Promise.all([
+        WebAssembly.compileStreaming(__sw("./lightcraft_web_bg.wasm")),
+        chineseFont,
+      ]);
+      globalThis.lightcraftModule = module;
+      await init({ module_or_path: module });
+      // automation: `await lightcraft.command("library.info", "{}")` → JSON text
+      globalThis.lightcraft = { command };
+      start(font);
+    })().catch((e) => {
+      console.error(e);
+      const el = document.getElementById("lightcraft_loading");
+      if (el) el.textContent = "Shootcut Program failed to load: " + e;
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+  <head>
+  <script>window.__sw=function(u){var g=u.replace(/\.wasm(\?|$)/,".wasm.gz$1"),el=document.querySelector('[id$="_loading"] p'),base=el&&el.textContent;function plain(){return fetch(u)}if(typeof DecompressionStream==="undefined")return plain();return fetch(g).then(function(r){if(!r.ok||!r.body)return plain();var t=+r.headers.get("content-length")||0,n=0,rd=r.body.getReader();var s=new ReadableStream({pull:function(c){return rd.read().then(function(x){if(x.done){c.close();return}n+=x.value.length;if(el&&t)el.textContent=base+" "+Math.min(99,Math.round(n*100/t))+"%";c.enqueue(x.value)})},cancel:function(e){return rd.cancel(e)}});return new Response(s.pipeThrough(new DecompressionStream("gzip")),{headers:{"content-type":"application/wasm"}})}).catch(plain)};</script>
+  <link rel="icon" type="image/svg+xml" href="./shootcut-icon.svg">
+  <script>try{var q=new URLSearchParams(location.search).get("lang");if(q){var l=[q];Object.defineProperty(navigator,"language",{get:function(){return q}});Object.defineProperty(navigator,"languages",{get:function(){return l}});document.documentElement.lang=q;if(q==="ar")document.documentElement.dir="rtl"}}catch(e){}</script>
+  <script>try{if(new URLSearchParams(location.search).has("webgl")){Object.defineProperty(navigator,"gpu",{get:function(){return undefined}});var P=Worker.prototype.postMessage;Worker.prototype.postMessage=function(m,t){if(m&&m.type==="init"&&m.gpu)m=Object.assign({},m,{gpu:false});return P.call(this,m,t)}}}catch(e){}</script>
+  <script>try{var d=parseFloat(new URLSearchParams(location.search).get("dpr"));if(d>0)Object.defineProperty(window,"devicePixelRatio",{get:function(){return d}})}catch(e){}</script>
+  <script>try{var g=HTMLCanvasElement.prototype.getContext;HTMLCanvasElement.prototype.getContext=function(t,o){if(t==="webgl"||t==="webgl2"||t==="experimental-webgl")o=Object.assign({},o,{powerPreference:"high-performance"});return g.call(this,t,o)}}catch(e){}</script>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Shootcut</title>
+    
+<script type="module">
+import init, * as bindings from './pdfcraft-web-75ad0aede993ca73.js';
+const wasm = await init({ module_or_path: __sw('./pdfcraft-web-75ad0aede993ca73_bg.wasm') });
+
+
+window.wasmBindings = bindings;
+
+
+dispatchEvent(new CustomEvent("TrunkApplicationStarted", {detail: {wasm}}));
+
+</script>
+    <style>
+      html, body { margin: 0; height: 100%; overflow: hidden; background: #f1f1f3; }
+      canvas { width: 100%; height: 100%; display: block; outline: none; }
+      
+    </style>
+  <link rel="modulepreload" href="./pdfcraft-web-75ad0aede993ca73.js" crossorigin="anonymous" integrity="sha384-5BGBkIMFp74ioM3dvHw+CrA0CFwmAI/wrGk6SdHxWnCV4dyyROOdNrCD/L2pZITm"><link rel="preload" href="./pdfcraft-web-75ad0aede993ca73_bg.wasm.gz" as="fetch" crossorigin="anonymous">  <script>addEventListener("keydown",function(e){try{if((e.ctrlKey||e.metaKey)&&!e.altKey&&/^(Key[BDFGHJKLOPSYZ]|Digit[0-9]|Equal|Minus|NumpadAdd|NumpadSubtract|BracketLeft|BracketRight|Comma)$/.test(e.code))e.preventDefault();else if(e.altKey&&!e.ctrlKey&&/^Arrow(Left|Right)$/.test(e.code))e.preventDefault()}catch(x){}},true)</script>
+</head>
+  <body>
+  <style>#pdfcraft_loading{position:fixed;inset:0;z-index:9;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:#f1f1f3;color:#333;font:500 16px system-ui,sans-serif}#pdfcraft_loading img{width:88px;height:88px}#pdfcraft_loading p{margin:0}</style><div id="pdfcraft_loading"><img src="./shootcut-icon.svg" alt=""><p>Loading Shootcut Program&hellip;</p></div><script>addEventListener("TrunkApplicationStarted",function(){setTimeout(function(){var e=document.getElementById("pdfcraft_loading");if(e)e.remove()},700)})</script>
+    <canvas id="pdfcraft"></canvas>
+  </body>
+</html>
