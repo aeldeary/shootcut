@@ -897,6 +897,13 @@ def cmd_dist(dist, repo, lang=None):
     # whatever visible name is left in the page (stopped-working, stalled and failed-to-load messages, the description)
     h = re.sub(r'\b(?:Photo|Film|Effect|Light|Design|Word|Deck|Vector|Grid|Sound|CAD|Fig|Pdf|PDF)Craft\b', 'Shootcut Program', h)
     h = re.sub(r'<title>[^<]*</title>', '<title>Shootcut</title>', h)
+    if repo == 'filmcraft':
+        # the sample: four short clips and the script that puts them on a timeline (the page is opened with ?empty)
+        sd = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'studio-patches', 'film-sample')
+        os.makedirs(os.path.join(dist, 'sample'), exist_ok=True)
+        for f in os.listdir(sd):
+            shutil.copy(os.path.join(sd, f), os.path.join(dist, 'sample', f))
+        h = h.replace('</head>', '  <script src="./sample/seed.js" defer></script>\n</head>', 1)
     # a program that cannot start says so in Shootcut's name, with a way out, and keeps the technical lines below
     h = re.sub(r'"[A-Za-z]*Craft failed to start:\\n"',
                lambda m: '"Shootcut Program could not start.\\nIt needs a browser with graphics acceleration. Tick \\u201cCompatibility mode (WebGL)\\u201d above the program and reload the page.\\n\\nDetails:\\n"', h)

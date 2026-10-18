@@ -432,7 +432,7 @@ export function StudioLauncher({
   // only Documents (and the PDF editor) are translated; the Design, Video editing, Audio and Engineering programs stay in English
   const translated = studio.id === "docs" || studio.id === "pdf";
   const programLang = !translated ? "en" : choice === "site" ? lang : choice;
-  const src = `${studioBase(app.id)}index.html?lang=${programLang}${webgl ? "&webgl" : ""}${dpr ? `&dpr=${dpr}` : ""}`;
+  const src = `${studioBase(app.id)}index.html?lang=${programLang}${webgl ? "&webgl" : ""}${app.id === "film" ? "&empty" : ""}${dpr ? `&dpr=${dpr}` : ""}`;
 
   return (
     <div className="studio-launcher">
