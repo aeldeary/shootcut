@@ -32,6 +32,20 @@
       await fc.execute('file.newSequence', { name: 'Shootcut Edit' });
       var p = await fc.execute('timeline.place', { items: ids, time: 0 });
       await fc.execute('clip.fillFrame', { clips: p.clips });
+      var c = p.clips;
+      // Transitions and effects, so the sample shows them too.
+      var step = async function (cmd, args) { try { await fc.execute(cmd, args); } catch (e) { console.warn('Shootcut sample step skipped:', cmd, e); } };
+      await step('sequence.applyVideoTransition', { clip: c[0], effect: 'dip_to_black', frames: 18, edge: 'in' });
+      if (c[1]) await step('sequence.applyVideoTransition', { clip: c[0], effect: 'cross_dissolve', frames: 24, edge: 'out' });
+      if (c[3]) await step('sequence.applyVideoTransition', { clip: c[2], effect: 'push', frames: 24, edge: 'out' });
+      if (c[3]) await step('sequence.applyVideoTransition', { clip: c[3], effect: 'dip_to_black', frames: 18, edge: 'out' });
+      await step('effects.apply', { clips: [c[0]], effect: 'lumetri' });
+      await step('effects.setParam', { clip: c[0], effect: 'lumetri', param: 'contrast', value: 15 });
+      if (c[1]) {
+        await step('effects.apply', { clips: [c[1]], effect: 'brightness_contrast' });
+        await step('effects.setParam', { clip: c[1], effect: 'brightness_contrast', param: 'contrast', value: 22 });
+        await step('effects.setParam', { clip: c[1], effect: 'brightness_contrast', param: 'brightness', value: 6 });
+      }
       try { localStorage.setItem(KEY, '1'); } catch (e) {}
     } catch (e) {
       console.warn('Shootcut sample could not be built:', e);
