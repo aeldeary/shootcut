@@ -81,6 +81,48 @@ ENTRY_DROP = [
 ]
 
 # (file suffix, regex, replacement): each must match, or the build stops instead of leaving a Discord button behind
+RUST_SHOOTCUT_LOOK = r'''/// Shootcut look for the sample footage: a red, black and white grade, and the wordmark on the title scenes.
+fn shootcut_look(scene: DemoScene, u: f32, v: f32, aspect: f32, c: [f32; 3]) -> [f32; 3] {
+    let lum = 0.299 * c[0] + 0.587 * c[1] + 0.114 * c[2];
+    let mut o = lerp3([0.03, 0.02, 0.03], [0.80, 0.07, 0.10], smoothstep(0.0, 0.8, lum));
+    o = lerp3(o, [1.0, 0.92, 0.92], smoothstep(0.8, 1.0, lum));
+    if matches!(scene, DemoScene::Plasma | DemoScene::OceanSunset) && shootcut_mark(u, v, aspect) {
+        o = [1.0, 1.0, 1.0];
+    }
+    o
+}
+
+const SHOOTCUT_LETTERS: [[u8; 7]; 8] = [
+    [0b01111, 0b10000, 0b10000, 0b01110, 0b00001, 0b00001, 0b11110],
+    [0b10001, 0b10001, 0b10001, 0b11111, 0b10001, 0b10001, 0b10001],
+    [0b01110, 0b10001, 0b10001, 0b10001, 0b10001, 0b10001, 0b01110],
+    [0b01110, 0b10001, 0b10001, 0b10001, 0b10001, 0b10001, 0b01110],
+    [0b11111, 0b00100, 0b00100, 0b00100, 0b00100, 0b00100, 0b00100],
+    [0b01110, 0b10001, 0b10000, 0b10000, 0b10000, 0b10001, 0b01110],
+    [0b10001, 0b10001, 0b10001, 0b10001, 0b10001, 0b10001, 0b01110],
+    [0b11111, 0b00100, 0b00100, 0b00100, 0b00100, 0b00100, 0b00100],
+];
+
+/// Whether (u, v) falls on a lit cell of the word SHOOTCUT (5x7 cells per letter, half the frame wide, centred).
+fn shootcut_mark(u: f32, v: f32, aspect: f32) -> bool {
+    let cell_u = 0.5 / 47.0;
+    let cell_v = cell_u * aspect;
+    let gx = (u - (0.5 - 23.5 * cell_u)) / cell_u;
+    let gy = (v - (0.5 - 3.5 * cell_v)) / cell_v;
+    if gx < 0.0 || gy < 0.0 || gy >= 7.0 || gx >= 47.0 {
+        return false;
+    }
+    let col = gx as usize;
+    let (letter, cx) = (col / 6, col % 6);
+    if cx == 5 || letter >= 8 {
+        return false;
+    }
+    (SHOOTCUT_LETTERS[letter][gy as usize] >> (4 - cx)) & 1 == 1
+}
+
+#[cfg(test)]
+mod tests {'''.replace("\\", "\\\\")
+
 EDITS = {
     'deckcraft': [
         ('fonts/build.rs', r'if wasm && !matches!\(', 'if wasm && !scripts.split(\',\').any(|s| s.trim() == "Arab") && !matches!('),
@@ -242,6 +284,17 @@ EDITS = {
         # the sample project: Shootcut's name and the brand red in the colour matte
         ('engine/src/demo.rs', r'Project::new\("[^"]*Demo"\)', 'Project::new("Shootcut Project")', 'all'),
         ('engine/src/demo.rs', r'ColorMatte \{ color: \[0\.08, 0\.1, 0\.16, 1\.0\] \}', 'ColorMatte { color: [0.55, 0.06, 0.09, 1.0] }'),
+        # the sample footage: Shootcut file names, a red/black/white grade and the SHOOTCUT wordmark on the title scenes
+        ('media/src/generators.rs', r'"Ocean_Sunset\.mp4"', '"Shootcut_Intro.mp4"'),
+        ('media/src/generators.rs', r'"Aurora_Timelapse\.mp4"', '"Brand_Reel.mp4"'),
+        ('media/src/generators.rs', r'"City_Night_Drive\.mp4"', '"Social_Ad.mp4"'),
+        ('media/src/generators.rs', r'"Desert_Dunes\.mp4"', '"Product_Shoot.mp4"'),
+        ('media/src/generators.rs', r'"Neon_Loop\.mov"', '"Logo_Loop.mov"'),
+        ('media/src/generators.rs', r'"Misty_Forest\.mp4"', '"Behind_The_Scenes.mp4"'),
+        ('media/src/generators.rs', r'let c = demo_pixel\(scene, u, v, wu as f32 / hu as f32, t\);', 'let asp = wu as f32 / hu as f32;\n                    let c = shootcut_look(scene, u, v, asp, demo_pixel(scene, u, v, asp, t));'),
+        ('media/src/generators.rs', r'#\[cfg\(test\)\]\nmod tests \{', RUST_SHOOTCUT_LOOK),
+        ('engine/src/demo.rs', r'"Ambient_Score\.wav"', '"Shootcut_Theme.wav"'),
+        ('engine/src/demo.rs', r'new_sequence\("Main Edit"', 'new_sequence("Shootcut Edit"', 'all'),
         # The classic editing key layout is the default one, under a Shootcut name
         ('engine/src/shortcuts.rs', r'PREMIERE_PRESET: &str = "[^"]*";', 'PREMIERE_PRESET: &str = "Shootcut Classic Editing";'),
         ('engine/src/shortcuts.rs', r'DEFAULT_PRESET => Vec::new\(\),', 'DEFAULT_PRESET => presets::premiere(),'),
