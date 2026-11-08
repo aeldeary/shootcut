@@ -31,7 +31,7 @@ export function Header({ showBack, activeId, section }: { showBack: boolean; act
           </button>
         </div>
       </div>
-      <nav className="main-tabs" aria-label={t('sectionsNav')}>
+      <nav className="main-tabs" aria-label={t('sectionTabsNav')}>
         <div className="container main-tabs-row">
           {SECTIONS.map((sec) => {
             const Icon = sec.icon;

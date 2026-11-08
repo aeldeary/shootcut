@@ -3864,3 +3864,20 @@ button,
 }
 
 .hero-headline .hero-line { display: block; }
+
+/* Contrast: section accents are bright, so text on them and text in their colour use a darker mix (WCAG AA, 4.5:1) */
+.group-tab-n { color: color-mix(in srgb, var(--sec) 72%, #000); }
+.group-tab.is-active .group-tab-n { background: color-mix(in srgb, var(--sec) 72%, #000); }
+.main-tab.is-active { background: color-mix(in srgb, var(--sec) 76%, #000); }
+.section-count { color: color-mix(in srgb, var(--accent) 72%, #000); }
+
+/* Phones: the section tabs scroll sideways, so fade both edges to show there are more of them */
+@media (max-width: 720px) {
+  .main-tabs-row {
+    -webkit-mask-image: linear-gradient(to right, transparent 0, #000 22px, #000 calc(100% - 22px), transparent 100%);
+    mask-image: linear-gradient(to right, transparent 0, #000 22px, #000 calc(100% - 22px), transparent 100%);
+    scroll-snap-type: x proximity;
+  }
+  .main-tab { scroll-snap-align: center; }
+}
+.brand:focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; border-radius: 8px; }
