@@ -98,7 +98,7 @@ describe('tool bar', () => {
   });
   it('the main bar shows the five sections at all times and marks the current one', () => {
     wrap(<Header showBack activeId="img-resize" section="image" />);
-    const bar = screen.getByRole('navigation', { name: 'Sections' });
+    const bar = screen.getByRole('navigation', { name: 'Section tabs' });
     expect(bar.querySelectorAll('a')).toHaveLength(5);
     expect(bar.querySelector('[aria-current="page"]')?.getAttribute('href')).toBe('#/image');
   });
