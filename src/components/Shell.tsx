@@ -174,7 +174,10 @@ export function PrivacyBadge() {
   return (
     <p className="badge">
       <ShieldCheck size={16} aria-hidden />
-      {t('privacyBadge')}
+      {t('privacyBadge')}:{' '}
+      <b className="badge-zero" dir="ltr">
+        0 B
+      </b>
     </p>
   );
 }

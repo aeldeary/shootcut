@@ -2861,6 +2861,13 @@ kbd {
 .hero .badge svg {
   color: var(--primary);
 }
+.badge-zero {
+  font-variant-numeric: tabular-nums;
+  color: #4ade80;
+}
+.hero .badge:has(.badge-zero) svg {
+  color: #4ade80;
+}
 .hero-logo {
   flex: none;
   width: clamp(88px, 14vw, 150px);
