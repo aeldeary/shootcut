@@ -3881,3 +3881,49 @@ button,
   .main-tab { scroll-snap-align: center; }
 }
 .brand:focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; border-radius: 8px; }
+
+/* ===== Round 3: one orchestrated entrance, livelier section cards, clearer drop zone ===== */
+@keyframes rise {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes logo-pop {
+  from { opacity: 0; transform: rotate(-14deg) scale(0.82) translateY(16px); }
+}
+.home-body > .search { animation: rise 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) 0.45s both; }
+.hero .badge { animation: rise 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) 0.05s both; }
+.hero-headline .hero-line { animation: rise 0.65s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.hero-headline .hero-line:nth-child(1) { animation-delay: 0.15s; }
+.hero-headline .hero-line:nth-child(2) { animation-delay: 0.3s; }
+.hero .hero-logo { animation: logo-pop 0.9s cubic-bezier(0.2, 0.9, 0.25, 1.1) 0.1s backwards, float 7s ease-in-out 1s infinite alternate; }
+.sections .section-card { animation: rise 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.sections .section-card:nth-child(1) { animation-delay: 0.6s; }
+.sections .section-card:nth-child(2) { animation-delay: 0.68s; }
+.sections .section-card:nth-child(3) { animation-delay: 0.76s; }
+.sections .section-card:nth-child(4) { animation-delay: 0.84s; }
+.sections .section-card:nth-child(5) { animation-delay: 0.92s; }
+@media (prefers-reduced-motion: reduce) {
+  .home-body > .search, .hero .badge, .hero-headline .hero-line, .sections .section-card { animation: none; }
+}
+
+/* section cards: lift, a tilting icon and an arrow that leaves its corner; the hover colour is darker so white text keeps AA contrast */
+.section-card { transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.25s, background 0.25s, border-color 0.25s, color 0.25s; }
+.section-card:hover, .section-card:focus-visible { transform: translateY(-5px); background: color-mix(in srgb, var(--accent) 76%, #000); }
+.section-card .section-icon { transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.25, 1.4), background 0.25s, color 0.25s; }
+.section-card:hover .section-icon, .section-card:focus-visible .section-icon { transform: rotate(-8deg) scale(1.1); }
+.section-card .section-arrow { transition: transform 0.25s, color 0.25s; }
+.section-card:hover .section-arrow, .section-card:focus-visible .section-arrow { transform: translate(5px, -5px); }
+[dir='rtl'] .section-card:hover .section-arrow, [dir='rtl'] .section-card:focus-visible .section-arrow { transform: translate(-5px, -5px); }
+.section-card:focus-visible { outline: 3px solid color-mix(in srgb, var(--accent) 60%, #fff); outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) {
+  .section-card:hover, .section-card:focus-visible { transform: none; }
+  .section-card:hover .section-icon, .section-card:focus-visible .section-icon, .section-card:hover .section-arrow, .section-card:focus-visible .section-arrow { transform: none; }
+}
+
+/* drop zone: what it takes, a privacy line, and a drag-over that is hard to miss */
+.dropzone { transition: transform 0.2s, box-shadow 0.2s, background 0.2s, border-color 0.2s; }
+.dropzone.is-active { transform: scale(1.012); box-shadow: 0 0 0 6px color-mix(in srgb, var(--sec) 18%, transparent), 0 24px 60px color-mix(in srgb, var(--sec) 25%, transparent); border-style: solid; }
+.dropzone-note { display: flex; flex-direction: column; align-items: center; gap: 6px; margin: 6px 0 0; font-size: 0.9rem; color: var(--muted); }
+.dropzone-formats { font-weight: 700; letter-spacing: 0.04em; color: color-mix(in srgb, var(--sec) 72%, #000); }
+.dropzone-private { display: inline-flex; align-items: center; gap: 6px; }
+.dropzone-private svg { color: var(--success); flex: none; }

@@ -1,7 +1,15 @@
 import { useRef, useState, type DragEvent } from 'react';
-import { Upload } from 'lucide-react';
+import { ShieldCheck, Upload } from 'lucide-react';
 import { useI18n } from '../i18n';
 import { isPdf } from '../lib/pdf';
+
+const FORMATS: Record<string, string> = {
+  pdf: 'PDF',
+  image: 'JPG · PNG · WebP · HEIC',
+  scan: 'PDF · JPG · PNG',
+  video: 'MP4 · MOV · WebM · MKV',
+  audio: 'MP3 · WAV · M4A · FLAC',
+};
 
 interface Props {
   /** what the zone accepts; default PDF */
@@ -52,6 +60,17 @@ export function Dropzone({ kind = 'pdf', multiple = false, compact = false, titl
       <button type="button" className="btn btn-primary" onClick={() => input.current?.click()}>
         {t('browse')}
       </button>
+      {!compact && (
+        <p className="dropzone-note">
+          <span className="dropzone-formats" dir="ltr">
+            {FORMATS[kind]}
+          </span>
+          <span className="dropzone-private">
+            <ShieldCheck size={15} aria-hidden />
+            {t('dropPrivate')}
+          </span>
+        </p>
+      )}
       <input
         ref={input}
         type="file"
